@@ -1,10 +1,11 @@
 # Research & Design Decisions
 
 ---
-**Purpose**: 技術設計を支える発見事項、アーキテクチャ調査、設計判断の根拠を記録する。
----
+
+## **Purpose**: 技術設計を支える発見事項、アーキテクチャ調査、設計判断の根拠を記録する。
 
 ## Summary
+
 - **Feature**: `investment-news-app`
 - **Discovery Scope**: 複合的な新機能（Complex Integration）
 - **Key Findings**:
@@ -17,6 +18,7 @@
 ## Research Log
 
 ### React Native + Expo最新アーキテクチャ（2026年1月時点）
+
 - **Context**: モバイルアプリのフロントエンド技術スタック選定
 - **Sources Consulted**:
   - [React Native's New Architecture - Expo Documentation](https://docs.expo.dev/guides/new-architecture/)
@@ -24,7 +26,7 @@
   - [Expo MVVM Template](https://www.bitcot.com/expo-mvvm-template-react-native/)
 - **Findings**:
   - React Native 0.76（2024年12月）からNew Architectureがデフォルト有効
-  - Expo SDK 53で全expo-*パッケージがNew Architecture対応完了
+  - Expo SDK 53で全expo-\*パッケージがNew Architecture対応完了
   - MVVMパターンがExpoアプリのベストプラクティスとして推奨
   - Expo Routerによるファイルベースルーティングが標準化
   - EAS BuildとOTAアップデートによるCI/CD対応
@@ -34,6 +36,7 @@
   - Expo Routerを使用したタブナビゲーション実装
 
 ### Vercel Serverless Functions + Firebase Firestore統合パターン
+
 - **Context**: バックエンドAPI、Cron Jobs、データベースの統合方法
 - **Sources Consulted**:
   - [Vercel Functions](https://vercel.com/docs/functions)
@@ -50,6 +53,7 @@
   - 日次バッチ処理は毎朝8:00 JSTに実行（Vercel Cron構文: `0 8 * * *` UTC+9調整必要）
 
 ### NewsAPI統合と制約
+
 - **Context**: 世界と日本のニュース取得元API
 - **Sources Consulted**:
   - [NewsAPI Documentation](https://newsapi.org/docs)
@@ -68,6 +72,7 @@
   - Google News RSSを併用して日本のニュースを補完
 
 ### Claude API - テキスト要約・翻訳
+
 - **Context**: ニュース記事の要約・翻訳、投資用語生成
 - **Sources Consulted**:
   - [Claude API Getting Started](https://platform.claude.com/docs/en/api/getting-started)
@@ -87,6 +92,7 @@
   - Batch APIは不要（リアルタイム処理で5分以内完了見込み）
 
 ### Firebase Firestore オフライン対応 - React Native
+
 - **Context**: アプリのオフライン機能実装
 - **Sources Consulted**:
   - [Offline Support | React Native Firebase](https://rnfirebase.io/database/offline-support)
@@ -106,6 +112,7 @@
   - データモデル設計: ニュースと用語を別コレクションに格納、1ドキュメント1MB以下を厳守
 
 ### Google News RSS（日本のニュース取得）
+
 - **Context**: NewsAPIの補完としてGoogle News RSSを調査
 - **Sources Consulted**: Webサーチ結果、Google News RSS公式情報
 - **Findings**:
@@ -120,13 +127,14 @@
 
 ## Architecture Pattern Evaluation
 
-| Option | Description | Strengths | Risks / Limitations | Notes |
-|--------|-------------|-----------|---------------------|-------|
-| MVVM (Model-View-ViewModel) | UIとビジネスロジックを分離、ViewModelが状態管理 | テスタビリティ向上、コード再利用性、Expoベストプラクティス | 学習コスト、小規模アプリでは過剰 | Expo MVVM Templateが推奨パターン |
-| Feature-based Folder Structure | 機能単位でフォルダ分割（screens, components, hooks, services） | スケーラビリティ、保守性、チーム開発対応 | 初期構造設計が重要 | React Nativeコミュニティ標準 |
-| Repository Pattern | データアクセス層を抽象化、Firestore操作をカプセル化 | データソース切り替え容易、テスト容易 | 抽象化レイヤー追加 | 将来的なデータソース変更に対応 |
+| Option                         | Description                                                    | Strengths                                                  | Risks / Limitations              | Notes                            |
+| ------------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------- | -------------------------------- |
+| MVVM (Model-View-ViewModel)    | UIとビジネスロジックを分離、ViewModelが状態管理                | テスタビリティ向上、コード再利用性、Expoベストプラクティス | 学習コスト、小規模アプリでは過剰 | Expo MVVM Templateが推奨パターン |
+| Feature-based Folder Structure | 機能単位でフォルダ分割（screens, components, hooks, services） | スケーラビリティ、保守性、チーム開発対応                   | 初期構造設計が重要               | React Nativeコミュニティ標準     |
+| Repository Pattern             | データアクセス層を抽象化、Firestore操作をカプセル化            | データソース切り替え容易、テスト容易                       | 抽象化レイヤー追加               | 将来的なデータソース変更に対応   |
 
 **選択したパターン**: MVVM + Feature-based + Repository Pattern
+
 - MVVMでUI/ロジック分離
 - Feature-basedでニュース機能と用語機能を独立管理
 - Repositoryパターンでデータアクセスを抽象化
@@ -134,6 +142,7 @@
 ## Design Decisions
 
 ### Decision: モノレポ構成（フロントエンド・バックエンド統合）vs 分離構成
+
 - **Context**: React Nativeアプリ（フロントエンド）とVercel Functions（バックエンド）の管理方法
 - **Alternatives Considered**:
   1. **モノレポ構成** - 単一リポジトリでフロントエンド・バックエンドを管理
@@ -151,6 +160,7 @@
 - **Follow-up**: ワークスペース設定の動作確認、Vercel設定（vercel.json）の検証
 
 ### Decision: Claude APIモデル選択（Haiku vs Sonnet）
+
 - **Context**: ニュース要約・用語生成のコスト最適化
 - **Alternatives Considered**:
   1. **Haiku** - 高速・低コスト、簡易タスク向け
@@ -166,6 +176,7 @@
 - **Follow-up**: 実装後に要約品質を評価、必要に応じてSonnetへ切り替え
 
 ### Decision: データ保持期間30日とクリーンアップ戦略
+
 - **Context**: Firestoreストレージコスト削減とデータ管理
 - **Alternatives Considered**:
   1. **全履歴保持** - すべてのニュース・用語を永続保存
@@ -184,6 +195,7 @@
 - **Follow-up**: Firestore TTL（Time-to-Live）機能を使用した自動削除実装
 
 ### Decision: Expo Managed Workflow vs Bare Workflow
+
 - **Context**: Expoの開発ワークフロー選択
 - **Alternatives Considered**:
   1. **Managed Workflow** - Expo標準環境、ネイティブコード触らない

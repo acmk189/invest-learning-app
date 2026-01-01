@@ -308,8 +308,7 @@ async function fetchWorldNews(): Promise<Article[]> {
 }
 
 async function fetchJapanNews(): Promise<Article[]> {
-  const rssUrl =
-    'https://news.google.com/rss/search?q=投資+経済&hl=ja&gl=JP&ceid=JP:ja';
+  const rssUrl = 'https://news.google.com/rss/search?q=投資+経済&hl=ja&gl=JP&ceid=JP:ja';
   const response = await fetch(rssUrl);
   const xml = await response.text();
   const parsed = parseRSS(xml);
@@ -818,12 +817,10 @@ console.error('[daily-update] Error:', error);
 ### 11.2 改善計画（優先順位順）
 
 1. **エラーハンドリング強化**（v1.1）
-
    - リトライロジックの実装
    - ユーザーフレンドリーなエラーメッセージ
 
 2. **テストコード追加**（v1.2）
-
    - Jest + React Native Testing Library
    - API 呼び出しのモック化
 
@@ -854,13 +851,11 @@ console.error('[daily-update] Error:', error);
 ### 12.3 障害対応手順
 
 1. **バッチ処理失敗時**
-
    - Vercel ログで原因特定
    - 外部 API 障害の場合は復旧待ち
    - コード不具合の場合は修正・再デプロイ
 
 2. **アプリクラッシュ時**
-
    - Expo ログで原因特定
    - データ不整合の場合は Firestore 修正
    - コード不具合の場合は修正・再ビルド
