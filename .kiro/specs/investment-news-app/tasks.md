@@ -37,7 +37,7 @@
   - Firestore接続テストを実施し、読み書き動作を確認する
   - _Requirements: 12.3, 2.5_
 
-- [ ] 1.3 (P) Vercelプロジェクト初期化とFirebase Admin SDK設定
+- [x] 1.3 (P) Vercelプロジェクト初期化とFirebase Admin SDK設定
   - Vercel CLIをインストールし、プロジェクトをVercelアカウントにリンクする
   - `backend/`ディレクトリに`vercel.json`を作成し、Serverless Functions設定を定義する
   - Firebase Admin SDKをインストールし、サービスアカウント認証を設定する
