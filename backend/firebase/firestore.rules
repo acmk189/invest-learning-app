@@ -1,0 +1,66 @@
+rules_version = '2';
+
+/**
+ * Firestore Security Rules
+ *
+ * Requirements Coverage:
+ * - Requirement 9.5: 学習履歴第三者共有なし
+ *
+ * セキュリティ設計:
+ * - newsコレクション: 全ユーザー読み取り可能、書き込みは認証済みバックエンドのみ
+ * - termsコレクション: 全ユーザー読み取り可能、書き込みは認証済みバックエンドのみ
+ * - terms_historyコレクション: バックエンドのみアクセス可能
+ * - error_logsコレクション: バックエンドのみアクセス可能
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * ニュースコレクション
+     * - 読み取り: 全ユーザー可（認証不要）
+     * - 書き込み: 認証済みバックエンドのみ
+     */
+    match /news/{document=**} {
+      allow read: if true; // 全ユーザー読み取り可能
+      allow write: if false; // モバイルアプリからの書き込みは禁止（バックエンドのみ）
+    }
+
+    /**
+     * 用語コレクション
+     * - 読み取り: 全ユーザー可（認証不要）
+     * - 書き込み: 認証済みバックエンドのみ
+     */
+    match /terms/{document=**} {
+      allow read: if true; // 全ユーザー読み取り可能
+      allow write: if false; // モバイルアプリからの書き込みは禁止（バックエンドのみ）
+    }
+
+    /**
+     * 用語配信履歴コレクション
+     * - 読み取り: バックエンドのみ
+     * - 書き込み: バックエンドのみ
+     */
+    match /terms_history/{document=**} {
+      allow read: if false; // モバイルアプリからの読み取りは禁止
+      allow write: if false; // モバイルアプリからの書き込みは禁止
+    }
+
+    /**
+     * エラーログコレクション
+     * - 読み取り: バックエンドのみ
+     * - 書き込み: バックエンドのみ
+     */
+    match /error_logs/{document=**} {
+      allow read: if false; // モバイルアプリからの読み取りは禁止
+      allow write: if false; // モバイルアプリからの書き込みは禁止
+    }
+
+    /**
+     * デフォルトルール: すべてのアクセスを拒否
+     */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
