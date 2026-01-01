@@ -9,10 +9,10 @@
     "test": "echo \"No tests in backend workspace\""
   },
   "dependencies": {
-    "firebase-admin": "^12.0.0"
+    "firebase-admin": "^13.6.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.19",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   }
 }
