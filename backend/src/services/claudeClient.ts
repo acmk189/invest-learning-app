@@ -10,11 +10,11 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 /**
- * 利用可能なClaudeモデル
+ * 利用可能なClaudeモデル（エイリアス - 常に最新バージョンを使用）
  */
 export const CLAUDE_MODELS = {
-  haiku: 'claude-3-haiku-20240307',
-  sonnet: 'claude-3-5-sonnet-20241022',
+  haiku: 'claude-haiku-4-5',
+  sonnet: 'claude-sonnet-4-5',
 } as const;
 
 /**
