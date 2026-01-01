@@ -29,7 +29,7 @@
   - `.gitignore`に環境変数ファイルとビルド成果物を追加する
   - _Requirements: 11.1, 11.4, 12.1_
 
-- [ ] 1.2 (P) Firebase Firestore接続設定
+- [x] 1.2 (P) Firebase Firestore接続設定
   - Firebase Consoleでプロジェクトを作成し、Firestoreデータベースを有効化する
   - モバイルアプリ向けに`@react-native-firebase/app`と`@react-native-firebase/firestore`をインストールする
   - iOS向けに`GoogleService-Info.plist`を配置し、Firestore初期化コードを実装する
