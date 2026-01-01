@@ -10,7 +10,8 @@
 		2. Create a new project or select existing project
 		3. Add an iOS app with bundle identifier: com.investlearning.app
 		4. Download the GoogleService-Info.plist file
-		5. Replace this file with the downloaded file
+		5. Copy it to this location: mobile/GoogleService-Info.plist
+		   (NOT .example - that is the template)
 
 		Requirements: 12.3, 1.2
 	-->

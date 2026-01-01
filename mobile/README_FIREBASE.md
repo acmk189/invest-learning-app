@@ -52,16 +52,31 @@ Firebase Pluginsを追加し、iOS/Android向けのGoogle Services設定を定�
 }
 ```
 
-### 4. GoogleService-Info.plist (プレースホルダー)
+### 4. GoogleService-Info.plist (セキュリティ設定)
 
-iOS向けのFirebase設定ファイルのプレースホルダーを作成しました。
+iOS向けのFirebase設定ファイルは**APIキーなどの機密情報を含むため、Gitから除外**されています。
+
+**⚠️ セキュリティ上の注意:**
+
+- `GoogleService-Info.plist` - **Git管理から除外** (.gitignoreに追加済み)
+- `GoogleService-Info.plist.example` - テンプレートファイル（Git管理対象）
+- `google-services.json` - Android用設定ファイル（Git管理から除外）
 
 **実際のプロジェクトで必要な手順:**
 
 1. Firebase Console (https://console.firebase.google.com/) でプロジェクトを作成
 2. iOSアプリを追加 (Bundle ID: `com.investlearning.app`)
 3. `GoogleService-Info.plist`をダウンロード
-4. プレースホルダーファイルを実際のファイルで置き換え
+4. `mobile/GoogleService-Info.plist`として保存
+   ```bash
+   # ダウンロードしたファイルをコピー
+   cp ~/Downloads/GoogleService-Info.plist mobile/
+   ```
+5. ファイルがGit管理されていないことを確認
+   ```bash
+   git status mobile/GoogleService-Info.plist
+   # → "Untracked files"または表示されないことを確認
+   ```
 
 ### 5. テスト実装
 
