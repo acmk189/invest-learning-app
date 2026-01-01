@@ -60,14 +60,23 @@ export interface CacheEntry<T> {
   data: T;
   /** キャッシュされた日時（タイムスタンプ） */
   cachedAt: number;
-  /** キャッシュの有効期限（タイムスタンプ） */
-  expiresAt: number;
 }
 
 /**
  * キャッシュ取得結果の型
  */
 export type CacheResult<T> = T | null;
+
+/**
+ * バッチメタデータの型
+ * Firestoreのmetadata/batchドキュメントから取得
+ */
+export interface BatchMetadata {
+  /** ニュースバッチの最終更新時刻（Unixタイムスタンプ、ミリ秒） */
+  newsLastUpdated: number;
+  /** 用語バッチの最終更新時刻（Unixタイムスタンプ、ミリ秒） */
+  termsLastUpdated: number;
+}
 
 /**
  * キャッシュ操作のエラー型

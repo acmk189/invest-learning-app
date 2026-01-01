@@ -8,6 +8,7 @@ export {
   CacheType,
   CacheKey,
   CacheEntry,
+  BatchMetadata,
   NewsData,
   NewsItem,
   TermsData,

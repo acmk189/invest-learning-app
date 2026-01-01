@@ -4,15 +4,15 @@
  *
  * AsyncStorageを使用したローカルキャッシュ管理
  * - 日付ベースのキャッシュキー生成
- * - 当日のみ有効なキャッシュ管理
+ * - メタデータによるキャッシュ有効性チェック（案B）
  * - オフライン時のデータ取得（1秒以内）
- * - 期限切れキャッシュの自動削除
+ * - 古いキャッシュの自動削除
  *
  * Requirements: 2.5, 2.6, 5.4, 7.2
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CacheType, CacheKey, CacheEntry, CACHE_KEY_PREFIX } from './types';
+import { CacheType, CacheKey, CacheEntry, BatchMetadata, CACHE_KEY_PREFIX } from './types';
 
 /**
  * JSTタイムゾーンオフセット（ミリ秒）
@@ -30,25 +30,48 @@ function formatDateToJST(date: Date): string {
 }
 
 /**
- * 翌日の00:00（JST）のタイムスタンプを取得する
- * @param date - 基準日
- * @returns 翌日00:00（JST）のタイムスタンプ
+ * キャッシュキーから日付を抽出する
+ * @param key - キャッシュキー
+ * @returns 日付文字列（YYYY-MM-DD形式）またはnull
  */
-function getNextDayMidnightJST(date: Date): number {
-  const jstDate = new Date(date.getTime() + JST_OFFSET);
-  const nextDay = new Date(jstDate);
-  nextDay.setUTCHours(0, 0, 0, 0);
-  nextDay.setUTCDate(nextDay.getUTCDate() + 1);
-  return nextDay.getTime() - JST_OFFSET;
+function extractDateFromCacheKey(key: string): string | null {
+  const match = key.match(/cache_(news|terms)_(\d{4}-\d{2}-\d{2})/);
+  return match ? match[2] : null;
+}
+
+/**
+ * メタデータ取得関数の型
+ */
+export type MetadataFetcher = () => Promise<BatchMetadata | null>;
+
+/**
+ * キャッシュ検証結果の型
+ */
+export interface CacheValidationResult<T> {
+  /** キャッシュデータ（無効な場合はnull） */
+  data: T | null;
+  /** キャッシュが有効かどうか */
+  isValid: boolean;
 }
 
 /**
  * キャッシュマネージャークラス
  *
  * AsyncStorageを使用してニュース・用語データをローカルにキャッシュします。
- * キャッシュは日付ごとに管理され、翌日00:00（JST）に自動的に期限切れとなります。
+ * メタデータ（metadata/batch）のlastUpdatedとキャッシュのcachedAtを比較し、
+ * 新しいデータがある場合のみキャッシュを無効化します。
  */
 export class CacheManager {
+  private metadataFetcher: MetadataFetcher;
+
+  /**
+   * CacheManagerのコンストラクタ
+   * @param metadataFetcher - Firestoreからメタデータを取得する関数（DI用）
+   */
+  constructor(metadataFetcher?: MetadataFetcher) {
+    this.metadataFetcher = metadataFetcher || (async () => null);
+  }
+
   /**
    * キャッシュキーを生成する
    * @param type - キャッシュの種類（'news' | 'terms'）
@@ -78,12 +101,10 @@ export class CacheManager {
   async setCache<T>(type: CacheType, dateStr: string, data: T): Promise<void> {
     const key = CacheManager.generateCacheKey(type, dateStr);
     const now = Date.now();
-    const expiresAt = getNextDayMidnightJST(new Date());
 
     const entry: CacheEntry<T> = {
       data,
       cachedAt: now,
-      expiresAt,
     };
 
     try {
@@ -95,12 +116,22 @@ export class CacheManager {
   }
 
   /**
-   * キャッシュからデータを取得する
+   * 今日のデータをキャッシュに保存する
+   * @param type - キャッシュの種類
+   * @param data - 保存するデータ
+   */
+  async setTodayCache<T>(type: CacheType, data: T): Promise<void> {
+    const today = formatDateToJST(new Date());
+    await this.setCache(type, today, data);
+  }
+
+  /**
+   * キャッシュエントリを取得する（メタデータチェックなし）
    * @param type - キャッシュの種類
    * @param dateStr - 日付文字列（YYYY-MM-DD形式）
-   * @returns キャッシュされたデータ、存在しないか期限切れの場合はnull
+   * @returns キャッシュエントリ、存在しない場合はnull
    */
-  async getCache<T>(type: CacheType, dateStr: string): Promise<T | null> {
+  async getCacheEntry<T>(type: CacheType, dateStr: string): Promise<CacheEntry<T> | null> {
     const key = CacheManager.generateCacheKey(type, dateStr);
 
     try {
@@ -110,16 +141,7 @@ export class CacheManager {
         return null;
       }
 
-      const entry: CacheEntry<T> = JSON.parse(value);
-
-      // 期限切れチェック
-      if (Date.now() > entry.expiresAt) {
-        // 期限切れのキャッシュを削除
-        await this.removeCache(type, dateStr);
-        return null;
-      }
-
-      return entry.data;
+      return JSON.parse(value) as CacheEntry<T>;
     } catch (error) {
       // JSONパースエラーなどの場合はnullを返す
       console.error('Cache read error:', error);
@@ -128,23 +150,57 @@ export class CacheManager {
   }
 
   /**
-   * 今日のキャッシュからデータを取得する
+   * キャッシュを検証付きで取得する（メタデータチェックあり）
+   *
+   * 1. キャッシュが存在しない場合 → { data: null, isValid: false }
+   * 2. メタデータ取得失敗（オフライン）の場合 → キャッシュをそのまま返す
+   * 3. lastUpdated <= cachedAt の場合 → キャッシュを返す（有効）
+   * 4. lastUpdated > cachedAt の場合 → キャッシュを削除し { data: null, isValid: false }
+   *
    * @param type - キャッシュの種類
-   * @returns 今日のキャッシュデータ、存在しないか期限切れの場合はnull
+   * @param dateStr - 日付文字列（YYYY-MM-DD形式）
+   * @returns キャッシュ検証結果
    */
-  async getTodayCache<T>(type: CacheType): Promise<T | null> {
-    const today = formatDateToJST(new Date());
-    return this.getCache<T>(type, today);
+  async getValidatedCache<T>(
+    type: CacheType,
+    dateStr: string
+  ): Promise<CacheValidationResult<T>> {
+    const entry = await this.getCacheEntry<T>(type, dateStr);
+
+    if (!entry) {
+      return { data: null, isValid: false };
+    }
+
+    // メタデータを取得
+    const metadata = await this.metadataFetcher();
+
+    // オフライン時（メタデータ取得失敗）はキャッシュをそのまま使用
+    if (!metadata) {
+      return { data: entry.data, isValid: true };
+    }
+
+    // メタデータのlastUpdatedとキャッシュのcachedAtを比較
+    const lastUpdated =
+      type === 'news' ? metadata.newsLastUpdated : metadata.termsLastUpdated;
+
+    if (lastUpdated > entry.cachedAt) {
+      // 新しいデータがある場合、キャッシュを削除
+      await this.removeCache(type, dateStr);
+      return { data: null, isValid: false };
+    }
+
+    // キャッシュが有効
+    return { data: entry.data, isValid: true };
   }
 
   /**
-   * 今日のデータをキャッシュに保存する
+   * 今日のキャッシュを検証付きで取得する
    * @param type - キャッシュの種類
-   * @param data - 保存するデータ
+   * @returns キャッシュ検証結果
    */
-  async setTodayCache<T>(type: CacheType, data: T): Promise<void> {
+  async getTodayValidatedCache<T>(type: CacheType): Promise<CacheValidationResult<T>> {
     const today = formatDateToJST(new Date());
-    await this.setCache(type, today, data);
+    return this.getValidatedCache<T>(type, today);
   }
 
   /**
@@ -162,28 +218,28 @@ export class CacheManager {
   }
 
   /**
-   * 期限切れのキャッシュを全て削除する
+   * 古いキャッシュを削除する（今日以外のキャッシュを削除）
    */
-  async clearExpiredCache(): Promise<void> {
+  async clearOldCache(): Promise<void> {
     try {
       const allKeys = await AsyncStorage.getAllKeys();
       const cacheKeys = allKeys.filter((key) => key.startsWith(CACHE_KEY_PREFIX));
+      const today = formatDateToJST(new Date());
+
+      const keysToRemove: string[] = [];
 
       for (const key of cacheKeys) {
-        const value = await AsyncStorage.getItem(key);
-        if (value) {
-          try {
-            const entry = JSON.parse(value) as CacheEntry<unknown>;
-            if (Date.now() > entry.expiresAt) {
-              await AsyncStorage.removeItem(key);
-            }
-          } catch {
-            // パースエラーの場合は無視
-          }
+        const dateStr = extractDateFromCacheKey(key);
+        if (dateStr && dateStr !== today) {
+          keysToRemove.push(key);
         }
       }
+
+      if (keysToRemove.length > 0) {
+        await AsyncStorage.multiRemove(keysToRemove);
+      }
     } catch (error) {
-      console.error('Cache clear expired error:', error);
+      console.error('Cache clear old error:', error);
     }
   }
 
@@ -204,35 +260,23 @@ export class CacheManager {
   }
 
   /**
-   * キャッシュが有効かどうかを確認する
+   * キャッシュエントリが存在するかどうかを確認する
    * @param type - キャッシュの種類
    * @param dateStr - 日付文字列（YYYY-MM-DD形式）
-   * @returns キャッシュが有効な場合はtrue
+   * @returns キャッシュエントリが存在する場合はtrue
    */
-  async isCacheValid(type: CacheType, dateStr: string): Promise<boolean> {
-    const key = CacheManager.generateCacheKey(type, dateStr);
-
-    try {
-      const value = await AsyncStorage.getItem(key);
-
-      if (!value) {
-        return false;
-      }
-
-      const entry = JSON.parse(value) as CacheEntry<unknown>;
-      return Date.now() <= entry.expiresAt;
-    } catch {
-      return false;
-    }
+  async hasCacheEntry(type: CacheType, dateStr: string): Promise<boolean> {
+    const entry = await this.getCacheEntry(type, dateStr);
+    return entry !== null;
   }
 
   /**
-   * 今日のキャッシュが有効かどうかを確認する
+   * 今日のキャッシュエントリが存在するかどうかを確認する
    * @param type - キャッシュの種類
-   * @returns 今日のキャッシュが有効な場合はtrue
+   * @returns 今日のキャッシュエントリが存在する場合はtrue
    */
-  async isTodayCacheValid(type: CacheType): Promise<boolean> {
+  async hasTodayCacheEntry(type: CacheType): Promise<boolean> {
     const today = formatDateToJST(new Date());
-    return this.isCacheValid(type, today);
+    return this.hasCacheEntry(type, today);
   }
 }
