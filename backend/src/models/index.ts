@@ -6,3 +6,4 @@
 
 export * from './news.model';
 export * from './terms.model';
+export * from './metadata.model';

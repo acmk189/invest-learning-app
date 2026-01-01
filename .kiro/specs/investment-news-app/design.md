@@ -166,6 +166,8 @@ sequenceDiagram
 
     NewsService->>Firestore: ニュースデータ保存（今日の日付）
     Firestore-->>NewsService: 保存完了
+    NewsService->>Firestore: metadata/batch.newsLastUpdated更新
+    Firestore-->>NewsService: 更新完了
     NewsService-->>NewsJob: 処理完了
 
     alt バッチ処理失敗
@@ -179,6 +181,7 @@ sequenceDiagram
 - 並列取得: NewsAPI と Google News RSS を同時実行し、5 分以内のバッチ完了を保証
 - リトライロジック: 失敗時は最大 3 回リトライ、エラーログを Firestore に記録し手動確認可能
 - Haiku モデル優先: コスト最適化のため初回は Haiku モデルを使用、品質不足時のみ Sonnet へのフォールバック機能を実装（v1.0 では未実装）
+- メタデータ更新: バッチ完了時に`metadata/batch.newsLastUpdated`を更新し、クライアント側でキャッシュ有効性を判断可能にする
 
 ### 投資用語自動生成・配信フロー
 
@@ -209,6 +212,8 @@ sequenceDiagram
 
     TermsService->>Firestore: 3つの用語データ保存（今日の日付）
     Firestore-->>TermsService: 保存完了
+    TermsService->>Firestore: metadata/batch.termsLastUpdated更新
+    Firestore-->>TermsService: 更新完了
     TermsService-->>TermsJob: 処理完了
 
     alt バッチ処理失敗
@@ -222,6 +227,7 @@ sequenceDiagram
 - 重複チェック: 過去 30 日以内の配信済み用語を除外し、ユーザーに新鮮な学習コンテンツを保証
 - ループ処理: 3 つの用語を個別に生成し、各用語で重複チェックを実施
 - 配信済み用語の全履歴保持: Firestore に全履歴を保存（軽量データのため無料枠内）
+- メタデータ更新: バッチ完了時に`metadata/batch.termsLastUpdated`を更新し、クライアント側でキャッシュ有効性を判断可能にする
 
 ### ニュース表示フロー
 
@@ -238,27 +244,32 @@ sequenceDiagram
     NewsView->>NewsViewModel: ニュース取得リクエスト
     NewsViewModel->>NewsRepository: getTodayNews()
 
-    alt キャッシュ有り
-        NewsRepository->>Cache: キャッシュ確認
-        Cache-->>NewsRepository: キャッシュ済みニュース
-        NewsRepository-->>NewsViewModel: ニュースデータ
-        NewsViewModel-->>NewsView: 表示更新
-        NewsView-->>User: ニュース表示（1秒以内）
-    else キャッシュ無し
-        NewsRepository->>Firestore: 今日の日付でクエリ
+    NewsRepository->>Cache: キャッシュ確認
+    alt キャッシュ無し
+        NewsRepository->>Firestore: ニュースデータ取得
         Firestore-->>NewsRepository: ニュースデータ
-        NewsRepository->>Cache: キャッシュ保存
+        NewsRepository->>Cache: キャッシュ保存（cachedAt記録）
         NewsRepository-->>NewsViewModel: ニュースデータ
         NewsViewModel-->>NewsView: 表示更新
         NewsView-->>User: ニュース表示（3秒以内）
-    end
-
-    alt オフライン状態
-        NewsRepository->>Cache: キャッシュ確認
-        Cache-->>NewsRepository: キャッシュ済みニュース
-        NewsRepository-->>NewsViewModel: ニュースデータ
+    else キャッシュ有り
+        Cache-->>NewsRepository: キャッシュ済みニュース + cachedAt
+        NewsRepository->>Firestore: metadata/batch取得（軽量）
+        alt オンライン
+            Firestore-->>NewsRepository: lastUpdated
+            alt lastUpdated > cachedAt（新データあり）
+                NewsRepository->>Firestore: ニュースデータ取得
+                Firestore-->>NewsRepository: 最新ニュースデータ
+                NewsRepository->>Cache: キャッシュ更新
+                NewsRepository-->>NewsViewModel: 最新ニュースデータ
+            else lastUpdated <= cachedAt（キャッシュ有効）
+                NewsRepository-->>NewsViewModel: キャッシュ済みニュース
+            end
+        else オフライン
+            NewsRepository-->>NewsViewModel: キャッシュ済みニュース
+        end
         NewsViewModel-->>NewsView: 表示更新
-        NewsView-->>User: キャッシュ済みニュース表示
+        NewsView-->>User: ニュース表示（1秒以内）
     end
 
     alt データ取得失敗
@@ -270,9 +281,10 @@ sequenceDiagram
 
 **フロー重要判断**:
 
-- キャッシュ優先: オフライン対応のため、キャッシュ済みデータを 1 秒以内に表示
-- エラーハンドリング: ネットワークエラー時は適切なエラーメッセージとリトライオプションを提供
-- パフォーマンス: キャッシュ有り 1 秒、キャッシュ無し 3 秒の表示時間を保証
+- メタデータによる軽量チェック: `metadata/batch`ドキュメントの`lastUpdated`とキャッシュの`cachedAt`を比較し、新しいデータがある場合のみ全データを取得
+- キャッシュ優先: オフライン時はメタデータチェックをスキップし、キャッシュ済みデータを即座に表示
+- 確実な最新データ取得: バッチ処理完了後、次回アプリ起動時に確実に新しいデータを取得
+- パフォーマンス: キャッシュ有効時 1 秒以内、キャッシュ更新時 3 秒以内の表示時間を保証
 
 ## Requirements Traceability
 
