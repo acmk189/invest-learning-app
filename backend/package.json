@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "dev": "vercel dev",
-    "build": "tsc",
     "test": "echo \"No tests in backend workspace\""
   },
   "dependencies": {
@@ -13,6 +12,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.19",
+    "@vercel/node": "^5.5.16",
     "typescript": "^5.9.3"
   }
 }
