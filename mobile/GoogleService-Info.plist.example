@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+		IMPORTANT: This is a placeholder file.
+
+		To configure Firebase for iOS:
+		1. Go to Firebase Console (https://console.firebase.google.com/)
+		2. Create a new project or select existing project
+		3. Add an iOS app with bundle identifier: com.investlearning.app
+		4. Download the GoogleService-Info.plist file
+		5. Copy it to this location: mobile/GoogleService-Info.plist
+		   (NOT .example - that is the template)
+
+		Requirements: 12.3, 1.2
+	-->
+	<key>CLIENT_ID</key>
+	<string>PLACEHOLDER_CLIENT_ID</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>PLACEHOLDER_REVERSED_CLIENT_ID</string>
+	<key>API_KEY</key>
+	<string>PLACEHOLDER_API_KEY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>PLACEHOLDER_GCM_SENDER_ID</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.investlearning.app</string>
+	<key>PROJECT_ID</key>
+	<string>PLACEHOLDER_PROJECT_ID</string>
+	<key>STORAGE_BUCKET</key>
+	<string>PLACEHOLDER_STORAGE_BUCKET</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>PLACEHOLDER_GOOGLE_APP_ID</string>
+</dict>
+</plist>
