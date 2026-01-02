@@ -73,7 +73,7 @@ describe('ClaudeClient', () => {
 
   describe('getClaudeClient', () => {
     it('環境変数が設定されている場合、クライアントを返す', () => {
-      process.env.ANTHROPIC_API_KEY = 'test-api-key';
+      process.env.CLAUDE_API_KEY = 'test-api-key';
 
       const client = getClaudeClient();
 
@@ -82,15 +82,15 @@ describe('ClaudeClient', () => {
     });
 
     it('環境変数が設定されていない場合、エラーをスローする', () => {
-      delete process.env.ANTHROPIC_API_KEY;
+      delete process.env.CLAUDE_API_KEY;
 
       expect(() => getClaudeClient()).toThrow(
-        'ANTHROPIC_API_KEY環境変数が設定されていません'
+        'CLAUDE_API_KEY環境変数が設定されていません'
       );
     });
 
     it('シングルトンパターンで同じインスタンスを返す', () => {
-      process.env.ANTHROPIC_API_KEY = 'test-api-key';
+      process.env.CLAUDE_API_KEY = 'test-api-key';
 
       const client1 = getClaudeClient();
       const client2 = getClaudeClient();
@@ -103,7 +103,7 @@ describe('ClaudeClient', () => {
     let client: ClaudeClient;
 
     beforeEach(() => {
-      process.env.ANTHROPIC_API_KEY = 'test-api-key';
+      process.env.CLAUDE_API_KEY = 'test-api-key';
       client = getClaudeClient();
     });
 

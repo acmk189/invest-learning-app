@@ -165,10 +165,10 @@ export function getClaudeClient(): ClaudeClient {
     return claudeClientInstance;
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.CLAUDE_API_KEY;
 
   if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY環境変数が設定されていません');
+    throw new Error('CLAUDE_API_KEY環境変数が設定されていません');
   }
 
   claudeClientInstance = new ClaudeClient(apiKey);
