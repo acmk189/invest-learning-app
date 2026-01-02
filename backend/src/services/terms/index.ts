@@ -36,3 +36,12 @@ export {
   type TermGenerationServiceConfig,
   type GenerateTermOptions,
 } from './termGenerationService';
+
+// 用語バッチサービス（Task 11）
+export {
+  TermsBatchService,
+  TermsBatchError,
+  type TermsBatchServiceConfig,
+  type TermsBatchResult,
+  type BatchErrorInfo,
+} from './batch';
