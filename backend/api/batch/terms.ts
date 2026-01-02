@@ -2,14 +2,19 @@
  * 用語バッチAPIエンドポイント
  *
  * Task 11.1: 用語バッチAPIエンドポイント基盤
+ * Task 13: Vercel Cron Jobs統合
  *
- * Vercel Cron Jobsから毎日8:00 JSTに呼び出され、
+ * Vercel Cron Jobsから毎日8:05 JSTに呼び出され、
  * 3つの投資用語を生成してFirestoreに保存する
+ *
+ * Cronスケジュール: 5 23 * * * (UTC) = 8:05 JST
+ * ※ニュースバッチから5分遅延させて実行
  *
  * Requirements:
  * - 1.1 (毎日8:00に実行)
  * - 4.1 (1日3つ投資用語生成)
  * - 9.1 (CRON_SECRET環境変数による認証)
+ * - 1.8 (5分以内にバッチ完了)
  *
  * @see https://vercel.com/docs/cron-jobs - Vercel Cron Jobs
  */
@@ -18,9 +23,17 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getClaudeClient } from '../../src/services/claudeClient';
 import { TermGenerationService } from '../../src/services/terms/termGenerationService';
 import { TermsBatchService, TermsBatchResult } from '../../src/services/terms/batch';
+import { validateCronSecret, CronLogger } from '../../src/services/cron';
 
 /**
  * APIレスポンス型
+ *
+ * @property success - 処理成功フラグ
+ * @property message - レスポンスメッセージ
+ * @property data - バッチ処理結果（成功時）
+ * @property timestamp - レスポンス生成時刻
+ * @property error - エラーメッセージ（失敗時）
+ * @property duration - 処理時間（ミリ秒）
  */
 interface BatchTermsResponse {
   success: boolean;
@@ -28,38 +41,7 @@ interface BatchTermsResponse {
   data?: TermsBatchResult;
   timestamp: string;
   error?: string;
-}
-
-/**
- * CRON_SECRETを検証する
- *
- * Vercel Cron Jobsからのリクエストを認証する
- * CRON_SECRET環境変数が設定されている場合、
- * Authorizationヘッダーと一致するか検証する
- *
- * @param req - VercelRequest
- * @returns 認証成功の場合true
- */
-function validateCronSecret(req: VercelRequest): boolean {
-  const cronSecret = process.env.CRON_SECRET;
-
-  // CRON_SECRETが設定されていない場合はエラー
-  if (!cronSecret) {
-    console.error('[batch/terms] CRON_SECRET is not configured');
-    return false;
-  }
-
-  // Authorizationヘッダーを取得
-  const authHeader = req.headers.authorization;
-
-  // Vercel Cron Jobsは "Bearer <secret>" 形式で送信する
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.error('[batch/terms] Missing or invalid Authorization header');
-    return false;
-  }
-
-  const token = authHeader.substring(7); // "Bearer " の後ろを取得
-  return token === cronSecret;
+  duration?: number;
 }
 
 /**
@@ -77,8 +59,11 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse<BatchTermsResponse>
 ) {
-  // POSTメソッドのみ許可
-  if (req.method !== 'POST') {
+  // Cronロガーを初期化（処理時間計測とログ出力）
+  const logger = new CronLogger('terms-batch');
+
+  // POSTメソッドのみ許可（GETはVercel Cron Jobsからの呼び出しでも使用可能）
+  if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({
       success: false,
       message: 'Method not allowed',
@@ -86,16 +71,20 @@ export default async function handler(
     });
   }
 
-  // CRON_SECRET認証
-  if (!validateCronSecret(req)) {
+  // CRON_SECRET認証（共通モジュールを使用）
+  const authResult = validateCronSecret(req);
+  if (!authResult.isValid) {
+    logger.log('error', `Authentication failed: ${authResult.error}`);
     return res.status(401).json({
       success: false,
       message: 'Unauthorized',
       timestamp: new Date().toISOString(),
+      error: authResult.error,
     });
   }
 
-  console.log('[batch/terms] Starting terms batch processing...');
+  // 処理開始
+  logger.start();
 
   try {
     // 依存関係を初期化
@@ -106,42 +95,57 @@ export default async function handler(
     // バッチサービスを作成
     const batchService = new TermsBatchService(generationService);
 
+    // タイムアウトチェック
+    if (logger.checkTimeout()) {
+      const summary = logger.end(new Error('Timeout before execution'));
+      return res.status(500).json({
+        success: false,
+        message: 'タイムアウトが発生しました',
+        timestamp: new Date().toISOString(),
+        duration: summary.durationMs,
+      });
+    }
+
     // バッチ処理を実行
     const result = await batchService.execute();
 
+    // 処理完了を記録
+    const summary = logger.end();
+
     // 結果に応じてレスポンスを返す
     if (result.success) {
-      console.log('[batch/terms] Batch processing completed successfully');
       return res.status(200).json({
         success: true,
         message: '用語バッチ処理が完了しました',
         data: result,
         timestamp: new Date().toISOString(),
+        duration: summary.durationMs,
       });
     } else if (result.partialSuccess) {
-      console.log('[batch/terms] Batch processing completed with partial success');
       return res.status(200).json({
         success: false,
         message: '用語バッチ処理が部分的に完了しました',
         data: result,
         timestamp: new Date().toISOString(),
+        duration: summary.durationMs,
       });
     } else {
-      console.error('[batch/terms] Batch processing failed');
       return res.status(500).json({
         success: false,
         message: '用語バッチ処理に失敗しました',
         data: result,
         timestamp: new Date().toISOString(),
+        duration: summary.durationMs,
       });
     }
   } catch (error) {
-    console.error('[batch/terms] Unexpected error:', error);
+    const summary = logger.end(error instanceof Error ? error : new Error('Unknown error'));
     return res.status(500).json({
       success: false,
       message: '用語バッチ処理中にエラーが発生しました',
       timestamp: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'Unknown error',
+      duration: summary.durationMs,
     });
   }
 }
