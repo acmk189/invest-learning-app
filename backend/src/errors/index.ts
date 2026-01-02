@@ -2,6 +2,7 @@
  * エラーハンドリング共通機能のエクスポート
  * Task 2.2: エラーハンドリング共通機能実装
  * Task 3.4: レート制限ハンドリング追加
+ * Task 3.5: AIサービスエラーハンドリング追加
  */
 
 export {
@@ -31,3 +32,14 @@ export {
   RateLimitConfig,
   RateLimitExecuteOptions,
 } from '../services/rateLimitHandler';
+
+// Task 3.5: AIサービスエラーハンドリング
+export {
+  AIServiceError,
+  AIServiceTimeoutError,
+  AIServiceUnavailableError,
+  isAIServiceError,
+  isTimeoutError,
+  AIServiceErrorHandler,
+  AIServiceErrorHandlerConfig,
+} from '../services/aiServiceErrorHandler';
