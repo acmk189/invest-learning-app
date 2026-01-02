@@ -8,6 +8,9 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import { getApiKey } from './apiKeyConfig';
+// ApiKeyErrorはapiKeyConfigからエクスポートされ、getApiKey()が失敗時にスローする
+export { ApiKeyError } from './apiKeyConfig';
 
 /**
  * 利用可能なClaudeモデル（エイリアス - 常に最新バージョンを使用）
@@ -155,21 +158,21 @@ let claudeClientInstance: ClaudeClient | undefined;
  * Claude APIクライアントを取得
  *
  * シングルトンパターンでインスタンスを返します。
- * 環境変数ANTHROPIC_API_KEYからAPIキーを読み込みます。
+ * apiKeyConfig.getApiKey()を使用して環境変数から安全にAPIキーを読み込みます。
  *
  * @returns ClaudeClientインスタンス
- * @throws 環境変数が設定されていない場合にエラーをスロー
+ * @throws {ApiKeyError} 環境変数が設定されていない場合にエラーをスロー
+ *
+ * @see apiKeyConfig.ts - APIキー読み込みとHTTPS設定の詳細
  */
 export function getClaudeClient(): ClaudeClient {
   if (claudeClientInstance) {
     return claudeClientInstance;
   }
 
-  const apiKey = process.env.CLAUDE_API_KEY;
-
-  if (!apiKey) {
-    throw new Error('CLAUDE_API_KEY環境変数が設定されていません');
-  }
+  // apiKeyConfig.getApiKey()を使用して安全にAPIキーを取得
+  // 未設定・空文字・空白のみの場合はApiKeyErrorがスローされる
+  const apiKey = getApiKey();
 
   claudeClientInstance = new ClaudeClient(apiKey);
   return claudeClientInstance;
