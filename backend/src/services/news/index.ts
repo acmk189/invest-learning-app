@@ -63,3 +63,13 @@ export type {
   NewsSummaryServiceConfig,
   SummaryResult,
 } from './summarization';
+
+// Batch - ニュースバッチ処理
+export { NewsBatchService, NewsBatchError } from './batch';
+
+export type {
+  NewsBatchServiceConfig,
+  NewsBatchResult,
+  BatchErrorInfo,
+  NewsSummaryData,
+} from './batch';
