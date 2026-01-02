@@ -13,6 +13,7 @@ import {
   CLAUDE_MODELS,
   resetClaudeClient,
 } from '../claudeClient';
+import { ApiKeyError } from '../claudeClient';
 
 // Anthropic SDKをモック
 jest.mock('@anthropic-ai/sdk', () => {
@@ -81,9 +82,10 @@ describe('ClaudeClient', () => {
       expect(client).toBeInstanceOf(ClaudeClient);
     });
 
-    it('環境変数が設定されていない場合、エラーをスローする', () => {
+    it('環境変数が設定されていない場合、ApiKeyErrorをスローする', () => {
       delete process.env.CLAUDE_API_KEY;
 
+      expect(() => getClaudeClient()).toThrow(ApiKeyError);
       expect(() => getClaudeClient()).toThrow(
         'CLAUDE_API_KEY環境変数が設定されていません'
       );
