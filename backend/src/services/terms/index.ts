@@ -36,3 +36,33 @@ export {
   type TermGenerationServiceConfig,
   type GenerateTermOptions,
 } from './termGenerationService';
+
+// 重複チェック機能（Task 10）
+export {
+  // Task 10.1: 配信済み用語取得
+  TermHistoryRepository,
+  type TermHistoryEntry,
+  type TermHistoryQuery,
+  // Task 10.2: 重複判定
+  DuplicateChecker,
+  DuplicateCheckMode,
+  normalizeTermName,
+  type DuplicateCheckResult,
+  type DuplicateCheckerOptions,
+  type DuplicateCheckerStats,
+  // Task 10.3: 再生成リクエスト
+  TermRegenerator,
+  type TermRegenerationResult,
+  type RegenerationOptions,
+  type TermRegeneratorConfig,
+  type RegenerationHistoryEntry,
+  // Task 10.4: エラーハンドリング
+  DuplicateCheckError,
+  DuplicateCheckErrorType,
+  DuplicateCheckErrorHandler,
+  isDuplicateCheckError,
+  type HistoryFetchErrorContext,
+  type DuplicateCheckErrorContext,
+  type RegenerationErrorContext,
+  type MaxRegenerationExceededContext,
+} from './duplicate';
