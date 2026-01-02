@@ -1,6 +1,7 @@
 /**
  * エラーハンドリング共通機能のエクスポート
  * Task 2.2: エラーハンドリング共通機能実装
+ * Task 3.4: レート制限ハンドリング追加
  */
 
 export {
@@ -20,3 +21,13 @@ export {
   getUserErrorMessage,
   getDetailedErrorMessage,
 } from './error-messages';
+
+// Task 3.4: レート制限ハンドリング
+export {
+  RateLimitError,
+  isRateLimitError,
+  extractRetryAfter,
+  RateLimitRetryHandler,
+  RateLimitConfig,
+  RateLimitExecuteOptions,
+} from '../services/rateLimitHandler';
