@@ -1,14 +1,16 @@
 /**
  * Claude APIクライアント
  *
- * Requirements: 12.5
+ * Requirements: 12.5, 10.3
  *
  * Claude API（Anthropic）のクライアントを提供します。
  * Haikuモデルをデフォルトとして設定し、コスト最適化を実現します。
+ * トークン使用量の追跡機能も提供します（Requirement 10.3）。
  */
 
 import Anthropic from '@anthropic-ai/sdk';
 import { getApiKey } from './apiKeyConfig';
+import { getTokenUsageTracker } from './tokenUsageTracker';
 // ApiKeyErrorはapiKeyConfigからエクスポートされ、getApiKey()が失敗時にスローする
 export { ApiKeyError } from './apiKeyConfig';
 
@@ -38,6 +40,13 @@ export interface SendMessageOptions {
   maxTokens?: number;
   temperature?: number;
   system?: string;
+  /**
+   * 操作名（トークン使用量追跡用）
+   *
+   * 指定するとトークン使用量がTokenUsageTrackerに記録されます。
+   * 例: 'news-summary', 'term-generation'
+   */
+  operation?: string;
 }
 
 /**
@@ -109,6 +118,7 @@ export class ClaudeClient {
       maxTokens = DEFAULT_MAX_TOKENS,
       temperature,
       system,
+      operation,
     } = options;
 
     const response = await this.client.messages.create({
@@ -128,7 +138,7 @@ export class ClaudeClient {
     const textContent = response.content.find((c) => c.type === 'text');
     const content = textContent && 'text' in textContent ? textContent.text : '';
 
-    return {
+    const claudeResponse: ClaudeResponse = {
       content,
       usage: {
         inputTokens: response.usage.input_tokens,
@@ -137,6 +147,19 @@ export class ClaudeClient {
       model: response.model,
       stopReason: response.stop_reason,
     };
+
+    // operationが指定されている場合、トークン使用量を記録
+    if (operation) {
+      const tracker = getTokenUsageTracker();
+      tracker.recordUsage({
+        inputTokens: claudeResponse.usage.inputTokens,
+        outputTokens: claudeResponse.usage.outputTokens,
+        model: claudeResponse.model,
+        operation,
+      });
+    }
+
+    return claudeResponse;
   }
 
   /**

@@ -1,9 +1,10 @@
 /**
  * Claude APIクライアントのテスト
  *
- * Requirements: 12.5
+ * Requirements: 12.5, 10.3
  *
  * Claude APIクライアントの初期化とデフォルトモデル設定のテストを行います。
+ * また、トークン使用量の追跡機能のテストも行います。
  */
 
 import {
@@ -14,6 +15,10 @@ import {
   resetClaudeClient,
 } from '../claudeClient';
 import { ApiKeyError } from '../claudeClient';
+import {
+  getTokenUsageTracker,
+  resetTokenUsageTracker,
+} from '../tokenUsageTracker';
 
 // Anthropic SDKをモック
 jest.mock('@anthropic-ai/sdk', () => {
@@ -51,12 +56,15 @@ describe('ClaudeClient', () => {
     process.env = { ...originalEnv };
     // シングルトンインスタンスをリセット
     resetClaudeClient();
+    // トークントラッカーもリセット
+    resetTokenUsageTracker();
   });
 
   afterEach(() => {
     process.env = originalEnv;
     jest.clearAllMocks();
     resetClaudeClient();
+    resetTokenUsageTracker();
   });
 
   describe('定数', () => {
@@ -163,6 +171,41 @@ describe('ClaudeClient', () => {
         });
 
         expect(response).toBeDefined();
+      });
+
+      it('operationを指定するとトークン使用量が記録される', async () => {
+        const tracker = getTokenUsageTracker();
+
+        await client.sendMessage('Hello!', {
+          operation: 'test-operation',
+        });
+
+        const records = tracker.getRecords();
+        expect(records).toHaveLength(1);
+        expect(records[0].inputTokens).toBe(10);
+        expect(records[0].outputTokens).toBe(20);
+        expect(records[0].operation).toBe('test-operation');
+      });
+
+      it('operationを指定しない場合はトークン使用量が記録されない', async () => {
+        const tracker = getTokenUsageTracker();
+
+        await client.sendMessage('Hello!');
+
+        const records = tracker.getRecords();
+        expect(records).toHaveLength(0);
+      });
+
+      it('複数回呼び出すと累積トークン使用量が記録される', async () => {
+        const tracker = getTokenUsageTracker();
+
+        await client.sendMessage('Hello!', { operation: 'op1' });
+        await client.sendMessage('World!', { operation: 'op2' });
+
+        const summary = tracker.getSummary();
+        expect(summary.totalInputTokens).toBe(20); // 10 + 10
+        expect(summary.totalOutputTokens).toBe(40); // 20 + 20
+        expect(summary.requestCount).toBe(2);
       });
     });
   });
