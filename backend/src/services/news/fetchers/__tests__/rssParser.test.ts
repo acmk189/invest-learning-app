@@ -7,7 +7,7 @@
  */
 
 import { RssParser } from '../rssParser';
-import type { RssParserConfig, GoogleNewsRssFeed } from '../types';
+import type { RssParserConfig, GoogleNewsRssFeed } from '../rssTypes';
 
 describe('RssParser', () => {
   let parser: RssParser;

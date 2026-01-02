@@ -15,8 +15,8 @@ import type {
   RssParserConfig,
   GoogleNewsRssFeed,
   GoogleNewsRssItem,
-} from './types';
-import { DEFAULT_RSS_PARSER_CONFIG } from './types';
+} from './rssTypes';
+import { DEFAULT_RSS_PARSER_CONFIG } from './rssTypes';
 
 /**
  * rss-parserライブラリの出力型

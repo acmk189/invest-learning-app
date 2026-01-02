@@ -12,10 +12,10 @@ import {
   SummaryResult,
 } from '../newsSummaryService';
 import { NewsArticle } from '../newsSummaryPrompt';
-import { ClaudeClient, ClaudeResponse } from '../../claudeClient';
+import { ClaudeClient, ClaudeResponse } from '../../../claudeClient';
 
 // ClaudeClientのモック
-jest.mock('../../claudeClient', () => ({
+jest.mock('../../../claudeClient', () => ({
   ClaudeClient: jest.fn().mockImplementation(() => ({
     sendMessage: jest.fn(),
     getDefaultModel: jest.fn().mockReturnValue('claude-haiku-4-5'),

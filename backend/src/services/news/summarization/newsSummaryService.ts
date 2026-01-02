@@ -10,7 +10,7 @@
  * @see https://docs.anthropic.com/en/api/messages - Claude Messages API
  */
 
-import { ClaudeClient, ClaudeResponse } from '../claudeClient';
+import { ClaudeClient, ClaudeResponse } from '../../claudeClient';
 import {
   NewsArticle,
   buildEnglishNewsSummaryPrompt,
@@ -21,7 +21,7 @@ import {
   validateSummaryLength,
   SummaryParseResult,
 } from './summaryResponseParser';
-import { AppError, ErrorType, ErrorSeverity } from '../../errors/types';
+import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
 
 /**
  * ニュース要約エラー

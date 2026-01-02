@@ -19,7 +19,7 @@ import type {
   TopHeadlinesResponse,
   NewsApiErrorResponse,
   RequestUsage,
-} from './types';
+} from './newsApiTypes';
 
 /**
  * NewsAPI無料枠の1日あたりのリクエスト上限

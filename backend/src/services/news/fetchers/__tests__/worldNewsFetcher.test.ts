@@ -20,7 +20,7 @@ import {
   NewsApiTimeoutError,
 } from '../worldNewsFetcher';
 import { NewsApiClient } from '../newsApiClient';
-import type { NewsApiArticle, TopHeadlinesParams } from '../types';
+import type { NewsApiArticle, TopHeadlinesParams } from '../newsApiTypes';
 
 // global fetchをモック
 const mockFetch = jest.fn();

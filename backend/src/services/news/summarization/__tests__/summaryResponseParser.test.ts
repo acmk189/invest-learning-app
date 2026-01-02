@@ -11,7 +11,7 @@ import {
   validateSummaryLength,
   SummaryValidationResult,
 } from '../summaryResponseParser';
-import { ClaudeResponse } from '../../claudeClient';
+import { ClaudeResponse } from '../../../claudeClient';
 import { SUMMARY_CONFIG } from '../newsSummaryPrompt';
 
 describe('要約レスポンスパーサー', () => {

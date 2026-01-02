@@ -7,7 +7,7 @@
  * Requirements: 1.4 (複数記事を約2000文字に要約)
  */
 
-import { ClaudeResponse } from '../claudeClient';
+import { ClaudeResponse } from '../../claudeClient';
 import { SUMMARY_CONFIG } from './newsSummaryPrompt';
 
 /**
