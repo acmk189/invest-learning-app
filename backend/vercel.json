@@ -13,7 +13,7 @@
     },
     {
       "path": "/api/batch/terms",
-      "schedule": "5 23 * * *"
+      "schedule": "0 23 * * *"
     }
   ]
 }

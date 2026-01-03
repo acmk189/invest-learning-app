@@ -4,11 +4,10 @@
  * Task 11.1: 用語バッチAPIエンドポイント基盤
  * Task 13: Vercel Cron Jobs統合
  *
- * Vercel Cron Jobsから毎日8:05 JSTに呼び出され、
+ * Vercel Cron Jobsから毎日8:00 JSTに呼び出され、
  * 3つの投資用語を生成してFirestoreに保存する
  *
- * Cronスケジュール: 5 23 * * * (UTC) = 8:05 JST
- * ※ニュースバッチから5分遅延させて実行
+ * Cronスケジュール: 0 23 * * * (UTC) = 8:00 JST
  *
  * Requirements:
  * - 1.1 (毎日8:00に実行)

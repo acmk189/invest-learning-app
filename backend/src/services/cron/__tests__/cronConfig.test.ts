@@ -25,9 +25,9 @@ describe('cronConfig', () => {
       expect(CRON_SCHEDULE.NEWS).toBe('0 23 * * *');
     });
 
-    it('用語バッチは毎日23:05 UTCに実行（8:05 JST）', () => {
-      // ニュースと用語のバッチを少しずらして実行
-      expect(CRON_SCHEDULE.TERMS).toBe('5 23 * * *');
+    it('用語バッチは毎日23:00 UTCに実行（8:00 JST）', () => {
+      // ニュースと同時刻に実行
+      expect(CRON_SCHEDULE.TERMS).toBe('0 23 * * *');
     });
   });
 
