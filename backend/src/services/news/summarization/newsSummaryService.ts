@@ -19,7 +19,6 @@ import {
 import {
   parseSummaryResponse,
   validateSummaryLength,
-  SummaryParseResult,
 } from './summaryResponseParser';
 import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
 

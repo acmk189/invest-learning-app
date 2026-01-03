@@ -9,7 +9,6 @@ import { ClaudeClient, ClaudeResponse } from '../../claudeClient';
 import {
   TermGenerationService,
   TermGenerationError,
-  TermGenerationResult,
 } from '../termGenerationService';
 
 // ClaudeClientをモック化

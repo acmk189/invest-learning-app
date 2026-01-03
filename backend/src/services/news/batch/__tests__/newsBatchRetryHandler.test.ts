@@ -12,7 +12,6 @@
 import {
   NewsBatchRetryHandler,
   NewsBatchRetryConfig,
-  NewsBatchRetryResult,
 } from '../newsBatchRetryHandler';
 import { NewsBatchResult } from '../newsBatchService';
 

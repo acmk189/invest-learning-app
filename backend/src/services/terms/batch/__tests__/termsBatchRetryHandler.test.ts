@@ -9,7 +9,7 @@
  * - 8.3 (失敗時3回リトライ)
  */
 
-import { TermsBatchRetryHandler, TermsBatchRetryConfig, TermsBatchRetryResult } from '../termsBatchRetryHandler';
+import { TermsBatchRetryHandler, TermsBatchRetryConfig } from '../termsBatchRetryHandler';
 import { TermsBatchResult } from '../termsBatchService';
 
 describe('TermsBatchRetryHandler', () => {
@@ -55,10 +55,8 @@ describe('TermsBatchRetryHandler', () => {
   describe('executeWithRetry', () => {
     it('最初の実行で成功した場合リトライしない', async () => {
       const handler = new TermsBatchRetryHandler();
-      let executionCount = 0;
 
       const executeFn = jest.fn().mockImplementation(async () => {
-        executionCount++;
         return createMockResult({ success: true });
       });
 

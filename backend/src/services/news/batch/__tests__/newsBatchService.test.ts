@@ -20,7 +20,6 @@
 import {
   NewsBatchService,
   NewsBatchServiceConfig,
-  NewsBatchResult,
   NewsBatchError,
 } from '../newsBatchService';
 import { WorldNewsFetcher } from '../../fetchers/worldNewsFetcher';
@@ -28,7 +27,6 @@ import { JapanNewsFetcher } from '../../fetchers/japanNewsFetcher';
 import { NewsSummaryService, SummaryResult } from '../../summarization';
 import { NewsApiArticle } from '../../fetchers/newsApiTypes';
 import { GoogleNewsRssItem } from '../../fetchers/rssTypes';
-import * as admin from 'firebase-admin';
 
 // モック設定
 jest.mock('../../fetchers/worldNewsFetcher');

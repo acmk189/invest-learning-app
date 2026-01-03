@@ -13,7 +13,6 @@
 import { VercelRequest } from '@vercel/node';
 import {
   validateCronSecret,
-  CronAuthResult,
   generateCronSecret,
   CRON_SECRET_LENGTH,
 } from '../cronAuthMiddleware';

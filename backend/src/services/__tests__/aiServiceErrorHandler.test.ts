@@ -15,7 +15,7 @@ import {
   AIServiceErrorHandlerConfig,
 } from '../aiServiceErrorHandler';
 import { ErrorLogger } from '../../errors/error-logger';
-import { AppError, ErrorSeverity } from '../../errors/types';
+import { ErrorSeverity } from '../../errors/types';
 
 // ErrorLoggerをモック
 jest.mock('../../errors/error-logger');

@@ -12,7 +12,7 @@
  */
 
 import { RssParser } from './rssParser';
-import type { GoogleNewsRssFeed, RssParserConfig } from './rssTypes';
+import type { GoogleNewsRssFeed } from './rssTypes';
 
 /**
  * デフォルトのGoogle News RSS URL

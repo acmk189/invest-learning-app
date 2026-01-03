@@ -4,7 +4,7 @@
  * Requirements: 12.2, 12.3, 9.1, 9.2
  */
 
-import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
 
 describe('Health Check API', () => {
   describe('GET /api/health', () => {

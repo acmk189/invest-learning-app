@@ -12,6 +12,7 @@
 import { TermsBatchErrorLogger, TermsBatchErrorLogEntry } from '../termsBatchErrorLogger';
 import { TermsBatchRetryResult } from '../termsBatchRetryHandler';
 import { TermsBatchResult } from '../termsBatchService';
+import { getFirestore } from '../../../../config/firebase';
 
 // Firestoreモック
 jest.mock('../../../../config/firebase', () => ({
@@ -21,6 +22,8 @@ jest.mock('../../../../config/firebase', () => ({
     })),
   })),
 }));
+
+const mockGetFirestore = getFirestore as jest.MockedFunction<typeof getFirestore>;
 
 describe('TermsBatchErrorLogger', () => {
   let logger: TermsBatchErrorLogger;
@@ -74,9 +77,8 @@ describe('TermsBatchErrorLogger', () => {
 
   describe('logFinalFailure', () => {
     it('最終失敗時にログをFirestoreに保存する', async () => {
-      const { getFirestore } = require('../../../../config/firebase');
       const mockAdd = jest.fn().mockResolvedValue({ id: 'test-doc-id' });
-      getFirestore.mockReturnValue({
+      mockGetFirestore.mockReturnValue({
         collection: jest.fn(() => ({
           add: mockAdd,
         })),
@@ -106,9 +108,8 @@ describe('TermsBatchErrorLogger', () => {
     });
 
     it('コンテキスト情報を含めて保存できる', async () => {
-      const { getFirestore } = require('../../../../config/firebase');
       const mockAdd = jest.fn().mockResolvedValue({ id: 'test-doc-id' });
-      getFirestore.mockReturnValue({
+      mockGetFirestore.mockReturnValue({
         collection: jest.fn(() => ({
           add: mockAdd,
         })),
@@ -124,9 +125,8 @@ describe('TermsBatchErrorLogger', () => {
     });
 
     it('Firestore保存失敗時はコンソールにエラーを出力する', async () => {
-      const { getFirestore } = require('../../../../config/firebase');
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      getFirestore.mockReturnValue({
+      mockGetFirestore.mockReturnValue({
         collection: jest.fn(() => ({
           add: jest.fn().mockRejectedValue(new Error('Firestore error')),
         })),

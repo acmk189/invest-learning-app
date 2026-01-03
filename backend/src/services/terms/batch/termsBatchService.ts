@@ -22,7 +22,6 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { getFirestore } from '../../../config/firebase';
 import {
   TermGenerationService,
-  TermGenerationResult,
   GenerateTermOptions,
 } from '../termGenerationService';
 import {

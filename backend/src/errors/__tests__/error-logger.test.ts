@@ -4,8 +4,7 @@
  */
 
 import { ErrorLogger } from '../error-logger';
-import { NetworkError, ApiError, FirestoreError, ErrorSeverity } from '../types';
-import * as admin from 'firebase-admin';
+import { NetworkError, ApiError, FirestoreError } from '../types';
 
 // Firestoreのモック
 jest.mock('firebase-admin', () => ({

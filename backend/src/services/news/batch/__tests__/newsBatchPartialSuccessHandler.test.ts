@@ -13,8 +13,6 @@
 import {
   PartialSuccessHandler,
   PartialSuccessType,
-  PartialSuccessResult,
-  PartialSuccessNotification,
 } from '../newsBatchPartialSuccessHandler';
 import { NewsBatchResult, NewsSummaryData } from '../newsBatchService';
 

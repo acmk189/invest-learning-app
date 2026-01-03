@@ -19,7 +19,6 @@ import {
 import {
   parseTermResponse,
   validateTermDescription,
-  TermParseResult,
 } from './termResponseParser';
 import { AppError, ErrorType, ErrorSeverity } from '../../errors/types';
 

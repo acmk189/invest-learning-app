@@ -13,8 +13,6 @@
 import {
   NewsBatchStepLogger,
   BatchStep,
-  StepLogEntry,
-  StepLogSummary,
 } from '../newsBatchStepLogger';
 import { BatchErrorInfo } from '../newsBatchService';
 
