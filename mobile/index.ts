@@ -1,8 +1,10 @@
-import { registerRootComponent } from 'expo';
+/**
+ * Expo Routerのエントリーポイント
+ *
+ * Expo Routerを使用する場合、expo-routerの自動エントリーポイントを使用する。
+ * これによりファイルベースルーティングが有効になる。
+ *
+ * @see https://docs.expo.dev/router/installation/
+ */
 
-import App from './App';
-
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
-registerRootComponent(App);
+import 'expo-router/entry';
