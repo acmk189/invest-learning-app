@@ -3,7 +3,7 @@
  * Task 2.2: エラーハンドリング共通機能実装
  */
 
-import { RetryHandler, RetryConfig } from '../retry-handler';
+import { RetryHandler } from '../retry-handler';
 import { NetworkError, ApiError } from '../types';
 
 describe('RetryHandler', () => {

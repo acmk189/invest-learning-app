@@ -11,25 +11,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getFirestore } from '../src/config/firebase';
 
 /**
- * ヘルスチェックレスポンス型
- */
-interface HealthCheckResponse {
-  status: 'ok' | 'error';
-  message: string;
-  firestore?: 'connected' | 'disconnected';
-  environment?: {
-    hasFirebaseProjectId: boolean;
-    hasFirebasePrivateKey: boolean;
-    hasFirebaseClientEmail: boolean;
-    hasNewsApiKey: boolean;
-    hasClaudeApiKey: boolean;
-    hasCronSecret: boolean;
-  };
-  timestamp: string;
-  error?: string;
-}
-
-/**
  * GET /api/health
  *
  * システムのヘルスチェックを実行

@@ -1,3 +1,4 @@
+/* eslint-env jest */
 // Jest setup for React Native Firebase
 // This file is loaded before each test file
 

@@ -9,8 +9,6 @@ import { ClaudeResponse } from '../../claudeClient';
 import {
   parseTermResponse,
   validateTermDescription,
-  TermParseResult,
-  TermValidationResult,
 } from '../termResponseParser';
 
 /**

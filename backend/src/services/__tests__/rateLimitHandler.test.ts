@@ -141,9 +141,6 @@ describe('extractRetryAfter', () => {
 });
 
 describe('RateLimitRetryHandler', () => {
-  // sleepをモック化
-  let originalSleep: typeof setTimeout;
-
   beforeEach(() => {
     jest.useFakeTimers();
   });

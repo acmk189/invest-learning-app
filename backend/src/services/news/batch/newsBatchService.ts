@@ -32,9 +32,8 @@ import {
 import {
   NewsSummaryService,
   NewsArticle,
-  SummaryResult,
 } from '../summarization';
-import { createNewsDocument, NewsDocument } from '../../../models/news.model';
+import { NewsDocument } from '../../../models/news.model';
 import {
   METADATA_COLLECTION,
   BATCH_METADATA_DOC_ID,

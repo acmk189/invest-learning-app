@@ -5,9 +5,9 @@
  * TDDのRED→GREEN→REFACTORサイクルで実装
  */
 
-import { TermsBatchService, TermsBatchResult, TermsBatchServiceConfig } from '../termsBatchService';
+import { TermsBatchService, TermsBatchServiceConfig } from '../termsBatchService';
 import { TermGenerationService, TermGenerationResult, GenerateTermOptions } from '../../termGenerationService';
-import { Term, TermDifficulty } from '../../../../models/terms.model';
+import { TermDifficulty } from '../../../../models/terms.model';
 import * as firebase from '../../../../config/firebase';
 
 // Firebaseモック
@@ -322,7 +322,7 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      const { docSet, firestoreMock } = createFirestoreMock();
+      const { firestoreMock } = createFirestoreMock();
 
       const service = new TermsBatchService(mockGenerationService);
 

@@ -7,7 +7,6 @@
  * - 読み書き動作が正常に機能すること
  */
 
-import firestore from '@react-native-firebase/firestore';
 import {
   initializeFirestore,
   testFirestoreConnection,

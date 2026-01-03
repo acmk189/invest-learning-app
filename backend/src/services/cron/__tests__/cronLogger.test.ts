@@ -12,8 +12,6 @@
 
 import {
   CronLogger,
-  CronLogEntry,
-  CronLogLevel,
   formatDuration,
   CRON_TIMEOUT_MS,
   CRON_TIMEOUT_WARNING_MS,

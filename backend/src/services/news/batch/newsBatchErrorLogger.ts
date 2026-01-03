@@ -13,7 +13,6 @@
  */
 
 import { getFirestore } from '../../../config/firebase';
-import { BatchErrorInfo } from './newsBatchService';
 import { NewsBatchRetryResult } from './newsBatchRetryHandler';
 
 /**

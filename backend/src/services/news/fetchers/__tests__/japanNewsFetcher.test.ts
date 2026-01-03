@@ -9,7 +9,7 @@
 
 import { JapanNewsFetcher, RssError, RssTimeoutError, RssNetworkError } from '../japanNewsFetcher';
 import { RssParser } from '../rssParser';
-import type { GoogleNewsRssFeed, GoogleNewsRssItem } from '../rssTypes';
+import type { GoogleNewsRssFeed } from '../rssTypes';
 
 // RssParserをモック化
 jest.mock('../rssParser');

@@ -9,7 +9,6 @@ import {
   NewsSummaryService,
   NewsSummaryServiceConfig,
   NewsSummaryError,
-  SummaryResult,
 } from '../newsSummaryService';
 import { NewsArticle } from '../newsSummaryPrompt';
 import { ClaudeClient, ClaudeResponse } from '../../../claudeClient';
