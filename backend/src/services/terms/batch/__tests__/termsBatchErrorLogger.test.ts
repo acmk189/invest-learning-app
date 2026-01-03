@@ -82,7 +82,7 @@ describe('TermsBatchErrorLogger', () => {
         collection: jest.fn(() => ({
           add: mockAdd,
         })),
-      });
+      } as any);
 
       const retryResult = createMockRetryResult({
         finalResult: createMockBatchResult({
@@ -113,7 +113,7 @@ describe('TermsBatchErrorLogger', () => {
         collection: jest.fn(() => ({
           add: mockAdd,
         })),
-      });
+      } as any);
 
       const retryResult = createMockRetryResult();
       const context = { environment: 'production', triggeredBy: 'cron' };
@@ -130,7 +130,7 @@ describe('TermsBatchErrorLogger', () => {
         collection: jest.fn(() => ({
           add: jest.fn().mockRejectedValue(new Error('Firestore error')),
         })),
-      });
+      } as any);
 
       const retryResult = createMockRetryResult();
 
