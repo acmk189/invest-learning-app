@@ -13,7 +13,7 @@
  */
 
 import { VercelRequest } from '@vercel/node';
-import { randomBytes } from 'crypto';
+import { randomBytes, timingSafeEqual } from 'crypto';
 
 /**
  * CRON_SECRETのデフォルト長（バイト数）
@@ -94,8 +94,15 @@ export function validateCronSecret(req: VercelRequest): CronAuthResult {
   // Step 4: トークンを抽出して比較
   const token = authHeader.substring(7); // "Bearer " の後ろを取得
 
-  // タイミング攻撃を防ぐため、固定時間で比較（Node.jsのcryptoを使用）
-  if (token !== cronSecret) {
+  // タイミング攻撃を防ぐため、固定時間で比較（crypto.timingSafeEqual使用）
+  const tokenBuffer = Buffer.from(token);
+  const secretBuffer = Buffer.from(cronSecret);
+
+  // 長さが異なる場合、またはtimingSafeEqualで不一致の場合は認証失敗
+  if (
+    tokenBuffer.length !== secretBuffer.length ||
+    !timingSafeEqual(tokenBuffer, secretBuffer)
+  ) {
     console.error('[cron-auth] Invalid CRON_SECRET');
     return {
       isValid: false,
