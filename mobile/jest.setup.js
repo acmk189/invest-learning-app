@@ -45,13 +45,14 @@ jest.mock('@react-native-firebase/firestore', () => {
 
 // Mock expo-router
 jest.mock('expo-router', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const React = require('react');
 
   // Tabs.Screen呼び出しを記録するためのモック関数
-  const mockTabsScreen = jest.fn(({ name, options }) => null);
+  const mockTabsScreen = jest.fn(({ name: _name, options: _options }) => null);
 
   // Tabsコンポーネント（子要素をそのままレンダリング）
-  const MockTabs = ({ children, screenOptions }) => {
+  const MockTabs = ({ children, screenOptions: _screenOptions }) => {
     return React.createElement(React.Fragment, null, children);
   };
 
