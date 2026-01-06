@@ -32,10 +32,10 @@ const mockNewsData: NewsData = {
   updatedAt: '2026-01-07T08:00:00.000Z',
 };
 
-// モックエラー
+// モックエラー（FirestoreErrorCodeの型に準拠）
 const mockError: NewsError = {
-  code: 'network_error',
-  message: 'ネットワーク接続エラーが発生しました',
+  code: 'CONNECTION_FAILED',
+  message: 'サーバーに接続できませんでした。インターネット接続を確認してください。',
   retryable: true,
 };
 

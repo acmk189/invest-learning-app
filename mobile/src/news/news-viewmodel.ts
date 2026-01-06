@@ -113,8 +113,8 @@ export function useNewsViewModel(
       setWorldNews(null);
       setJapanNews(null);
       setError({
-        code: 'unknown_error',
-        message: '予期しないエラーが発生しました',
+        code: 'UNKNOWN',
+        message: '予期しないエラーが発生しました。しばらくしてからもう一度お試しください。',
         retryable: true,
       });
       setState('error');
