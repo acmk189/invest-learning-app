@@ -16,36 +16,49 @@ import { render } from '@testing-library/react-native';
 // タブ画面コンポーネントのインポート
 import NewsScreen from '../../app/(tabs)/index';
 import TermsScreen from '../../app/(tabs)/terms';
+import { ThemeProvider } from '../../src/theme';
+
+/**
+ * テスト用のラッパーコンポーネント
+ * ThemeProviderでラップしてテスト対象を提供
+ */
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <ThemeProvider>{children}</ThemeProvider>
+);
 
 describe('タブ画面コンポーネント', () => {
   describe('NewsScreen', () => {
     it('NewsScreenコンポーネントが正しくレンダリングされること', () => {
-      expect(() => render(<NewsScreen />)).not.toThrow();
+      expect(() =>
+        render(<NewsScreen />, { wrapper: TestWrapper })
+      ).not.toThrow();
     });
 
     it('ニュース画面にプレースホルダーテキストが表示されること', () => {
-      const { getByText } = render(<NewsScreen />);
+      const { getByText } = render(<NewsScreen />, { wrapper: TestWrapper });
       expect(getByText(/ニュース機能は現在開発中です/)).toBeTruthy();
     });
 
     it('ニュース画面に世界と日本のニュースについての説明があること', () => {
-      const { getByText } = render(<NewsScreen />);
+      const { getByText } = render(<NewsScreen />, { wrapper: TestWrapper });
       expect(getByText(/世界と日本の投資ニュース要約/)).toBeTruthy();
     });
   });
 
   describe('TermsScreen', () => {
     it('TermsScreenコンポーネントが正しくレンダリングされること', () => {
-      expect(() => render(<TermsScreen />)).not.toThrow();
+      expect(() =>
+        render(<TermsScreen />, { wrapper: TestWrapper })
+      ).not.toThrow();
     });
 
     it('用語画面にプレースホルダーテキストが表示されること', () => {
-      const { getByText } = render(<TermsScreen />);
+      const { getByText } = render(<TermsScreen />, { wrapper: TestWrapper });
       expect(getByText(/用語機能は現在開発中です/)).toBeTruthy();
     });
 
     it('用語画面に3つの投資用語についての説明があること', () => {
-      const { getByText } = render(<TermsScreen />);
+      const { getByText } = render(<TermsScreen />, { wrapper: TestWrapper });
       expect(getByText(/今日の3つの投資用語/)).toBeTruthy();
     });
   });
@@ -60,7 +73,8 @@ describe('TabLayoutコンポーネント', () => {
 
   it('TabLayoutがReactコンポーネントとしてレンダリング可能であること', () => {
     const TabLayout = require('../../app/(tabs)/_layout').default;
-    expect(() => render(<TabLayout />)).not.toThrow();
+    // TabLayoutはThemeProviderを使用するため、ラッパーが必要
+    expect(() => render(<TabLayout />, { wrapper: TestWrapper })).not.toThrow();
   });
 });
 
@@ -73,6 +87,7 @@ describe('RootLayoutコンポーネント', () => {
 
   it('RootLayoutがReactコンポーネントとしてレンダリング可能であること', () => {
     const RootLayout = require('../../app/_layout').default;
+    // RootLayoutは内部でThemeProviderを持っているのでラッパー不要
     expect(() => render(<RootLayout />)).not.toThrow();
   });
 });
@@ -92,8 +107,8 @@ describe('ファイルベースルーティング構造', () => {
     // モックをクリア
     (Tabs.Screen as jest.Mock).mockClear();
 
-    // TabLayoutをレンダリング
-    render(<TabLayout />);
+    // TabLayoutをレンダリング（ThemeProviderでラップ）
+    render(<TabLayout />, { wrapper: TestWrapper });
 
     // Tabs.Screenが2回呼ばれていること
     const calls = (Tabs.Screen as jest.Mock).mock.calls;
@@ -116,7 +131,7 @@ describe('タブラベル設定', () => {
     const TabLayout = require('../../app/(tabs)/_layout').default;
 
     (Tabs.Screen as jest.Mock).mockClear();
-    render(<TabLayout />);
+    render(<TabLayout />, { wrapper: TestWrapper });
 
     const calls = (Tabs.Screen as jest.Mock).mock.calls;
     const newsTabCall = calls.find(
@@ -132,7 +147,7 @@ describe('タブラベル設定', () => {
     const TabLayout = require('../../app/(tabs)/_layout').default;
 
     (Tabs.Screen as jest.Mock).mockClear();
-    render(<TabLayout />);
+    render(<TabLayout />, { wrapper: TestWrapper });
 
     const calls = (Tabs.Screen as jest.Mock).mock.calls;
     const termsTabCall = calls.find(
@@ -145,14 +160,14 @@ describe('タブラベル設定', () => {
 });
 
 describe('ダークモード対応', () => {
-  it('NewsScreenがレンダリング時にuseColorSchemeを使用すること', () => {
-    // useColorSchemeを使用しているか確認（エラーなくレンダリングできることを確認）
-    const { getByText } = render(<NewsScreen />);
+  it('NewsScreenがThemeProviderのテーマを使用してレンダリングされること', () => {
+    // ThemeProviderのテーマを使用しているか確認（エラーなくレンダリングできることを確認）
+    const { getByText } = render(<NewsScreen />, { wrapper: TestWrapper });
     expect(getByText(/ニュース機能は現在開発中です/)).toBeTruthy();
   });
 
-  it('TermsScreenがレンダリング時にuseColorSchemeを使用すること', () => {
-    const { getByText } = render(<TermsScreen />);
+  it('TermsScreenがThemeProviderのテーマを使用してレンダリングされること', () => {
+    const { getByText } = render(<TermsScreen />, { wrapper: TestWrapper });
     expect(getByText(/用語機能は現在開発中です/)).toBeTruthy();
   });
 });
