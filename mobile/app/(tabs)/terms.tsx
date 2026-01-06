@@ -4,38 +4,33 @@
  * 日次の投資・金融用語（3つ）を表示する画面。
  * Expo Routerのファイルベースルーティングで設定。
  *
+ * ThemeProviderから提供される一元管理された色定義を使用して、
+ * ダークモード・ライトモードに対応する。
+ *
  * @description
  * - 3つの投資用語を表示
  * - 各用語の解説（約500文字）を表示
+ *
+ * @see Requirements: 5.1, 5.2, 6.5 (用語表示、ダークモード対応)
  */
 
-import { StyleSheet, Text, View, ScrollView, useColorScheme } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useTheme } from '../../src/theme';
 
 /**
  * 用語画面コンポーネント
  * 将来的にTerms ViewModelと連携して、Firestoreからデータを取得・表示する
  */
 export default function TermsScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-
-  // ダークモード対応のスタイル
-  const containerStyle = {
-    ...styles.container,
-    backgroundColor: isDark ? '#111827' : '#f9fafb',
-  };
-
-  const textStyle = {
-    ...styles.placeholderText,
-    color: isDark ? '#d1d5db' : '#4b5563',
-  };
+  // ThemeProviderから一元管理されたテーマ情報を取得
+  const { isDark, colors } = useTheme();
 
   return (
-    <View style={containerStyle}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={textStyle}>
+        <Text style={[styles.placeholderText, { color: colors.textSecondary }]}>
           用語機能は現在開発中です。{'\n'}
           今日の3つの投資用語がここに表示されます。
         </Text>

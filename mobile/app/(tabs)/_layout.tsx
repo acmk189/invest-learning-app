@@ -4,12 +4,16 @@
  * Expo Routerのファイルベースルーティングを使用して、
  * 「ニュース」と「用語」の2つのタブを提供するレイアウトコンポーネント。
  *
+ * ThemeProviderから提供される一元管理された色定義を使用して、
+ * ダークモード・ライトモードに対応する。
+ *
  * @see https://docs.expo.dev/router/advanced/tabs/
+ * @see Requirements: 6.1, 6.2, 6.5 (タブナビゲーション、ダークモード対応)
  */
 
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from 'react-native';
+import { useTheme } from '../../src/theme';
 
 /**
  * タブアイコンを取得するヘルパー関数
@@ -43,33 +47,25 @@ const getTabIcon = (
  * - 用語タブ: 日次投資用語を表示
  */
 export default function TabLayout() {
-  // システムのカラースキーム（ダークモード/ライトモード）を取得
-  const colorScheme = useColorScheme();
-
-  // ダークモード対応の色設定
-  const isDark = colorScheme === 'dark';
-  const tabBarActiveTintColor = isDark ? '#60a5fa' : '#2563eb'; // blue-400 / blue-600
-  const tabBarInactiveTintColor = isDark ? '#9ca3af' : '#6b7280'; // gray-400 / gray-500
-  const tabBarBackgroundColor = isDark ? '#1f2937' : '#ffffff'; // gray-800 / white
-  const headerBackgroundColor = isDark ? '#111827' : '#f9fafb'; // gray-900 / gray-50
-  const headerTintColor = isDark ? '#f9fafb' : '#111827'; // gray-50 / gray-900
+  // ThemeProviderから一元管理されたテーマ情報を取得
+  const { colors } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
-        // タブバー全体のスタイル設定
-        tabBarActiveTintColor,
-        tabBarInactiveTintColor,
+        // タブバー全体のスタイル設定（ThemeProviderの色定義を使用）
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
         tabBarStyle: {
-          backgroundColor: tabBarBackgroundColor,
+          backgroundColor: colors.tabBarBackground,
           borderTopWidth: 1,
-          borderTopColor: isDark ? '#374151' : '#e5e7eb', // gray-700 / gray-200
+          borderTopColor: colors.border,
         },
         // ヘッダーのスタイル設定
         headerStyle: {
-          backgroundColor: headerBackgroundColor,
+          backgroundColor: colors.headerBackground,
         },
-        headerTintColor,
+        headerTintColor: colors.headerText,
         headerTitleStyle: {
           fontWeight: '600',
         },
