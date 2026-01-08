@@ -23,3 +23,5 @@ export {
   type NewsState,
   type NewsViewModelResult,
 } from './news-viewmodel';
+
+export { NewsScreen } from './news-screen';

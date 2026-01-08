@@ -1,8 +1,12 @@
 /**
  * ニュースタブ画面
+ * Task 19: News View
  *
  * 日次のニュース要約（世界・日本）を表示するメイン画面。
  * Expo Routerのファイルベースルーティングで、デフォルトタブ（index）として設定。
+ *
+ * MVVM パターンに従い、NewsViewModelから状態を取得し、
+ * NewsScreenコンポーネントに渡してUIをレンダリングします。
  *
  * ThemeProviderから提供される一元管理された色定義を使用して、
  * ダークモード・ライトモードに対応する。
@@ -11,48 +15,39 @@
  * - 世界のニュース要約を表示
  * - 日本のニュース要約を表示
  * - 更新日時を表示
+ * - ローディング・エラー状態をハンドリング
  *
- * @see Requirements: 2.1, 2.2, 6.5 (ニュース表示、ダークモード対応)
+ * @see Requirements: 2.1, 2.2, 2.3, 6.5, 7.5
+ * @see design.md - Architecture - News Feature
  */
 
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useTheme } from '../../src/theme';
+import { useNewsViewModel, NewsScreen } from '../../src/news';
 
 /**
- * ニュース画面コンポーネント
- * 将来的にNews ViewModelと連携して、Firestoreからデータを取得・表示する
+ * ニュースタブ画面のルートコンポーネント
+ *
+ * MVVMパターン:
+ * - useNewsViewModel: ViewModelからニュース状態を取得
+ * - NewsScreen: UIを担当するViewコンポーネント
+ *
+ * StatusBarはテーマに応じてスタイルを切り替えます。
  */
-export default function NewsScreen() {
-  // ThemeProviderから一元管理されたテーマ情報を取得
-  const { isDark, colors } = useTheme();
+export default function NewsTab() {
+  // テーマ情報を取得（StatusBar用）
+  const { isDark } = useTheme();
+
+  // ViewModelからニュース状態を取得
+  const viewModelResult = useNewsViewModel();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <>
+      {/* ステータスバーのスタイルをテーマに合わせる */}
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={[styles.placeholderText, { color: colors.textSecondary }]}>
-          ニュース機能は現在開発中です。{'\n'}
-          世界と日本の投資ニュース要約がここに表示されます。
-        </Text>
-      </ScrollView>
-    </View>
+
+      {/* ニュース画面 - ViewModelの結果を渡して表示 */}
+      <NewsScreen viewModelResult={viewModelResult} />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  placeholderText: {
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-});

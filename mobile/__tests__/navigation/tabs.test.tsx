@@ -34,14 +34,21 @@ describe('タブ画面コンポーネント', () => {
       ).not.toThrow();
     });
 
-    it('ニュース画面にプレースホルダーテキストが表示されること', () => {
-      const { getByText } = render(<NewsScreen />, { wrapper: TestWrapper });
-      expect(getByText(/ニュース機能は現在開発中です/)).toBeTruthy();
+    it('ニュース画面にローディング状態またはコンテンツが表示されること', () => {
+      // News Viewでは初期状態でローディングインジケーターが表示される
+      // （ViewModelがデータをフェッチするため）
+      const { getByTestId, queryByText } = render(<NewsScreen />, {
+        wrapper: TestWrapper,
+      });
+      // ローディング中はローディングインジケーターまたはニュースコンテナが存在する
+      const loadingIndicator = queryByText(/ニュースを読み込んでいます/);
+      const newsContainer = getByTestId('news-container');
+      expect(loadingIndicator || newsContainer).toBeTruthy();
     });
 
-    it('ニュース画面に世界と日本のニュースについての説明があること', () => {
-      const { getByText } = render(<NewsScreen />, { wrapper: TestWrapper });
-      expect(getByText(/世界と日本の投資ニュース要約/)).toBeTruthy();
+    it('ニュース画面のコンテナが正しくレンダリングされること', () => {
+      const { getByTestId } = render(<NewsScreen />, { wrapper: TestWrapper });
+      expect(getByTestId('news-container')).toBeTruthy();
     });
   });
 
@@ -162,8 +169,9 @@ describe('タブラベル設定', () => {
 describe('ダークモード対応', () => {
   it('NewsScreenがThemeProviderのテーマを使用してレンダリングされること', () => {
     // ThemeProviderのテーマを使用しているか確認（エラーなくレンダリングできることを確認）
-    const { getByText } = render(<NewsScreen />, { wrapper: TestWrapper });
-    expect(getByText(/ニュース機能は現在開発中です/)).toBeTruthy();
+    const { getByTestId } = render(<NewsScreen />, { wrapper: TestWrapper });
+    // news-containerが存在することで、テーマが正しく適用されていることを確認
+    expect(getByTestId('news-container')).toBeTruthy();
   });
 
   it('TermsScreenがThemeProviderのテーマを使用してレンダリングされること', () => {
