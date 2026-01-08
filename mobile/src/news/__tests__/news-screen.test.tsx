@@ -162,7 +162,7 @@ describe('NewsScreen', () => {
         worldNews: null,
         japanNews: null,
         error: {
-          code: 'NETWORK_ERROR',
+          code: 'CONNECTION_FAILED',
           message: 'ネットワークに接続できませんでした',
           retryable: true,
         },
@@ -182,7 +182,7 @@ describe('NewsScreen', () => {
         worldNews: null,
         japanNews: null,
         error: {
-          code: 'NETWORK_ERROR',
+          code: 'CONNECTION_FAILED',
           message: 'ネットワークに接続できませんでした',
           retryable: true,
         },
