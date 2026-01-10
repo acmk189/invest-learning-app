@@ -8,7 +8,7 @@
  * 外部サービスの利用規約を遵守していることを文書化します。
  *
  * 本アプリケーションのプライバシーポリシー:
- * - ユーザー認証機能なし（v1.0）のため、個人情報を収集しません
+ * - ユーザー認証機能なし(v1.0)のため、個人情報を収集しません
  * - ユーザーの学習履歴を第三者と共有しません
  * - データはFirebase Firestoreにのみ保存されます
  *
@@ -104,8 +104,8 @@ export function getPrivacyPolicy(): PrivacyPolicy {
         '本アプリケーションはv1.0においてユーザー認証機能を持たないため、' +
         '個人を特定できる情報を収集しません。',
       dataTypes: [
-        'ニュース要約データ（公開情報）',
-        '投資用語データ（AI生成コンテンツ）',
+        'ニュース要約データ(公開情報)',
+        '投資用語データ(AI生成コンテンツ)',
         'ローカルキャッシュデータ',
       ],
     },
@@ -144,8 +144,8 @@ export function getExternalServiceCompliance(): Record<ExternalServiceName, Exte
       isCompliant: true,
       termsUrl: 'https://newsapi.org/terms',
       complianceNotes: [
-        '開発用途での無料枠（100リクエスト/日）を使用',
-        'ニュース記事の要約のみを表示（原文へのリンクは非表示）',
+        '開発用途での無料枠(100リクエスト/日)を使用',
+        'ニュース記事の要約のみを表示(原文へのリンクは非表示)',
         'APIキーは環境変数で安全に管理',
       ],
       lastReviewed: '2026-01-01',
@@ -167,7 +167,7 @@ export function getExternalServiceCompliance(): Record<ExternalServiceName, Exte
       complianceNotes: [
         '公開RSSフィードを使用',
         '日本の経済ニュースを取得',
-        '商用目的での過度な取得を避ける（1日1回のみ）',
+        '商用目的での過度な取得を避ける(1日1回のみ)',
       ],
       lastReviewed: '2026-01-01',
     },
@@ -175,7 +175,7 @@ export function getExternalServiceCompliance(): Record<ExternalServiceName, Exte
       isCompliant: true,
       termsUrl: 'https://firebase.google.com/terms',
       complianceNotes: [
-        '無料枠（Spark Plan）内で運用',
+        '無料枠(Spark Plan)内で運用',
         'ユーザーの個人情報は保存しない',
         'サービスアカウント認証を使用',
         'データはGoogleのセキュリティ基準で保護',
@@ -205,9 +205,9 @@ export function verifyNoThirdPartyDataSharing(): ThirdPartyDataSharingResult {
     isCompliant: !policy.dataSharing.sharesWithThirdParties,
     sharesUserData: policy.dataSharing.sharesWithThirdParties,
     details: [
-      'ユーザー認証機能なし（v1.0）のため個人情報を収集しない',
+      'ユーザー認証機能なし(v1.0)のため個人情報を収集しない',
       'ニュース・用語データはFirestore経由でのみアクセス',
-      '外部APIへはニュース記事データのみ送信（要約処理用）',
+      '外部APIへはニュース記事データのみ送信(要約処理用)',
       'ユーザーの学習履歴は端末のローカルキャッシュにのみ保存',
       'アナリティクスやトラッキングは実装していない',
     ],

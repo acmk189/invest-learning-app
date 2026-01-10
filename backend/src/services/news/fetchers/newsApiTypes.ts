@@ -16,7 +16,7 @@
  */
 export interface NewsApiSource {
   /**
-   * ソースID（nullの場合もある）
+   * ソースID(nullの場合もある)
    */
   id: string | null;
 
@@ -40,7 +40,7 @@ export interface NewsApiArticle {
   source: NewsApiSource;
 
   /**
-   * 著者名（不明な場合はnull）
+   * 著者名(不明な場合はnull)
    */
   author: string | null;
 
@@ -50,7 +50,7 @@ export interface NewsApiArticle {
   title: string;
 
   /**
-   * 記事の説明・概要（不明な場合はnull）
+   * 記事の説明・概要(不明な場合はnull)
    */
   description: string | null;
 
@@ -60,17 +60,17 @@ export interface NewsApiArticle {
   url: string;
 
   /**
-   * 記事のサムネイル画像URL（不明な場合はnull）
+   * 記事のサムネイル画像URL(不明な場合はnull)
    */
   urlToImage: string | null;
 
   /**
-   * 記事の公開日時（ISO 8601形式）
+   * 記事の公開日時(ISO 8601形式)
    */
   publishedAt: string;
 
   /**
-   * 記事本文（切り詰められている場合あり、nullの場合もある）
+   * 記事本文(切り詰められている場合あり、nullの場合もある)
    */
   content: string | null;
 }
@@ -89,7 +89,7 @@ export interface TopHeadlinesParams {
   category?: 'business' | 'entertainment' | 'general' | 'health' | 'science' | 'sports' | 'technology';
 
   /**
-   * 国コード（ISO 3166-1 alpha-2）
+   * 国コード(ISO 3166-1 alpha-2)
    *
    * 例: us, jp, gb
    *
@@ -98,7 +98,7 @@ export interface TopHeadlinesParams {
   country?: string;
 
   /**
-   * ソースID（カンマ区切りで複数指定可能）
+   * ソースID(カンマ区切りで複数指定可能)
    *
    * Note: countryやcategoryパラメータと同時に使用不可
    */
@@ -130,7 +130,7 @@ export interface TopHeadlinesParams {
  */
 export interface TopHeadlinesResponse {
   /**
-   * ステータス（ok または error）
+   * ステータス(ok または error)
    */
   status: 'ok' | 'error';
 
@@ -152,7 +152,7 @@ export interface TopHeadlinesResponse {
  */
 export interface NewsApiErrorResponse {
   /**
-   * ステータス（error）
+   * ステータス(error)
    */
   status: 'error';
 
@@ -181,12 +181,12 @@ export interface RequestUsage {
   requestCount: number;
 
   /**
-   * 最後のリクエスト日時（ISO 8601形式）
+   * 最後のリクエスト日時(ISO 8601形式)
    */
   lastRequestAt: string | null;
 
   /**
-   * 日付（YYYY-MM-DD形式）
+   * 日付(YYYY-MM-DD形式)
    */
   date: string;
 }

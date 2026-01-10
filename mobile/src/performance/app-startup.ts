@@ -3,7 +3,7 @@
  * Task 25.1: Expo Router初期読み込み最適化
  *
  * Expo Routerの初期読み込みを最適化し、アプリ起動時間を短縮する。
- * - 遅延ロード（lazy loading）でタブの事前ロードを無効化
+ * - 遅延ロード(lazy loading)でタブの事前ロードを無効化
  * - 非アクティブなタブをフリーズして不要な再レンダリングを防止
  * - 起動時間計測機能を提供
  *
@@ -16,11 +16,11 @@
  * 起動時間を計測する関数の戻り値として使用
  */
 export interface StartupTimeResult {
-  /** 計測開始時刻（ミリ秒、Date.now()形式） */
+  /** 計測開始時刻(ミリ秒、Date.now()形式) */
   startTime: number;
-  /** 計測終了時刻（ミリ秒、Date.now()形式） */
+  /** 計測終了時刻(ミリ秒、Date.now()形式) */
   endTime: number;
-  /** 起動時間（ミリ秒） */
+  /** 起動時間(ミリ秒) */
   duration: number;
 }
 
@@ -28,14 +28,14 @@ export interface StartupTimeResult {
  * アプリ起動設定の定数
  *
  * 起動時間を短縮するための各種設定値を定義。
- * これらの値は実装コード（_layout.tsx等）で参照される。
+ * これらの値は実装コード(_layout.tsx等)で参照される。
  *
  * @see Requirements: 7.1 (3秒以内に初期画面を表示)
  */
 export const APP_STARTUP_CONFIG = {
   /**
-   * 起動時間の目標値（ミリ秒）
-   * Requirements 7.1に基づき3秒（3000ms）以内を目標
+   * 起動時間の目標値(ミリ秒)
+   * Requirements 7.1に基づき3秒(3000ms)以内を目標
    */
   TARGET_STARTUP_TIME_MS: 3000,
 
@@ -100,7 +100,7 @@ export const TAB_LAZY_CONFIG = {
  * アプリの起動時間を測定し、パフォーマンスモニタリングに使用する。
  * 開発時のデバッグや、本番環境でのパフォーマンス監視に活用できる。
  *
- * @returns 起動時間の測定結果（StartupTimeResult）
+ * @returns 起動時間の測定結果(StartupTimeResult)
  *
  * @example
  * // アプリ起動時に測定
@@ -119,7 +119,7 @@ export async function measureStartupTime(): Promise<StartupTimeResult> {
   // requestAnimationFrameを使用して、UIスレッドの描画完了を待つ
   await new Promise<void>((resolve) => {
     // React Native環境ではrequestAnimationFrameがグローバルに存在
-    // 存在しない場合（テスト環境など）はsetTimeoutで代替
+    // 存在しない場合(テスト環境など)はsetTimeoutで代替
     if (typeof requestAnimationFrame !== 'undefined') {
       requestAnimationFrame(() => resolve());
     } else {
@@ -144,7 +144,7 @@ export async function measureStartupTime(): Promise<StartupTimeResult> {
  * 起動時間の監視や最適化のデバッグに使用する。
  *
  * @param label - ログのラベル
- * @param duration - 計測時間（ミリ秒）
+ * @param duration - 計測時間(ミリ秒)
  */
 export function logPerformance(label: string, duration: number): void {
   if (__DEV__) {

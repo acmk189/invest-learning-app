@@ -16,13 +16,13 @@
 export interface NewsArticle {
   /** 記事タイトル */
   title: string;
-  /** 記事の簡易説明（オプション） */
+  /** 記事の簡易説明(オプション) */
   description?: string;
-  /** 記事本文（オプション） */
+  /** 記事本文(オプション) */
   content?: string;
   /** ニュースソース名 */
   source: string;
-  /** 公開日時（ISO 8601形式） */
+  /** 公開日時(ISO 8601形式) */
   publishedAt: string;
 }
 
@@ -48,7 +48,7 @@ export const SUMMARY_CONFIG = {
  */
 function formatArticles(articles: NewsArticle[]): string {
   if (articles.length === 0) {
-    return '（記事がありません）';
+    return '(記事がありません)';
   }
 
   return articles
@@ -91,9 +91,9 @@ export function buildEnglishNewsSummaryPrompt(articles: NewsArticle[]): string {
 1. 以下のすべての英語記事を読み、内容を日本語に翻訳してください
 2. 投資・金融・経済・市場に関する重要なポイントを抽出してください
 3. 複数の記事を統合し、一つの読みやすい要約にまとめてください
-4. 要約は約${SUMMARY_CONFIG.targetCharacters}文字（${SUMMARY_CONFIG.minCharacters}〜${SUMMARY_CONFIG.maxCharacters}文字）で作成してください
+4. 要約は約${SUMMARY_CONFIG.targetCharacters}文字(${SUMMARY_CONFIG.minCharacters}〜${SUMMARY_CONFIG.maxCharacters}文字)で作成してください
 5. 読者は投資初学者なので、専門用語は簡潔な説明を加えてください
-6. 各記事のソース（出典）を適切に言及してください
+6. 各記事のソース(出典)を適切に言及してください
 
 ## 出力形式
 - 見出しや箇条書きを適宜使用して読みやすくしてください
@@ -124,9 +124,9 @@ export function buildJapaneseNewsSummaryPrompt(articles: NewsArticle[]): string 
 1. 以下のすべての記事を読み、内容を理解してください
 2. 投資・金融・経済・市場に関する重要なポイントを抽出してください
 3. 複数の記事を統合し、一つの読みやすい要約にまとめてください
-4. 要約は約${SUMMARY_CONFIG.targetCharacters}文字（${SUMMARY_CONFIG.minCharacters}〜${SUMMARY_CONFIG.maxCharacters}文字）で作成してください
+4. 要約は約${SUMMARY_CONFIG.targetCharacters}文字(${SUMMARY_CONFIG.minCharacters}〜${SUMMARY_CONFIG.maxCharacters}文字)で作成してください
 5. 読者は投資初学者なので、専門用語は簡潔な説明を加えてください
-6. 各記事のソース（出典）を適切に言及してください
+6. 各記事のソース(出典)を適切に言及してください
 
 ## 出力形式
 - 見出しや箇条書きを適宜使用して読みやすくしてください

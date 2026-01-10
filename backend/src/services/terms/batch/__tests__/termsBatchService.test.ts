@@ -389,7 +389,7 @@ describe('TermsBatchService', () => {
 
       const result = await service.execute();
 
-      // 処理時間が記録されていること（0以上であればOK、高速実行では0msになることもある）
+      // 処理時間が記録されていること(0以上であればOK、高速実行では0msになることもある)
       expect(result.processingTimeMs).toBeGreaterThanOrEqual(0);
       expect(typeof result.processingTimeMs).toBe('number');
     });

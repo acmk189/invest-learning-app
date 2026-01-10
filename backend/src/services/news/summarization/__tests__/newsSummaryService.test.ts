@@ -47,7 +47,7 @@ describe('ニュース要約サービス', () => {
     },
   ];
 
-  // 有効な要約（2000文字）
+  // 有効な要約(2000文字)
   const validSummary = 'あ'.repeat(2000);
 
   const createMockResponse = (content: string): ClaudeResponse => ({
@@ -173,7 +173,7 @@ describe('ニュース要約サービス', () => {
   });
 
   describe('文字数検証とリトライ', () => {
-    it('文字数が短すぎる場合は警告付きで返す（リトライしない）', async () => {
+    it('文字数が短すぎる場合は警告付きで返す(リトライしない)', async () => {
       const shortSummary = 'あ'.repeat(1500);
       mockClient.sendMessage.mockResolvedValue(createMockResponse(shortSummary));
 
@@ -182,11 +182,11 @@ describe('ニュース要約サービス', () => {
       expect(result.isValid).toBe(false);
       expect(result.warning).toBeDefined();
       expect(result.warning).toMatch(/文字/);
-      // 文字数チェック失敗でもリトライしない（APIは成功している）
+      // 文字数チェック失敗でもリトライしない(APIは成功している)
       expect(mockClient.sendMessage).toHaveBeenCalledTimes(1);
     });
 
-    it('文字数が長すぎる場合は警告付きで返す（リトライしない）', async () => {
+    it('文字数が長すぎる場合は警告付きで返す(リトライしない)', async () => {
       const longSummary = 'あ'.repeat(2500);
       mockClient.sendMessage.mockResolvedValue(createMockResponse(longSummary));
 

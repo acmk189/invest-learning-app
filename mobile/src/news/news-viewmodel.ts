@@ -32,13 +32,13 @@ export type NewsState = 'loading' | 'success' | 'error';
 export interface NewsViewModelResult {
   /** 現在の状態 */
   state: NewsState;
-  /** ローディング中かどうか（state === 'loading' のショートカット） */
+  /** ローディング中かどうか(state === 'loading' のショートカット) */
   loading: boolean;
-  /** 世界のニュース（未取得時はnull） */
+  /** 世界のニュース(未取得時はnull) */
   worldNews: NewsItem | null;
-  /** 日本のニュース（未取得時はnull） */
+  /** 日本のニュース(未取得時はnull) */
   japanNews: NewsItem | null;
-  /** エラー情報（エラー時のみ） */
+  /** エラー情報(エラー時のみ) */
   error: NewsError | null;
   /** データを再取得する関数 */
   retry: () => Promise<void>;
@@ -50,7 +50,7 @@ export interface NewsViewModelResult {
  * 依存性注入(DI)により、NewsRepositoryをパラメータで受け取ります。
  * これにより、テスト時にモックリポジトリを注入可能です。
  *
- * @param repository - NewsRepository（省略時はデフォルトを使用）
+ * @param repository - NewsRepository(省略時はデフォルトを使用)
  * @returns NewsViewModelResult - ニュース表示に必要な状態と関数
  *
  * @example
@@ -73,7 +73,7 @@ export interface NewsViewModelResult {
 export function useNewsViewModel(
   repository?: NewsRepository
 ): NewsViewModelResult {
-  // デフォルトのリポジトリを使用（テスト時はモックを注入）
+  // デフォルトのリポジトリを使用(テスト時はモックを注入)
   const repo = repository || createNewsRepository();
 
   // 状態管理
@@ -95,7 +95,7 @@ export function useNewsViewModel(
       const result = await repo.getTodayNews();
 
       if (result.success) {
-        // 成功: 世界・日本ニュースを分離して保持（Requirement 2.2）
+        // 成功: 世界・日本ニュースを分離して保持(Requirement 2.2)
         setWorldNews(result.data?.worldNews || null);
         setJapanNews(result.data?.japanNews || null);
         setError(null);
@@ -108,7 +108,7 @@ export function useNewsViewModel(
         setState('error');
       }
     } catch (unexpectedError) {
-      // 予期しないエラー（通常は起こらないはず）
+      // 予期しないエラー(通常は起こらないはず)
       console.error('[NewsViewModel] Unexpected error:', unexpectedError);
       setWorldNews(null);
       setJapanNews(null);
@@ -123,13 +123,13 @@ export function useNewsViewModel(
 
   /**
    * リトライ関数
-   * ユーザーが手動でデータを再取得する際に使用（Requirement 7.5）
+   * ユーザーが手動でデータを再取得する際に使用(Requirement 7.5)
    */
   const retry = useCallback(async () => {
     await fetchNews();
   }, [fetchNews]);
 
-  // マウント時にニュースを取得（Requirement 2.1: アプリ起動時）
+  // マウント時にニュースを取得(Requirement 2.1: アプリ起動時)
   useEffect(() => {
     fetchNews();
   }, [fetchNews]);

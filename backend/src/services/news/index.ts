@@ -4,7 +4,7 @@
  * ニュースの取得と要約に関する機能を提供します。
  *
  * ## 構成
- * - fetchers: 外部ソースからのニュース取得（NewsAPI, Google News RSS）
+ * - fetchers: 外部ソースからのニュース取得(NewsAPI, Google News RSS)
  * - summarization: AI によるニュース要約処理
  */
 

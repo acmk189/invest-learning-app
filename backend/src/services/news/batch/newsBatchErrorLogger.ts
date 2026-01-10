@@ -32,15 +32,15 @@ export interface BatchErrorLogConfig {
  * Firestoreに保存するエラーログの構造
  */
 export interface BatchErrorLogEntry {
-  /** バッチタイプ（'news' or 'terms'） */
+  /** バッチタイプ('news' or 'terms') */
   batchType: 'news' | 'terms';
-  /** 処理日付（YYYY-MM-DD） */
+  /** 処理日付(YYYY-MM-DD) */
   date: string;
   /** 試行回数 */
   attemptCount: number;
   /** リトライ回数 */
   totalRetries: number;
-  /** 総処理時間（ミリ秒） */
+  /** 総処理時間(ミリ秒) */
   totalProcessingTimeMs: number;
   /** 部分成功フラグ */
   partialSuccess: boolean;
@@ -54,7 +54,7 @@ export interface BatchErrorLogEntry {
   }>;
   /** ログ保存時のタイムスタンプ */
   timestamp: string;
-  /** 追加のコンテキスト情報（任意） */
+  /** 追加のコンテキスト情報(任意) */
   context?: Record<string, unknown>;
 }
 
@@ -95,7 +95,7 @@ export class NewsBatchErrorLogger {
    * リトライを全て使い果たした後の最終失敗時にFirestoreにログを保存する
    *
    * @param retryResult - リトライ結果
-   * @param context - 追加のコンテキスト情報（任意）
+   * @param context - 追加のコンテキスト情報(任意)
    */
   async logFinalFailure(
     retryResult: NewsBatchRetryResult,

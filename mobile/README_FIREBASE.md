@@ -54,13 +54,13 @@ Firebase Pluginsを追加し、iOS/Android向けのGoogle Services設定を定�
 
 ### 4. GoogleService-Info.plist (セキュリティ設定)
 
-iOS向けのFirebase設定ファイルは**APIキーなどの機密情報を含むため、Gitから除外**されています。
+iOS向けのFirebase設定ファイルは**APIキーなどの機密情報を含むため、Gitから除外** されています。
 
 **⚠️ セキュリティ上の注意:**
 
 - `GoogleService-Info.plist` - **Git管理から除外** (.gitignoreに追加済み)
-- `GoogleService-Info.plist.example` - テンプレートファイル（Git管理対象）
-- `google-services.json` - Android用設定ファイル（Git管理から除外）
+- `GoogleService-Info.plist.example` - テンプレートファイル(Git管理対象)
+- `google-services.json` - Android用設定ファイル(Git管理から除外)
 
 **実際のプロジェクトで必要な手順:**
 

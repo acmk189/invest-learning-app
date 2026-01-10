@@ -51,7 +51,7 @@ export class FirestoreError extends Error {
 }
 
 /**
- * ユーザー向けエラーメッセージ（日本語）
+ * ユーザー向けエラーメッセージ(日本語)
  * Requirement 7.5: 適切なエラーメッセージを表示
  */
 export const ERROR_MESSAGES: Record<FirestoreErrorCode, string> = {
@@ -119,7 +119,7 @@ export function toFirestoreError(error: unknown): FirestoreError {
 
   // Errorオブジェクトの場合
   if (error instanceof Error) {
-    // Firebaseエラーの場合（codeプロパティを持つ）
+    // Firebaseエラーの場合(codeプロパティを持つ)
     const firebaseError = error as Error & { code?: string };
     if (firebaseError.code) {
       const code = mapFirebaseErrorCode(firebaseError.code);
@@ -189,7 +189,7 @@ export function getUserFriendlyMessage(error: FirestoreError): string {
  * エラーをログに記録する
  *
  * @param error - FirestoreError
- * @param context - エラーが発生したコンテキスト（例: 'fetchNews', 'fetchTerms'）
+ * @param context - エラーが発生したコンテキスト(例: 'fetchNews', 'fetchTerms')
  */
 export function logFirestoreError(error: FirestoreError, context: string): void {
   console.error(`[Firestore Error] ${context}:`, {

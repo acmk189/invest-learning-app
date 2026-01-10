@@ -27,7 +27,7 @@ export const lightColors: ThemeColors = {
   text: '#111827', // gray-900: 主要テキスト
   textSecondary: '#4b5563', // gray-600: 二次テキスト
 
-  // プライマリ色（ブルー系）
+  // プライマリ色(ブルー系)
   primary: '#2563eb', // blue-600: プライマリ
   primaryText: '#ffffff', // white: プライマリ上のテキスト
 
@@ -67,8 +67,8 @@ export const darkColors: ThemeColors = {
   text: '#f9fafb', // gray-50: 主要テキスト
   textSecondary: '#d1d5db', // gray-300: 二次テキスト
 
-  // プライマリ色（ブルー系 - ダーク向け調整）
-  primary: '#60a5fa', // blue-400: プライマリ（暗背景で視認性確保）
+  // プライマリ色(ブルー系 - ダーク向け調整)
+  primary: '#60a5fa', // blue-400: プライマリ(暗背景で視認性確保)
   primaryText: '#111827', // gray-900: プライマリ上のテキスト
 
   // カード
@@ -88,8 +88,8 @@ export const darkColors: ThemeColors = {
   headerText: '#f9fafb', // gray-50: ヘッダーテキスト
 
   // エラー
-  error: '#7f1d1d', // red-900: エラー背景（ダーク向け）
-  errorText: '#fca5a5', // red-300: エラーテキスト（ダーク向け視認性）
+  error: '#7f1d1d', // red-900: エラー背景(ダーク向け)
+  errorText: '#fca5a5', // red-300: エラーテキスト(ダーク向け視認性)
 };
 
 /**

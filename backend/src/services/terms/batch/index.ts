@@ -16,14 +16,14 @@ export {
   type BatchErrorInfo,
 } from './termsBatchService';
 
-// リトライハンドラー（Task 12.1）
+// リトライハンドラー(Task 12.1)
 export {
   TermsBatchRetryHandler,
   type TermsBatchRetryConfig,
   type TermsBatchRetryResult,
 } from './termsBatchRetryHandler';
 
-// ステップ別エラーログ（Task 12.2）
+// ステップ別エラーログ(Task 12.2)
 export {
   TermsBatchStepLogger,
   TermsBatchStep,
@@ -31,7 +31,7 @@ export {
   type StepLogSummary,
 } from './termsBatchStepLogger';
 
-// 部分成功ハンドラー（Task 12.3）
+// 部分成功ハンドラー(Task 12.3)
 export {
   TermsPartialSuccessHandler,
   TermsPartialSuccessType,
@@ -39,7 +39,7 @@ export {
   type TermsPartialSuccessNotification,
 } from './termsBatchPartialSuccessHandler';
 
-// 最終失敗時エラーログ（Task 12.4）
+// 最終失敗時エラーログ(Task 12.4)
 export {
   TermsBatchErrorLogger,
   type TermsBatchErrorLogConfig,

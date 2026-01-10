@@ -12,7 +12,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * デフォルトのバッチ処理制限時間（5分）
+ * デフォルトのバッチ処理制限時間(5分)
  */
 const DEFAULT_BATCH_LIMIT_MS = 300000;
 
@@ -22,13 +22,13 @@ const DEFAULT_BATCH_LIMIT_MS = 300000;
  * バッチ処理全体と各ステップの処理時間を記録
  */
 export interface PerformanceMetrics {
-  /** 全体の処理時間（ミリ秒） */
+  /** 全体の処理時間(ミリ秒) */
   totalDurationMs: number;
-  /** 各ステップの処理時間（キー: ステップ名, 値: ミリ秒） */
+  /** 各ステップの処理時間(キー: ステップ名, 値: ミリ秒) */
   steps: Record<string, number>;
   /** 制限時間内に完了したか */
   isWithinLimit: boolean;
-  /** 制限時間（ミリ秒） */
+  /** 制限時間(ミリ秒) */
   limitMs: number;
 }
 
@@ -38,9 +38,9 @@ export interface PerformanceMetrics {
  * ログ出力用の構造化データ
  */
 export interface PerformanceLogEntry {
-  /** バッチID（一意識別子） */
+  /** バッチID(一意識別子) */
   batchId: string;
-  /** 全体の処理時間（ミリ秒） */
+  /** 全体の処理時間(ミリ秒) */
   totalDurationMs: number;
   /** 各ステップの処理時間 */
   steps: Record<string, number>;
@@ -55,7 +55,7 @@ export interface PerformanceLogEntry {
  */
 export interface BatchPerformanceMonitorConfig {
   /**
-   * バッチ処理の制限時間（ミリ秒）
+   * バッチ処理の制限時間(ミリ秒)
    * @default 300000 (5分)
    */
   limitMs?: number;
@@ -184,9 +184,9 @@ export class BatchPerformanceMonitor {
   /**
    * 残り時間を取得
    *
-   * バッチ処理の残り時間（ミリ秒）を返します。
+   * バッチ処理の残り時間(ミリ秒)を返します。
    *
-   * @returns 残り時間（ミリ秒）、バッチ未開始時は制限時間
+   * @returns 残り時間(ミリ秒)、バッチ未開始時は制限時間
    */
   getRemainingTime(): number {
     if (this.batchStartTime === null) {

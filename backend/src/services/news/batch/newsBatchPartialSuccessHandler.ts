@@ -20,13 +20,13 @@ import { NewsBatchResult } from './newsBatchService';
  * バッチ処理の結果を4つのカテゴリに分類
  */
 export enum PartialSuccessType {
-  /** 完全成功（両方のニュースが取得・要約成功） */
+  /** 完全成功(両方のニュースが取得・要約成功) */
   FULL_SUCCESS = 'full-success',
   /** 世界ニュースのみ成功 */
   WORLD_NEWS_ONLY = 'world-news-only',
   /** 日本ニュースのみ成功 */
   JAPAN_NEWS_ONLY = 'japan-news-only',
-  /** 完全失敗（両方のニュースが失敗） */
+  /** 完全失敗(両方のニュースが失敗) */
   FULL_FAILURE = 'full-failure',
 }
 

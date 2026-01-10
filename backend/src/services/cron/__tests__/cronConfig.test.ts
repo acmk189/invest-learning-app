@@ -21,11 +21,11 @@ import {
 
 describe('cronConfig', () => {
   describe('CRON_SCHEDULE', () => {
-    it('ニュースバッチは毎日23:00 UTCに実行（8:00 JST）', () => {
+    it('ニュースバッチは毎日23:00 UTCに実行(8:00 JST)', () => {
       expect(CRON_SCHEDULE.NEWS).toBe('0 23 * * *');
     });
 
-    it('用語バッチは毎日23:00 UTCに実行（8:00 JST）', () => {
+    it('用語バッチは毎日23:00 UTCに実行(8:00 JST)', () => {
       // ニュースと同時刻に実行
       expect(CRON_SCHEDULE.TERMS).toBe('0 23 * * *');
     });

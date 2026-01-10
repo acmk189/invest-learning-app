@@ -3,7 +3,7 @@
  * Task 5.1, 5.2: 用語生成プロンプト基本実装、難易度指定機能
  *
  * 投資・金融用語を生成するためのプロンプトを構築します。
- * 難易度（初級・中級・上級）に応じたプロンプト調整と、
+ * 難易度(初級・中級・上級)に応じたプロンプト調整と、
  * 重複除外用語リストの指定が可能です。
  *
  * Requirements:
@@ -17,7 +17,7 @@
 import { TermDifficulty } from '../../models/terms.model';
 
 /**
- * 難易度レベル（TermDifficultyのエイリアス）
+ * 難易度レベル(TermDifficultyのエイリアス)
  *
  * @example
  * const difficulty: DifficultyLevel = 'beginner';
@@ -85,7 +85,7 @@ function formatExcludeTerms(excludeTerms: string[]): string {
   const termsList = excludeTerms.map((term) => `- ${term}`).join('\n');
 
   return `
-## 除外する用語（これらの用語は選ばないでください）
+## 除外する用語(これらの用語は選ばないでください)
 ${termsList}
 `;
 }
@@ -98,7 +98,7 @@ ${termsList}
  */
 function getDifficultyInstruction(difficulty?: DifficultyLevel): string {
   if (!difficulty) {
-    return '難易度はランダムに選択してください（beginner, intermediate, advancedのいずれか）。';
+    return '難易度はランダムに選択してください(beginner, intermediate, advancedのいずれか)。';
   }
 
   return DIFFICULTY_DESCRIPTIONS[difficulty];
@@ -141,7 +141,7 @@ export function buildTermGenerationPrompt(
 ## 指示
 1. 投資・金融・経済に関する用語を1つ選んでください
 2. 選んだ用語について、投資初学者にも分かりやすい解説を作成してください
-3. 解説は約${TERM_GENERATION_CONFIG.targetCharacters}文字（${TERM_GENERATION_CONFIG.minCharacters}〜${TERM_GENERATION_CONFIG.maxCharacters}文字）で作成してください
+3. 解説は約${TERM_GENERATION_CONFIG.targetCharacters}文字(${TERM_GENERATION_CONFIG.minCharacters}〜${TERM_GENERATION_CONFIG.maxCharacters}文字)で作成してください
 4. ${difficultyInstruction}
 
 ## 解説の書き方
@@ -157,7 +157,7 @@ ${excludeTermsSection}
 \`\`\`json
 {
   "name": "用語名",
-  "description": "解説文（${TERM_GENERATION_CONFIG.minCharacters}〜${TERM_GENERATION_CONFIG.maxCharacters}文字）",
+  "description": "解説文(${TERM_GENERATION_CONFIG.minCharacters}〜${TERM_GENERATION_CONFIG.maxCharacters}文字)",
   "difficulty": "${difficulty || 'beginner|intermediate|advanced'}"
 }
 \`\`\`

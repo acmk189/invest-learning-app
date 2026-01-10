@@ -18,7 +18,7 @@ import { TermsData, TermItem } from '../../firestore/types';
 // モック用語データ
 const mockTermItems: TermItem[] = [
   {
-    name: 'PER（株価収益率）',
+    name: 'PER(株価収益率)',
     description:
       '株価を1株当たり純利益で割った指標。企業の株価が利益に対して何倍の価値で取引されているかを示します...',
     difficulty: 'beginner',
@@ -44,7 +44,7 @@ const mockTermsData: TermsData = {
   updatedAt: '2026-01-10T08:00:00.000Z',
 };
 
-// モックエラー（FirestoreErrorCodeの型に準拠）
+// モックエラー(FirestoreErrorCodeの型に準拠)
 const mockError: TermsError = {
   code: 'CONNECTION_FAILED',
   message: 'サーバーに接続できませんでした。インターネット接続を確認してください。',

@@ -26,12 +26,12 @@ import { AppError, ErrorType, ErrorSeverity } from '../../errors/types';
  * 用語生成エラー
  *
  * 用語生成処理中に発生したエラーを表現します。
- * 操作名（operation）と試行回数を保持し、
+ * 操作名(operation)と試行回数を保持し、
  * どの処理で何回失敗したかを追跡できます。
  */
 export class TermGenerationError extends AppError {
   /**
-   * 操作名（例: 'term-generation'）
+   * 操作名(例: 'term-generation')
    */
   public readonly operation: string;
 
@@ -65,7 +65,7 @@ export interface TermGenerationResult {
   characterCount: number;
   /** 文字数が許容範囲内かどうか */
   isValid: boolean;
-  /** 警告メッセージ（範囲外の場合） */
+  /** 警告メッセージ(範囲外の場合) */
   warning?: string;
   /** 使用されたモデル名 */
   model: string;
@@ -127,7 +127,7 @@ export interface GenerateTermOptions {
  * // 難易度を指定
  * const result = await service.generateTerm({ difficulty: 'advanced' });
  *
- * // 除外用語を指定（重複防止）
+ * // 除外用語を指定(重複防止)
  * const result = await service.generateTerm({
  *   difficulty: 'beginner',
  *   excludeTerms: ['PER', 'PBR', 'ROE']
@@ -212,7 +212,7 @@ export class TermGenerationService {
           return result;
         }
 
-        // パース失敗（result === null）の場合はリトライ
+        // パース失敗(result === null)の場合はリトライ
         lastError = new Error('レスポンスのパースに失敗しました');
 
         if (this.logErrors) {
@@ -239,7 +239,7 @@ export class TermGenerationService {
 
     // 全リトライ失敗
     throw new TermGenerationError(
-      `用語生成に失敗しました（${attempts}回試行）: ${lastError?.message}`,
+      `用語生成に失敗しました(${attempts}回試行): ${lastError?.message}`,
       operation,
       attempts,
       lastError
@@ -250,7 +250,7 @@ export class TermGenerationService {
    * レスポンスを処理して結果を生成
    *
    * @param response - Claude APIレスポンス
-   * @returns 生成結果（パース失敗時はnull）
+   * @returns 生成結果(パース失敗時はnull)
    */
   private processResponse(response: ClaudeResponse): TermGenerationResult | null {
     const parseResult = parseTermResponse(response);

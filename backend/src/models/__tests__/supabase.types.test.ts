@@ -117,7 +117,7 @@ describe('Supabase Types', () => {
       const termRow: TermRow = {
         id: 1,
         date: '2024-01-01',
-        name: 'PER（株価収益率）',
+        name: 'PER(株価収益率)',
         description: '株価を1株当たり利益で割った指標...',
         difficulty: 'beginner',
         created_at: '2024-01-01T00:00:00Z',
@@ -130,12 +130,12 @@ describe('Supabase Types', () => {
     it('should allow creating a valid TermHistoryRow', () => {
       const historyRow: TermHistoryRow = {
         id: 1,
-        term_name: 'PER（株価収益率）',
+        term_name: 'PER(株価収益率)',
         delivered_at: '2024-01-01T08:00:00Z',
         difficulty: 'beginner',
       };
 
-      expect(historyRow.term_name).toBe('PER（株価収益率）');
+      expect(historyRow.term_name).toBe('PER(株価収益率)');
     });
 
     it('should allow creating a valid BatchMetadataRow', () => {

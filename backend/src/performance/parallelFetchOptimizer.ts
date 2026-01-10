@@ -3,7 +3,7 @@
  *
  * Task 27.1: 並列実行最適化 - NewsAPIとGoogle News RSSの並列実行検証と処理時間短縮
  *
- * 2つの非同期タスク（ニュース取得等）を並列実行し、
+ * 2つの非同期タスク(ニュース取得等)を並列実行し、
  * 処理時間を最小化します。タイムアウト制御付きで
  * 個別タスクの失敗をハンドリングします。
  *
@@ -13,7 +13,7 @@
  */
 
 /**
- * デフォルトのタスクタイムアウト（30秒）
+ * デフォルトのタスクタイムアウト(30秒)
  *
  * NewsAPIとGoogle News RSSの取得は通常数秒で完了するため、
  * 30秒のタイムアウトで十分なマージンを確保
@@ -27,13 +27,13 @@ const DEFAULT_TASK_TIMEOUT_MS = 30000;
  */
 export interface ParallelFetchConfig {
   /**
-   * タスク1（例：NewsAPI）のタイムアウト時間（ミリ秒）
+   * タスク1(例：NewsAPI)のタイムアウト時間(ミリ秒)
    * @default 30000
    */
   task1TimeoutMs?: number;
 
   /**
-   * タスク2（例：Google News RSS）のタイムアウト時間（ミリ秒）
+   * タスク2(例：Google News RSS)のタイムアウト時間(ミリ秒)
    * @default 30000
    */
   task2TimeoutMs?: number;
@@ -45,11 +45,11 @@ export interface ParallelFetchConfig {
  * 各タスクと全体の処理時間を記録
  */
 export interface ParallelFetchTiming {
-  /** タスク1の処理時間（ミリ秒） */
+  /** タスク1の処理時間(ミリ秒) */
   task1DurationMs: number;
-  /** タスク2の処理時間（ミリ秒） */
+  /** タスク2の処理時間(ミリ秒) */
   task2DurationMs: number;
-  /** 全体の処理時間（ミリ秒） */
+  /** 全体の処理時間(ミリ秒) */
   totalDurationMs: number;
 }
 
@@ -62,19 +62,19 @@ export interface ParallelFetchTiming {
 export interface ParallelFetchResult<T1 = unknown, T2 = unknown> {
   /** 全てのタスクが成功したか */
   success: boolean;
-  /** 部分的に成功したか（片方のみ成功） */
+  /** 部分的に成功したか(片方のみ成功) */
   partialSuccess: boolean;
-  /** タスク1の結果（成功時） */
+  /** タスク1の結果(成功時) */
   result1?: T1;
-  /** タスク2の結果（成功時） */
+  /** タスク2の結果(成功時) */
   result2?: T2;
   /** タスク1がタイムアウトしたか */
   task1TimedOut: boolean;
   /** タスク2がタイムアウトしたか */
   task2TimedOut: boolean;
-  /** タスク1のエラー（失敗時） */
+  /** タスク1のエラー(失敗時) */
   error1?: Error;
-  /** タスク2のエラー（失敗時） */
+  /** タスク2のエラー(失敗時) */
   error2?: Error;
   /** タイミング情報 */
   timing: ParallelFetchTiming;
@@ -157,7 +157,7 @@ export class ParallelFetchOptimizer {
   ): Promise<ParallelFetchResult<T1, T2>> {
     const overallStartTime = Date.now();
 
-    // 並列実行（各タスクにタイムアウト制御を適用）
+    // 並列実行(各タスクにタイムアウト制御を適用)
     const [result1, result2] = await Promise.all([
       this.executeWithTimeout(task1, this.task1TimeoutMs),
       this.executeWithTimeout(task2, this.task2TimeoutMs),
@@ -195,7 +195,7 @@ export class ParallelFetchOptimizer {
    *
    * @template T - タスクの結果型
    * @param task - 実行するタスク関数
-   * @param timeoutMs - タイムアウト時間（ミリ秒）
+   * @param timeoutMs - タイムアウト時間(ミリ秒)
    * @returns タイムアウト付き実行結果
    */
   private async executeWithTimeout<T>(

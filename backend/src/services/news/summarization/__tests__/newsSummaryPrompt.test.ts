@@ -101,7 +101,7 @@ describe('ニュース要約プロンプト', () => {
       expect(prompt).toContain('Fed Announces Interest Rate Decision');
     });
 
-    it('プロンプトに記事のソース（出典）が含まれる', () => {
+    it('プロンプトに記事のソース(出典)が含まれる', () => {
       const prompt = buildEnglishNewsSummaryPrompt(sampleArticles);
 
       expect(prompt).toContain('Financial Times');
@@ -176,14 +176,14 @@ describe('ニュース要約プロンプト', () => {
       expect(prompt).toContain('日銀の金融政策決定会合');
     });
 
-    it('プロンプトに記事のソース（出典）が含まれる', () => {
+    it('プロンプトに記事のソース(出典)が含まれる', () => {
       const prompt = buildJapaneseNewsSummaryPrompt(sampleArticles);
 
       expect(prompt).toContain('日本経済新聞');
       expect(prompt).toContain('ロイター');
     });
 
-    it('翻訳指示が含まれない（日本語記事のため）', () => {
+    it('翻訳指示が含まれない(日本語記事のため)', () => {
       const prompt = buildJapaneseNewsSummaryPrompt(sampleArticles);
 
       // 日本語記事なので翻訳指示は不要

@@ -2,10 +2,10 @@
 
 ## 前提条件
 
-- Vercel CLIがインストールされていること（`npm install -g vercel`）
+- Vercel CLIがインストールされていること(`npm install -g vercel`)
 - Vercelアカウントを持っていること
 - Firebase プロジェクトが作成されていること
-- 必要なAPIキー（NewsAPI、Claude API）を取得済みであること
+- 必要なAPIキー(NewsAPI、Claude API)を取得済みであること
 
 ## 環境変数の設定
 
@@ -27,7 +27,7 @@
 4. この値を `NEWS_API_KEY` として設定
 
 **注意**:
-- 無料プランは開発用で、本番環境では有料プラン（Business Plan: $449/month）が必要
+- 無料プランは開発用で、本番環境では有料プラン(Business Plan: $449/month)が必要
 - 無料プランの制限: 100リクエスト/日、過去1ヶ月のニュースのみ
 - 詳細は[料金ページ](https://newsapi.org/pricing)を確認
 
@@ -37,18 +37,18 @@
 2. アカウント登録またはログイン
 3. 左メニューから「API Keys」を選択
 4. 「Create Key」をクリックして新しいAPIキーを生成
-5. 生成されたキーをコピー（**一度しか表示されません**）
+5. 生成されたキーをコピー(**一度しか表示されません**)
 6. この値を `CLAUDE_API_KEY` として設定
 
 **注意**:
 - Claude APIは使用量に応じた従量課金制
 - 初回登録時にクレジットが付与される場合があります
 - 料金の詳細は[Anthropic Pricing](https://www.anthropic.com/pricing)を確認
-- 使用するモデル（例: claude-3-sonnet）によって料金が異なります
+- 使用するモデル(例: claude-3-sonnet)によって料金が異なります
 
 ### 2. Vercel環境変数の登録
 
-#### 方法1: Vercel Web UI を使用（推奨）
+#### 方法1: Vercel Web UI を使用(推奨)
 
 長い秘密鍵の場合、Web UIを使うと確実です：
 
@@ -57,19 +57,19 @@
 3. Settings → Environment Variables
 4. 各環境変数を追加:
    - `FIREBASE_PROJECT_ID`
-   - `FIREBASE_PRIVATE_KEY`（改行を含む秘密鍵をそのままペースト）
+   - `FIREBASE_PRIVATE_KEY`(改行を含む秘密鍵をそのままペースト)
    - `FIREBASE_CLIENT_EMAIL`
    - `NEWS_API_KEY`
    - `CLAUDE_API_KEY`
    - `CRON_SECRET`
-5. 環境を選択（Production, Preview, Development）
+5. 環境を選択(Production, Preview, Development)
 
 #### 方法2: CLIでファイルから読み込み
 
 秘密鍵をファイルに保存してから読み込む方法：
 
 ```bash
-# .secretsディレクトリに一時ファイルを作成（gitignore済み）
+# .secretsディレクトリに一時ファイルを作成(gitignore済み)
 # Firebase Admin SDKのJSONから private_key の値だけを抽出
 cat .secrets/investment-learning-app-firebase-adminsdk-*.json | \
   jq -r '.private_key' > .secrets/firebase_private_key.txt
@@ -106,7 +106,7 @@ vercel env add NEWS_API_KEY production
 # Claude API (Anthropic)
 vercel env add CLAUDE_API_KEY production
 
-# Cron Secret（ランダムな文字列を生成）
+# Cron Secret(ランダムな文字列を生成)
 vercel env add CRON_SECRET production
 ```
 
@@ -130,9 +130,9 @@ vercel link
 ```
 
 プロンプトに従って:
-- スコープを選択（個人アカウントまたは組織）
+- スコープを選択(個人アカウントまたは組織)
 - 新しいプロジェクトを作成するか、既存プロジェクトにリンク
-- プロジェクト名を入力（例: investment-news-app）
+- プロジェクト名を入力(例: investment-news-app)
 - ルートディレクトリを確認: `./backend`
 
 ### 2. デプロイ実行
@@ -170,16 +170,16 @@ curl https://your-project.vercel.app/api/health
 ### Firebase接続エラー
 
 - `FIREBASE_PRIVATE_KEY`の改行文字が正しく設定されているか確認
-- サービスアカウントの権限を確認（Firestore管理者権限が必要）
+- サービスアカウントの権限を確認(Firestore管理者権限が必要)
 
 ### 環境変数が読み込まれない
 
-- Vercel環境変数が本番環境（Production）に設定されているか確認
+- Vercel環境変数が本番環境(Production)に設定されているか確認
 - `vercel env pull`で環境変数をローカルにダウンロードして確認
 
 ### デプロイタイムアウト
 
-- `vercel.json`のmaxDuration設定を確認（最大300秒）
+- `vercel.json`のmaxDuration設定を確認(最大300秒)
 - バッチ処理が5分以内に完了するよう最適化
 
 ## ローカル開発
@@ -187,7 +187,7 @@ curl https://your-project.vercel.app/api/health
 ローカルで環境変数を使用する場合:
 
 ```bash
-# .env.localファイルを作成（.gitignoreに追加済み）
+# .env.localファイルを作成(.gitignoreに追加済み)
 vercel env pull .env.local
 
 # ローカル開発サーバー起動

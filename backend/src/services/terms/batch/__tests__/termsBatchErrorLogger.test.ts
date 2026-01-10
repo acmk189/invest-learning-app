@@ -186,7 +186,7 @@ describe('TermsBatchErrorLogger', () => {
 
       logger.logSummaryToConsole(retryResult);
 
-      // 複数回呼び出されることを確認（ヘッダー、詳細、フッターなど）
+      // 複数回呼び出されることを確認(ヘッダー、詳細、フッターなど)
       expect(consoleSpy.mock.calls.length).toBeGreaterThan(1);
       consoleSpy.mockRestore();
     });

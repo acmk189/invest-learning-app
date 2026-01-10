@@ -151,7 +151,7 @@ CREATE TABLE terms (
 -- 日付別インデックス
 CREATE INDEX idx_terms_date ON terms(date DESC);
 
--- 1日3用語の制約（アプリケーションレベルで管理）
+-- 1日3用語の制約(アプリケーションレベルで管理)
 ```
 
 #### terms_history テーブル
@@ -279,7 +279,7 @@ export function getSupabase(): SupabaseClient<Database> {
 }
 ```
 
-#### backend/src/models/news.model.ts（更新）
+#### backend/src/models/news.model.ts(更新)
 
 ```typescript
 /**
@@ -313,7 +313,7 @@ export function validateNewsSummary(summary: string, type: 'world' | 'japan'): v
   const length = summary.length;
   if (length < 1800 || length > 2200) {
     throw new Error(
-      `${type === 'world' ? '世界' : '日本'}ニュースの要約文は1800〜2200文字である必要があります（現在: ${length}文字）`
+      `${type === 'world' ? '世界' : '日本'}ニュースの要約文は1800〜2200文字である必要があります(現在: ${length}文字)`
     );
   }
 }
@@ -552,7 +552,7 @@ sequenceDiagram
         Repo->>Cache: getCache('news', today)
         Cache-->>Repo: キャッシュデータ
         Repo-->>VM: NewsResult(cache)
-        VM-->>View: 表示更新（1秒以内）
+        VM-->>View: 表示更新(1秒以内)
     else オンライン
         Network-->>Repo: true
         Repo->>Cache: getValidatedCache('news', today)
@@ -630,7 +630,7 @@ async getTodayNews(): Promise<NewsResult> {
     };
   }
 
-  // オンライン時は既存ロジック（メタデータチェック付き）
+  // オンライン時は既存ロジック(メタデータチェック付き)
   // ...
 }
 ```
@@ -639,14 +639,14 @@ async getTodayNews(): Promise<NewsResult> {
 
 ## 6. 移行手順
 
-### Phase 1: 準備（1-2日）
+### Phase 1: 準備(1-2日)
 
 1. Supabaseプロジェクト作成
-2. データベーススキーマ作成（SQL実行）
+2. データベーススキーマ作成(SQL実行)
 3. RLSポリシー設定
 4. 環境変数設定
 
-### Phase 2: バックエンド移行（2-3日）
+### Phase 2: バックエンド移行(2-3日)
 
 1. `@supabase/supabase-js`インストール
 2. `backend/src/config/supabase.ts`作成
@@ -655,7 +655,7 @@ async getTodayNews(): Promise<NewsResult> {
 5. ユニットテスト更新
 6. ローカル動作確認
 
-### Phase 3: フロントエンド移行（2-3日）
+### Phase 3: フロントエンド移行(2-3日)
 
 1. `@supabase/supabase-js`インストール
 2. `mobile/src/supabase/`ディレクトリ作成
@@ -664,21 +664,21 @@ async getTodayNews(): Promise<NewsResult> {
 5. NetworkMonitor実装
 6. ユニットテスト更新
 
-### Phase 4: Firebase削除（1日）
+### Phase 4: Firebase削除(1日)
 
 1. Firebaseパッケージアンインストール
 2. Firebase関連コード削除
 3. 設定ファイル削除
 4. ビルド確認
 
-### Phase 5: データ移行（1日）
+### Phase 5: データ移行(1日)
 
 1. Firestoreデータエクスポート
 2. データ変換スクリプト実行
 3. Supabaseへインポート
 4. 整合性検証
 
-### Phase 6: テスト・検証（2-3日）
+### Phase 6: テスト・検証(2-3日)
 
 1. 統合テスト
 2. E2Eテスト
@@ -688,19 +688,19 @@ async getTodayNews(): Promise<NewsResult> {
 
 ---
 
-## 7. ディレクトリ構造（移行後）
+## 7. ディレクトリ構造(移行後)
 
 ### backend/src/
 
 ```
 ├── config/
-│   └── supabase.ts          # 新規（firebase.ts削除）
+│   └── supabase.ts          # 新規(firebase.ts削除)
 ├── models/
 │   ├── news.model.ts        # 更新
 │   ├── terms.model.ts       # 更新
 │   └── metadata.model.ts    # 更新
 ├── types/
-│   └── database.types.ts    # 新規（Supabase型定義）
+│   └── database.types.ts    # 新規(Supabase型定義)
 └── services/
     ├── supabase/            # 新規
     │   ├── news-service.ts
@@ -712,7 +712,7 @@ async getTodayNews(): Promise<NewsResult> {
 ### mobile/src/
 
 ```
-├── supabase/                # 新規（firestore/削除）
+├── supabase/                # 新規(firestore/削除)
 │   ├── client.ts
 │   ├── queries.ts
 │   ├── errors.ts

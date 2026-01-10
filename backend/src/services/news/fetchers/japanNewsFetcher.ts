@@ -23,7 +23,7 @@ const DEFAULT_FEED_URL =
   'https://news.google.com/rss/search?q=business&hl=ja&gl=JP&ceid=JP:ja';
 
 /**
- * デフォルトのタイムアウト時間（ミリ秒）
+ * デフォルトのタイムアウト時間(ミリ秒)
  */
 const DEFAULT_TIMEOUT_MS = 30000;
 
@@ -44,7 +44,7 @@ export interface JapanNewsFetcherConfig {
   feedUrl?: string;
 
   /**
-   * タイムアウト時間（ミリ秒）
+   * タイムアウト時間(ミリ秒)
    *
    * @default 30000
    */
@@ -78,7 +78,7 @@ export class RssError extends Error {
  */
 export class RssTimeoutError extends RssError {
   /**
-   * タイムアウト時間（ミリ秒）
+   * タイムアウト時間(ミリ秒)
    */
   public readonly timeoutMs: number;
 
@@ -124,7 +124,7 @@ export class JapanNewsFetcher {
    * コンストラクタ
    *
    * @param parser - RSSパーサーインスタンス
-   * @param config - 取得設定（省略時はデフォルト値を使用）
+   * @param config - 取得設定(省略時はデフォルト値を使用)
    */
   constructor(parser: RssParser, config?: JapanNewsFetcherConfig) {
     this.parser = parser;
@@ -231,7 +231,7 @@ export class JapanNewsFetcher {
         throw new RssNetworkError(`Network error: ${error.message}`);
       }
 
-      // その他のエラー（パースエラー等）
+      // その他のエラー(パースエラー等)
       throw new RssError(`RSS error: ${error.message}`);
     }
 

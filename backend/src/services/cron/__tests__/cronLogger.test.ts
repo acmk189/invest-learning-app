@@ -166,11 +166,11 @@ describe('cronLogger', () => {
   });
 
   describe('constants', () => {
-    it('タイムアウトは5分（300秒）', () => {
+    it('タイムアウトは5分(300秒)', () => {
       expect(CRON_TIMEOUT_MS).toBe(300000);
     });
 
-    it('警告閾値は4分（240秒）', () => {
+    it('警告閾値は4分(240秒)', () => {
       expect(CRON_TIMEOUT_WARNING_MS).toBe(240000);
     });
   });

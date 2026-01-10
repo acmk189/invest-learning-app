@@ -26,11 +26,11 @@ import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
  * ニュース要約エラー
  *
  * 要約処理中に発生したエラーを表現します。
- * 操作名（operation）を保持し、どの処理で失敗したかを追跡できます。
+ * 操作名(operation)を保持し、どの処理で失敗したかを追跡できます。
  */
 export class NewsSummaryError extends AppError {
   /**
-   * 操作名（例: 'english-news-summary', 'japanese-news-summary'）
+   * 操作名(例: 'english-news-summary', 'japanese-news-summary')
    */
   public readonly operation: string;
 
@@ -64,7 +64,7 @@ export interface SummaryResult {
   characterCount: number;
   /** 文字数が許容範囲内かどうか */
   isValid: boolean;
-  /** 警告メッセージ（範囲外の場合） */
+  /** 警告メッセージ(範囲外の場合) */
   warning?: string;
   /** 使用されたモデル名 */
   model: string;
@@ -199,7 +199,7 @@ export class NewsSummaryService {
 
     // 全リトライ失敗
     throw new NewsSummaryError(
-      `ニュース要約に失敗しました（${attempts}回試行）: ${lastError?.message}`,
+      `ニュース要約に失敗しました(${attempts}回試行): ${lastError?.message}`,
       operation,
       attempts,
       lastError

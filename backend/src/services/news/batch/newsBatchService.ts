@@ -31,7 +31,7 @@ import { NewsSummaryService, NewsArticle } from '../summarization';
 import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
 
 /**
- * デフォルトのタイムアウト時間（5分）
+ * デフォルトのタイムアウト時間(5分)
  *
  * Requirements 1.8: バッチ処理は5分以内に完了する必要がある
  */
@@ -44,7 +44,7 @@ const DEFAULT_TIMEOUT_MS = 300000;
  */
 export class NewsBatchError extends AppError {
   /**
-   * 操作名（例: 'world-news-fetch', 'japan-news-summary'）
+   * 操作名(例: 'world-news-fetch', 'japan-news-summary')
    */
   public readonly operation: string;
 
@@ -59,7 +59,7 @@ export class NewsBatchError extends AppError {
  * バッチ処理中のエラー情報
  */
 export interface BatchErrorInfo {
-  /** エラータイプ（どの処理で発生したか） */
+  /** エラータイプ(どの処理で発生したか) */
   type: string;
   /** エラーメッセージ */
   message: string;
@@ -68,12 +68,12 @@ export interface BatchErrorInfo {
 }
 
 /**
- * ニュース要約結果（バッチ用）
+ * ニュース要約結果(バッチ用)
  *
  * Firestoreに保存するためのデータ構造
  */
 export interface NewsSummaryData {
-  /** ニュースタイトル（自動生成） */
+  /** ニュースタイトル(自動生成) */
   title: string;
   /** 要約本文 */
   summary: string;
@@ -282,7 +282,7 @@ export class NewsBatchService {
   /**
    * タイムアウト制御付きでメイン処理を実行
    *
-   * @param today - 今日の日付（YYYY-MM-DD）
+   * @param today - 今日の日付(YYYY-MM-DD)
    * @param errors - エラー情報を格納する配列
    * @returns 処理結果
    */
@@ -315,7 +315,7 @@ export class NewsBatchService {
   /**
    * メイン処理を実行
    *
-   * @param today - 今日の日付（YYYY-MM-DD）
+   * @param today - 今日の日付(YYYY-MM-DD)
    * @param errors - エラー情報を格納する配列
    * @returns 処理結果
    */

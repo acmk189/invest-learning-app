@@ -15,7 +15,7 @@
 /**
  * タイムアウト設定の型定義
  *
- * @property timeoutMs - タイムアウト時間（ミリ秒）
+ * @property timeoutMs - タイムアウト時間(ミリ秒)
  * @property description - 設定の説明
  * @property maxTimeoutMs - 許容される最大タイムアウト時間
  */
@@ -46,8 +46,8 @@ export const TIMEOUT_CONFIG: Record<ServiceName, TimeoutSetting> = {
 
   // Claude API: AI処理は時間がかかる可能性がある
   claudeApi: {
-    timeoutMs: 90000, // 90秒（AI処理のため長め）
-    description: 'Claude API（Anthropic）への接続タイムアウト',
+    timeoutMs: 90000, // 90秒(AI処理のため長め)
+    description: 'Claude API(Anthropic)への接続タイムアウト',
     maxTimeoutMs: 120000, // 最大120秒
   },
 
@@ -61,7 +61,7 @@ export const TIMEOUT_CONFIG: Record<ServiceName, TimeoutSetting> = {
   // バッチ処理全体: Requirements 1.8により5分以内に完了する必要がある
   batchProcess: {
     timeoutMs: 300000, // 5分
-    description: 'バッチ処理全体のタイムアウト（Requirements: 1.8）',
+    description: 'バッチ処理全体のタイムアウト(Requirements: 1.8)',
     maxTimeoutMs: 300000, // 最大5分
   },
 };
@@ -93,7 +93,7 @@ export interface TimeoutConfigResult {
  * 指定したサービスのタイムアウト設定を取得する
  *
  * @param serviceName - サービス名
- * @returns タイムアウト設定（存在しない場合はundefined）
+ * @returns タイムアウト設定(存在しない場合はundefined)
  *
  * @example
  * const config = getTimeoutConfig('newsApi');
@@ -150,8 +150,8 @@ export function validateTimeoutConfig(): TimeoutConfigResult {
 /**
  * タイムアウト値をミリ秒から秒に変換する
  *
- * @param timeoutMs - タイムアウト時間（ミリ秒）
- * @returns タイムアウト時間（秒）
+ * @param timeoutMs - タイムアウト時間(ミリ秒)
+ * @returns タイムアウト時間(秒)
  */
 export function toSeconds(timeoutMs: number): number {
   return timeoutMs / 1000;
@@ -160,8 +160,8 @@ export function toSeconds(timeoutMs: number): number {
 /**
  * タイムアウト値を秒からミリ秒に変換する
  *
- * @param timeoutSeconds - タイムアウト時間（秒）
- * @returns タイムアウト時間（ミリ秒）
+ * @param timeoutSeconds - タイムアウト時間(秒)
+ * @returns タイムアウト時間(ミリ秒)
  */
 export function toMilliseconds(timeoutSeconds: number): number {
   return timeoutSeconds * 1000;

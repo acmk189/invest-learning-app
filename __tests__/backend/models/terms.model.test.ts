@@ -4,7 +4,7 @@
  * Requirements Coverage:
  * - Requirement 3.3: Firestore 1MB以下ドキュメント
  * - Requirement 4.5: 用語データFirestore保存
- * - Requirement 4.6: 全履歴保持（重複チェック用）
+ * - Requirement 4.6: 全履歴保持(重複チェック用)
  */
 
 import { TermsDocument, Term, TermHistoryDocument, validateTermsDocument, validateTerm } from '../../../backend/src/models/terms.model';
@@ -151,7 +151,7 @@ describe('TermsDocument Model', () => {
     it('解説文が短すぎる場合はエラーをスローする', () => {
       const invalidTerm: Term = {
         name: 'ポートフォリオ',
-        description: 'x'.repeat(200), // 200文字（短すぎる）
+        description: 'x'.repeat(200), // 200文字(短すぎる)
         difficulty: 'beginner',
       };
 
@@ -161,7 +161,7 @@ describe('TermsDocument Model', () => {
     it('解説文が長すぎる場合はエラーをスローする', () => {
       const invalidTerm: Term = {
         name: 'ポートフォリオ',
-        description: 'x'.repeat(800), // 800文字（長すぎる）
+        description: 'x'.repeat(800), // 800文字(長すぎる)
         difficulty: 'beginner',
       };
 

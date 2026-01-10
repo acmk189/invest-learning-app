@@ -49,3 +49,30 @@ Kiro-style Spec Driven Development implementation on AI-DLC (AI Development Life
 - Load entire `.kiro/steering/` as project memory
 - Default files: `product.md`, `tech.md`, `structure.md`
 - Custom files are supported (managed via `/kiro:steering-custom`)
+
+# Claude Code Known Issues & Guardrails
+
+## UTF-8 Multibyte Character Panic (Issue #14133)
+
+**Context**: Claude Code v2.0.70+ has a bug in Rust string slicing causing crashes on multi-byte characters.
+
+### Critical Guardrails
+
+Please follow these rules strictly to prevent the CLI from crashing:
+
+1. **No Full-width Parentheses**:
+   - ❌ `（補足）` `（済）`
+   - ✅ `(補足)` `(済)`
+   - Always use half-width `()` in explanations, todo items, and commit messages.
+
+2. **Bold Formatting Safety**:
+   - Do not place multi-byte characters immediately after bold text.
+   - ❌ `**完了**です`
+   - ✅ `**完了** です` (Insert a space)
+
+3. **TodoWrite Usage**:
+   - When adding tasks via `TodoWrite`, avoid full-width symbols in the description.
+
+### Rule
+
+**Replace all full-width `（）` with half-width `()` in your output.**

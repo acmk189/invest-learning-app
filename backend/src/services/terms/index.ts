@@ -11,7 +11,7 @@
  * - 1.7: バッチ失敗時エラーログ+リトライ
  */
 
-// プロンプト生成（Task 5.1, 5.2）
+// プロンプト生成(Task 5.1, 5.2)
 export {
   buildTermGenerationPrompt,
   TERM_GENERATION_CONFIG,
@@ -20,7 +20,7 @@ export {
   type TermGenerationPromptOptions,
 } from './termGenerationPrompt';
 
-// レスポンスパース・検証（Task 5.3, 5.4）
+// レスポンスパース・検証(Task 5.3, 5.4)
 export {
   parseTermResponse,
   validateTermDescription,
@@ -28,7 +28,7 @@ export {
   type TermValidationResult,
 } from './termResponseParser';
 
-// 用語生成サービス（Task 5.5）
+// 用語生成サービス(Task 5.5)
 export {
   TermGenerationService,
   TermGenerationError,
@@ -37,7 +37,7 @@ export {
   type GenerateTermOptions,
 } from './termGenerationService';
 
-// 用語バッチサービス（Task 11）
+// 用語バッチサービス(Task 11)
 export {
   TermsBatchService,
   TermsBatchError,

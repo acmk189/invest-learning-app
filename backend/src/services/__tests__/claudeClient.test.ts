@@ -72,7 +72,7 @@ describe('ClaudeClient', () => {
       expect(DEFAULT_MODEL).toBe('claude-haiku-4-5');
     });
 
-    it('利用可能なモデルが定義されている（エイリアス形式）', () => {
+    it('利用可能なモデルが定義されている(エイリアス形式)', () => {
       expect(CLAUDE_MODELS).toHaveProperty('haiku');
       expect(CLAUDE_MODELS).toHaveProperty('sonnet');
       expect(CLAUDE_MODELS.haiku).toBe('claude-haiku-4-5');
@@ -118,7 +118,7 @@ describe('ClaudeClient', () => {
     });
 
     describe('getDefaultModel', () => {
-      it('デフォルトモデル（Haiku 4.5エイリアス）を返す', () => {
+      it('デフォルトモデル(Haiku 4.5エイリアス)を返す', () => {
         expect(client.getDefaultModel()).toBe('claude-haiku-4-5');
       });
     });

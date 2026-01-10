@@ -4,8 +4,8 @@
 
 ### 1.1 移行の背景
 
-React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプリのビルドが失敗する。
-この問題を解決するため、データベースをFirebase FirestoreからSupabase（PostgreSQL）に移行する。
+React Native(Expo Dev Client)とFirebaseの相性問題により、iOSアプリのビルドが失敗する。
+この問題を解決するため、データベースをFirebase FirestoreからSupabase(PostgreSQL)に移行する。
 
 ### 1.2 移行のスコープ
 
@@ -18,10 +18,10 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 
 ### 1.3 移行しないもの
 
-- AI処理（Claude API）: 変更なし
-- ニュース取得（NewsAPI, Google News RSS）: 変更なし
-- Vercel Cron Jobs: 変更なし（エンドポイントURLは維持）
-- UIコンポーネント: 変更なし（Repository層以下のみ変更）
+- AI処理(Claude API): 変更なし
+- ニュース取得(NewsAPI, Google News RSS): 変更なし
+- Vercel Cron Jobs: 変更なし(エンドポイントURLは維持)
+- UIコンポーネント: 変更なし(Repository層以下のみ変更)
 
 ---
 
@@ -32,7 +32,7 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 #### news コレクション
 ```
 news/{YYYY-MM-DD}
-├── date: string           # ドキュメントID（YYYY-MM-DD）
+├── date: string           # ドキュメントID(YYYY-MM-DD)
 ├── worldNews
 │   ├── title: string
 │   ├── summary: string    # 約2000文字
@@ -48,7 +48,7 @@ news/{YYYY-MM-DD}
 #### terms コレクション
 ```
 terms/{YYYY-MM-DD}
-├── date: string           # ドキュメントID（YYYY-MM-DD）
+├── date: string           # ドキュメントID(YYYY-MM-DD)
 ├── terms: Array<Term>     # 3つの用語
 │   └── Term
 │       ├── name: string
@@ -75,7 +75,7 @@ metadata/batch
 
 ### 2.2 現行の依存関係
 
-#### バックエンド（backend/）
+#### バックエンド(backend/)
 | ファイル | Firebase依存 |
 |----------|-------------|
 | src/config/firebase.ts | firebase-admin初期化 |
@@ -85,7 +85,7 @@ metadata/batch
 | api/batch/news.ts | Firestore経由でデータ保存 |
 | api/batch/terms.ts | Firestore経由でデータ保存 |
 
-#### フロントエンド（mobile/）
+#### フロントエンド(mobile/)
 | ファイル | Firebase依存 |
 |----------|-------------|
 | src/config/firebase.ts | Firebase初期化設定 |
@@ -95,7 +95,7 @@ metadata/batch
 | src/firestore/types.ts | Firestore型定義 |
 | src/news/news-repository.ts | Firestoreクエリ使用 |
 | src/terms/terms-repository.ts | Firestoreクエリ使用 |
-| src/cache/cache-manager.ts | メタデータ取得（間接依存） |
+| src/cache/cache-manager.ts | メタデータ取得(間接依存) |
 
 ---
 
@@ -108,9 +108,9 @@ metadata/batch
 #### Acceptance Criteria
 
 1. Supabaseプロジェクトを作成し、PostgreSQLデータベースを有効化する
-2. プロジェクトURLとAPIキー（anon key, service_role key）を取得する
-3. 環境変数（SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY）を設定する
-4. Row Level Security (RLS) ポリシーを設計する（読み取り: 全員許可、書き込み: サービスロールのみ）
+2. プロジェクトURLとAPIキー(anon key, service_role key)を取得する
+3. 環境変数(SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)を設定する
+4. Row Level Security (RLS) ポリシーを設計する(読み取り: 全員許可、書き込み: サービスロールのみ)
 
 ### Requirement M2: データベーススキーマ設計
 
@@ -118,12 +118,12 @@ metadata/batch
 
 #### Acceptance Criteria
 
-1. `news`テーブルを作成する（date: DATE PRIMARY KEY, world_news_title, world_news_summary, japan_news_title, japan_news_summary, created_at, updated_at）
-2. `terms`テーブルを作成する（id: SERIAL PRIMARY KEY, date: DATE, name, description, difficulty, created_at）
-3. `terms_history`テーブルを作成する（id: SERIAL PRIMARY KEY, term_name, delivered_at, difficulty）
-4. `batch_metadata`テーブルを作成する（id: INTEGER PRIMARY KEY DEFAULT 1, news_last_updated, terms_last_updated）
+1. `news`テーブルを作成する(date: DATE PRIMARY KEY, world_news_title, world_news_summary, japan_news_title, japan_news_summary, created_at, updated_at)
+2. `terms`テーブルを作成する(id: SERIAL PRIMARY KEY, date: DATE, name, description, difficulty, created_at)
+3. `terms_history`テーブルを作成する(id: SERIAL PRIMARY KEY, term_name, delivered_at, difficulty)
+4. `batch_metadata`テーブルを作成する(id: INTEGER PRIMARY KEY DEFAULT 1, news_last_updated, terms_last_updated)
 5. 日付カラムにインデックスを作成し、クエリパフォーマンスを最適化する
-6. CHECK制約で difficulty の値を制限する（'beginner', 'intermediate', 'advanced'）
+6. CHECK制約で difficulty の値を制限する('beginner', 'intermediate', 'advanced')
 
 ### Requirement M3: バックエンドSupabaseクライアント実装
 
@@ -145,7 +145,7 @@ metadata/batch
 1. `backend/src/models/`のモデルをSupabase用に更新する
 2. Timestamp型をISO 8601文字列またはDate型に変更する
 3. 新しいモデル用のバリデーション関数を実装する
-4. 既存のバリデーションロジック（文字数制限等）を維持する
+4. 既存のバリデーションロジック(文字数制限等)を維持する
 
 ### Requirement M5: ニュースバッチ処理移行
 
@@ -204,7 +204,7 @@ metadata/batch
 2. `TermsRepository`のFirestore依存をSupabaseに変更する
 3. キャッシュマネージャーとの統合を維持する
 4. エラー型をSupabase用に更新する
-5. 既存のインターフェース（NewsResult, TermsResult）を維持する
+5. 既存のインターフェース(NewsResult, TermsResult)を維持する
 
 ### Requirement M10: オフライン対応強化
 
@@ -216,7 +216,7 @@ metadata/batch
 2. ネットワーク状態の検出機能を実装する
 3. オフライン時はキャッシュからデータを取得する
 4. オンライン復帰時にメタデータをチェックし、必要に応じてデータを更新する
-5. キャッシュ済みデータを1秒以内に表示する（Requirement 2.6, 7.2）
+5. キャッシュ済みデータを1秒以内に表示する(Requirement 2.6, 7.2)
 
 ### Requirement M11: Firebase依存の完全削除
 
@@ -226,7 +226,7 @@ metadata/batch
 
 1. `@react-native-firebase/*`パッケージをアンインストールする
 2. `firebase-admin`パッケージをアンインストールする
-3. Firebase設定ファイル（GoogleService-Info.plist等）を削除する
+3. Firebase設定ファイル(GoogleService-Info.plist等)を削除する
 4. Firebase関連のコード・型定義を削除する
 5. Expoビルドが成功することを確認する
 
@@ -282,15 +282,15 @@ metadata/batch
 
 ### 5.1 技術的制約
 
-- Supabase無料プランの制限（500MB、2GB帯域/月）を遵守する
-- 月間運用コスト1,000円以下を維持する（Requirement 10.1）
-- オフライン時のデータ表示は1秒以内（Requirement 2.6, 7.2）
+- Supabase無料プランの制限(500MB、2GB帯域/月)を遵守する
+- 月間運用コスト1,000円以下を維持する(Requirement 10.1)
+- オフライン時のデータ表示は1秒以内(Requirement 2.6, 7.2)
 
 ### 5.2 運用制約
 
 - 移行中のサービス停止を最小化する
-- 既存のAPIエンドポイント（/api/batch/news, /api/batch/terms）のURLを維持する
-- 既存のCron設定（毎日8:00 JST）を維持する
+- 既存のAPIエンドポイント(/api/batch/news, /api/batch/terms)のURLを維持する
+- 既存のCron設定(毎日8:00 JST)を維持する
 
 ---
 
@@ -298,6 +298,6 @@ metadata/batch
 
 1. Expo Dev Clientでのビルドが成功する
 2. 全てのユニットテストがパスする
-3. バッチ処理が正常に動作する（98%以上の成功率）
+3. バッチ処理が正常に動作する(98%以上の成功率)
 4. オフライン時にキャッシュデータを1秒以内に表示する
 5. 既存機能が全て正常に動作する

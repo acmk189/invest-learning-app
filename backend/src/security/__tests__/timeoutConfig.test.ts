@@ -36,7 +36,7 @@ describe('timeoutConfig', () => {
     it('バッチ処理のタイムアウト設定が定義されている', () => {
       expect(TIMEOUT_CONFIG.batchProcess).toBeDefined();
       expect(TIMEOUT_CONFIG.batchProcess.timeoutMs).toBeGreaterThan(0);
-      // バッチ処理は5分以内に完了する必要がある（Requirements: 1.8）
+      // バッチ処理は5分以内に完了する必要がある(Requirements: 1.8)
       expect(TIMEOUT_CONFIG.batchProcess.timeoutMs).toBeLessThanOrEqual(300000);
     });
 

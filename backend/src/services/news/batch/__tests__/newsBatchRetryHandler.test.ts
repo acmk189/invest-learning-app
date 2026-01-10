@@ -270,7 +270,7 @@ describe('NewsBatchRetryHandler', () => {
 
       const result = await handler.executeWithRetry(mockExecute);
 
-      // 処理時間は0以上（非常に高速な処理の場合は0になることもある）
+      // 処理時間は0以上(非常に高速な処理の場合は0になることもある)
       expect(result.totalProcessingTimeMs).toBeGreaterThanOrEqual(0);
     });
 

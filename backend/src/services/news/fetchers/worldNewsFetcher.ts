@@ -29,7 +29,7 @@ import type {
 const DAILY_REQUEST_LIMIT = 100;
 
 /**
- * 警告を出すリクエスト数の閾値（上限の90%）
+ * 警告を出すリクエスト数の閾値(上限の90%)
  */
 const WARNING_THRESHOLD_PERCENT = 90;
 
@@ -64,7 +64,7 @@ export class NewsApiError extends Error {
 /**
  * NewsAPIレート制限エラー
  *
- * 無料枠を超過した場合（429エラー）にスローされる
+ * 無料枠を超過した場合(429エラー)にスローされる
  */
 export class NewsApiRateLimitError extends NewsApiError {
   constructor(message: string) {
@@ -81,7 +81,7 @@ export class NewsApiRateLimitError extends NewsApiError {
  */
 export class NewsApiTimeoutError extends NewsApiError {
   /**
-   * タイムアウト時間（ミリ秒）
+   * タイムアウト時間(ミリ秒)
    */
   public readonly timeoutMs: number;
 

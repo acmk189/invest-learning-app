@@ -17,20 +17,20 @@ export type ThemeMode = 'light' | 'dark';
  * テーマカラー定義
  * アプリ全体で使用される色を一元管理するための型
  *
- * 各プロパティはHEX形式（#RRGGBB）で定義される
+ * 各プロパティはHEX形式(#RRGGBB)で定義される
  */
 export interface ThemeColors {
   /** 主要背景色 */
   background: string;
-  /** 二次背景色（カード内、セクション区切り等） */
+  /** 二次背景色(カード内、セクション区切り等) */
   backgroundSecondary: string;
 
   /** 主要テキスト色 */
   text: string;
-  /** 二次テキスト色（説明文、補足情報等） */
+  /** 二次テキスト色(説明文、補足情報等) */
   textSecondary: string;
 
-  /** プライマリ色（アクセントカラー） */
+  /** プライマリ色(アクセントカラー) */
   primary: string;
   /** プライマリ色上のテキスト */
   primaryText: string;

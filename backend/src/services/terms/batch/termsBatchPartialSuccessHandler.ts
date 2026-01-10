@@ -21,13 +21,13 @@ import { TermDifficulty } from '../../../models/terms.model';
  * バッチ処理の結果を4つのカテゴリに分類
  */
 export enum TermsPartialSuccessType {
-  /** 完全成功（3つの用語が生成成功） */
+  /** 完全成功(3つの用語が生成成功) */
   FULL_SUCCESS = 'full-success',
   /** 2つの用語が生成成功 */
   TWO_TERMS = 'two-terms',
   /** 1つの用語が生成成功 */
   ONE_TERM = 'one-term',
-  /** 完全失敗（用語が生成されなかった） */
+  /** 完全失敗(用語が生成されなかった) */
   FULL_FAILURE = 'full-failure',
 }
 
@@ -204,7 +204,7 @@ export class TermsPartialSuccessHandler {
     switch (type) {
       case TermsPartialSuccessType.FULL_SUCCESS:
         title = `用語バッチ処理成功 (${date})`;
-        message = '3つの投資用語（初級・中級・上級）が正常に生成されました。';
+        message = '3つの投資用語(初級・中級・上級)が正常に生成されました。';
         severity = 'info';
         break;
 

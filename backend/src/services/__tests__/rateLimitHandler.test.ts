@@ -61,7 +61,7 @@ describe('RateLimitError', () => {
 
 describe('isRateLimitError', () => {
   describe('レート制限エラーの検出', () => {
-    it('Anthropic SDKのRateLimitErrorを検出できる（status 429）', () => {
+    it('Anthropic SDKのRateLimitErrorを検出できる(status 429)', () => {
       const error = new MockAnthropicRateLimitError();
 
       expect(isRateLimitError(error)).toBe(true);
@@ -276,7 +276,7 @@ describe('RateLimitRetryHandler', () => {
 
       const resultPromise = handler.executeWithRateLimitHandling(fn, { onRetry });
 
-      // 60秒（maxWaitSeconds）待機
+      // 60秒(maxWaitSeconds)待機
       await jest.advanceTimersByTimeAsync(60000);
 
       await resultPromise;

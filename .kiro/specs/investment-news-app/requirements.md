@@ -6,12 +6,12 @@
 
 ## Introduction
 
-本アプリケーションは、投資初学者向けの個人利用投資学習支援プラットフォームです。毎日の金融ニュース要約配信（AI処理）と投資・金融用語の学習機能を通じて、継続的な投資知識の習得と習慣形成を支援します。
+本アプリケーションは、投資初学者向けの個人利用投資学習支援プラットフォームです。毎日の金融ニュース要約配信(AI処理)と投資・金融用語の学習機能を通じて、継続的な投資知識の習得と習慣形成を支援します。
 
-**初期リリース（v1.0）スコープ**:
+**初期リリース(v1.0)スコープ**:
 
 - 世界・日本の投資・企業・金融ニュース要約配信
-- 投資・金融用語の日次配信（3用語/日）
+- 投資・金融用語の日次配信(3用語/日)
 
 **初期リリースで含まない機能**:
 
@@ -30,7 +30,7 @@
 #### Acceptance Criteria
 
 1. When 日次バッチが実行される, the バッチシステム shall 毎日8:00 (JST)にニュース記事を取得する
-2. The バッチシステム shall NewsAPIから世界の投資ニュース（businessカテゴリ）を取得する
+2. The バッチシステム shall NewsAPIから世界の投資ニュース(businessカテゴリ)を取得する
 3. The バッチシステム shall Google News RSSから日本の投資・経済ニュースを取得する
 4. When ニュース記事を取得する, the AI処理システム shall 複数記事を統合し約2000文字に要約する
 5. When 英語記事を処理する, the AI処理システム shall 日本語に翻訳して要約する
@@ -46,7 +46,7 @@
 
 1. When アプリを起動する, the ニュースタブ shall 当日のニュース要約を表示する
 2. The ニュース画面 shall 「世界のニュース」「日本のニュース」の2カテゴリを表示する
-3. The 各ニュースカード shall タイトル、要約本文（約2000文字）、更新日時を表示する
+3. The 各ニュースカード shall タイトル、要約本文(約2000文字)、更新日時を表示する
 4. When 1日のどのタイミングでアプリを開く, the アプリ shall 同じ日のニュース内容を表示する
 5. While オフライン状態, the アプリ shall キャッシュ済みのニュースを表示する
 6. When キャッシュ済みデータを表示する, the アプリ shall 1秒以内にニュースを表示する
@@ -60,7 +60,7 @@
 1. The データ管理システム shall 最大30日分のニュース履歴を保持する
 2. When 30日を超えるニュースデータが存在する, the データ管理システム shall 古いデータを自動削除する
 3. The Firestoreドキュメント shall 1MB以下のサイズで保存される
-4. The システム shall ニュース更新は1日1回（毎朝8:00）のみ実行する
+4. The システム shall ニュース更新は1日1回(毎朝8:00)のみ実行する
 
 ### Requirement 4: 投資用語自動生成・配信
 
@@ -69,11 +69,11 @@
 #### Acceptance Criteria
 
 1. When 日次バッチが実行される, the AI処理システム shall 投資用語を1日3つ生成する
-2. When 用語を生成する, the AI処理システム shall 各用語について分かりやすい解説（約500文字）を生成する
+2. When 用語を生成する, the AI処理システム shall 各用語について分かりやすい解説(約500文字)を生成する
 3. When 用語を選択する, the 重複チェックシステム shall 過去30日以内に配信した用語を除外する
 4. The AI処理システム shall 初級から上級までの難易度が混在する用語を生成する
 5. The バッチシステム shall 生成した用語データをFirestoreに保存する
-6. The データ管理システム shall 配信済み用語の全履歴を保持する（重複チェック用）
+6. The データ管理システム shall 配信済み用語の全履歴を保持する(重複チェック用)
 
 ### Requirement 5: 投資用語表示機能
 
@@ -82,7 +82,7 @@
 #### Acceptance Criteria
 
 1. When アプリを起動し用語タブを開く, the 用語タブ shall 当日の3つの投資用語を表示する
-2. The 各用語カード shall 用語名、解説文（約500文字）を表示する
+2. The 各用語カード shall 用語名、解説文(約500文字)を表示する
 3. When 1日のどのタイミングでアプリを開く, the アプリ shall 同じ日の3つの用語を表示する
 4. While オフライン状態, the アプリ shall キャッシュ済みの用語を表示する
 5. The 用語タブ shall 最近配信された用語が再度表示されないことをユーザーに保証する
@@ -95,7 +95,7 @@
 
 1. The アプリ shall 「ニュース」「用語」の2タブでナビゲーションを提供する
 2. When タブを切り替える, the アプリ shall 即座にタブコンテンツを表示する
-3. The UI shall iOS端末の各サイズ（iPhone SE〜iPhone Pro Max）に適切に対応する
+3. The UI shall iOS端末の各サイズ(iPhone SE〜iPhone Pro Max)に適切に対応する
 4. The テキスト表示 shall 適切なフォントサイズと行間で可読性を確保する
 5. The アプリ shall ダークモード・ライトモードの両方に対応する
 
@@ -129,7 +129,7 @@
 
 #### Acceptance Criteria
 
-1. The システム shall APIキー（NewsAPI, Claude API等）を環境変数で管理する
+1. The システム shall APIキー(NewsAPI, Claude API等)を環境変数で管理する
 2. The コードベース shall APIキーをハードコーディングしない
 3. When 外部APIと通信する, the システム shall HTTPS通信を使用する
 4. The システム shall 通信データを暗号化して送受信する
@@ -142,7 +142,7 @@
 #### Acceptance Criteria
 
 1. The システム shall 月間運用コストを1,000円以下に抑える
-2. The システム shall NewsAPIの無料枠（100リクエスト/日）内で運用する
+2. The システム shall NewsAPIの無料枠(100リクエスト/日)内で運用する
 3. The システム shall Claude APIのトークン使用量を監視する
 4. The システム shall Firebase Firestoreの無料枠内で運用する
 5. The システム shall Vercel無料プランで運用する
@@ -158,7 +158,7 @@
 2. The コードベース shall 適切なコメントとドキュメンテーションを含む
 3. When エラーが発生する, the システム shall 詳細ログを記録する
 4. The システム shall Gitでソースコード管理を行う
-5. The アーキテクチャ shall 将来の機能拡張（ユーザー認証、過去履歴閲覧等）を考慮した設計とする
+5. The アーキテクチャ shall 将来の機能拡張(ユーザー認証、過去履歴閲覧等)を考慮した設計とする
 
 ### Requirement 12: 技術スタック・システム制約
 
@@ -166,10 +166,10 @@
 
 #### Acceptance Criteria
 
-1. The フロントエンド shall React Native（Expo使用）で実装される
+1. The フロントエンド shall React Native(Expo使用)で実装される
 2. The バックエンド shall Vercel Serverless Functionsで実装される
 3. The データベース shall Firebase Firestoreを使用する
 4. The 定期実行処理 shall Vercel Cron Jobsを使用する
-5. The AI処理 shall Claude API（Anthropic）を使用する
+5. The AI処理 shall Claude API(Anthropic)を使用する
 6. The アプリ shall iOS優先で開発され、将来的にAndroid対応を検討する
 7. The システム shall 各外部サービスの利用規約を遵守する

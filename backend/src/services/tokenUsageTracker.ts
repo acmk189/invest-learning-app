@@ -29,7 +29,7 @@ export interface TokenUsageRecord {
   outputTokens: number;
   /** 使用したモデル名 */
   model: string;
-  /** 操作名（ニュース要約、用語生成など） */
+  /** 操作名(ニュース要約、用語生成など) */
   operation: string;
 }
 
@@ -46,7 +46,7 @@ export interface TokenUsageInput {
   outputTokens: number;
   /** 使用したモデル名 */
   model: string;
-  /** 操作名（ニュース要約、用語生成など） */
+  /** 操作名(ニュース要約、用語生成など) */
   operation: string;
 }
 
@@ -74,7 +74,7 @@ export interface TokenUsageSummary {
   totalInputTokens: number;
   /** 累積出力トークン数 */
   totalOutputTokens: number;
-  /** 累積トークン数（入力+出力） */
+  /** 累積トークン数(入力+出力) */
   totalTokens: number;
   /** 総リクエスト回数 */
   requestCount: number;
@@ -233,7 +233,7 @@ export function getTokenUsageTracker(): TokenUsageTracker {
 }
 
 /**
- * シングルトンインスタンスをリセット（テスト用）
+ * シングルトンインスタンスをリセット(テスト用)
  */
 export function resetTokenUsageTracker(): void {
   tokenUsageTrackerInstance = undefined;

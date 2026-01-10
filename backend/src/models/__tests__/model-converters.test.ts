@@ -4,7 +4,7 @@
  * Task 4: バックエンドデータモデル移行
  * TDD: RED → GREEN → REFACTOR
  *
- * Firebase用モデル（Date型）からSupabase用型（ISO 8601文字列）への
+ * Firebase用モデル(Date型)からSupabase用型(ISO 8601文字列)への
  * 変換関数をテストします。
  */
 
@@ -57,7 +57,7 @@ describe('Model Converters', () => {
     it('Date型をISO 8601文字列に変換する', () => {
       const result = newsDocumentToNewsRow(validNewsDocument);
 
-      // ISO 8601形式（"T"を含む）であることを確認
+      // ISO 8601形式("T"を含む)であることを確認
       expect(result.created_at).toContain('T');
       expect(result.updated_at).toContain('T');
 
@@ -101,7 +101,7 @@ describe('Model Converters', () => {
 
   describe('termToTermInsertPayload', () => {
     const validTerm: Term = {
-      name: 'PER（株価収益率）',
+      name: 'PER(株価収益率)',
       description: 'F'.repeat(500),
       difficulty: 'beginner',
     };
@@ -110,7 +110,7 @@ describe('Model Converters', () => {
       const result = termToTermInsertPayload(validTerm, '2024-01-10');
 
       expect(result.date).toBe('2024-01-10');
-      expect(result.name).toBe('PER（株価収益率）');
+      expect(result.name).toBe('PER(株価収益率)');
       expect(result.description).toBe('F'.repeat(500));
       expect(result.difficulty).toBe('beginner');
     });
@@ -118,7 +118,7 @@ describe('Model Converters', () => {
 
   describe('termHistoryDocumentToPayload', () => {
     const validHistoryDocument: TermHistoryDocument = {
-      termName: 'PER（株価収益率）',
+      termName: 'PER(株価収益率)',
       deliveredAt: new Date('2024-01-10T08:00:00Z'),
       difficulty: 'beginner',
     };
@@ -126,7 +126,7 @@ describe('Model Converters', () => {
     it('TermHistoryDocumentを正しいペイロードに変換する', () => {
       const result = termHistoryDocumentToPayload(validHistoryDocument);
 
-      expect(result.term_name).toBe('PER（株価収益率）');
+      expect(result.term_name).toBe('PER(株価収益率)');
       expect(result.difficulty).toBe('beginner');
     });
 
@@ -171,7 +171,7 @@ describe('Model Converters', () => {
       const invalidRow: NewsRow = {
         date: '2024-01-10',
         world_news_title: '世界ニュースタイトル',
-        world_news_summary: 'A'.repeat(1799), // 1799文字（短すぎる）
+        world_news_summary: 'A'.repeat(1799), // 1799文字(短すぎる)
         japan_news_title: '日本ニュースタイトル',
         japan_news_summary: 'B'.repeat(2000),
         created_at: '2024-01-10T00:00:00Z',
@@ -187,7 +187,7 @@ describe('Model Converters', () => {
         world_news_title: '世界ニュースタイトル',
         world_news_summary: 'A'.repeat(2000),
         japan_news_title: '日本ニュースタイトル',
-        japan_news_summary: 'B'.repeat(2201), // 2201文字（長すぎる）
+        japan_news_summary: 'B'.repeat(2201), // 2201文字(長すぎる)
         created_at: '2024-01-10T00:00:00Z',
         updated_at: '2024-01-10T08:00:00Z',
       };
@@ -200,7 +200,7 @@ describe('Model Converters', () => {
     it('有効なTermInsertPayloadを検証する', () => {
       const validPayload: TermInsertPayload = {
         date: '2024-01-10',
-        name: 'PER（株価収益率）',
+        name: 'PER(株価収益率)',
         description: 'C'.repeat(500),
         difficulty: 'beginner',
       };
@@ -223,7 +223,7 @@ describe('Model Converters', () => {
       const invalidPayload: TermInsertPayload = {
         date: '2024-01-10',
         name: 'PER',
-        description: 'C'.repeat(399), // 399文字（短すぎる）
+        description: 'C'.repeat(399), // 399文字(短すぎる)
         difficulty: 'beginner',
       };
 
@@ -234,7 +234,7 @@ describe('Model Converters', () => {
       const invalidPayload: TermInsertPayload = {
         date: '2024-01-10',
         name: 'PER',
-        description: 'C'.repeat(601), // 601文字（長すぎる）
+        description: 'C'.repeat(601), // 601文字(長すぎる)
         difficulty: 'beginner',
       };
 

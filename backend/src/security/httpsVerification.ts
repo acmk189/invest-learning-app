@@ -4,20 +4,20 @@
  * Task 31.1: HTTPS通信確認
  * Requirements: 9.3, 9.4
  *
- * すべての外部API通信（NewsAPI、Google News RSS、Claude API）で
+ * すべての外部API通信(NewsAPI、Google News RSS、Claude API)で
  * HTTPSが使用されていることを確認・検証します。
  * 通信データはTLS 1.2以上で暗号化されます。
  *
- * @see https://newsapi.org/docs/get-started - NewsAPI（HTTPS必須）
- * @see https://docs.anthropic.com/en/api/getting-started - Claude API（HTTPS必須）
- * @see https://news.google.com - Google News RSS（HTTPS対応）
+ * @see https://newsapi.org/docs/get-started - NewsAPI(HTTPS必須)
+ * @see https://docs.anthropic.com/en/api/getting-started - Claude API(HTTPS必須)
+ * @see https://news.google.com - Google News RSS(HTTPS対応)
  */
 
 /**
  * 外部APIエンドポイントの定義
  *
  * @property name - エンドポイント名
- * @property url - ベースURL（HTTPS）
+ * @property url - ベースURL(HTTPS)
  * @property minTlsVersion - 最小TLSバージョン
  * @property description - エンドポイントの説明
  */
@@ -75,13 +75,13 @@ export const EXTERNAL_API_ENDPOINTS: ExternalApiEndpoint[] = [
     name: 'NewsAPI',
     url: 'https://newsapi.org/v2',
     minTlsVersion: '1.2',
-    description: '世界のニュース取得API（無料枠: 100リクエスト/日）',
+    description: '世界のニュース取得API(無料枠: 100リクエスト/日)',
   },
   {
     name: 'Claude API',
     url: 'https://api.anthropic.com',
     minTlsVersion: '1.2',
-    description: 'ニュース要約・用語生成AI API（Anthropic）',
+    description: 'ニュース要約・用語生成AI API(Anthropic)',
   },
   {
     name: 'Google News RSS',

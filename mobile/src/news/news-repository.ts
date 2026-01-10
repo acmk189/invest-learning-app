@@ -33,7 +33,7 @@ export type NewsSource = 'cache' | 'firestore';
 export interface NewsError {
   /** エラーコード */
   code: FirestoreErrorCode;
-  /** ユーザー向けエラーメッセージ（日本語） */
+  /** ユーザー向けエラーメッセージ(日本語) */
   message: string;
   /** リトライ可能かどうか */
   retryable: boolean;
@@ -46,11 +46,11 @@ export interface NewsError {
 export interface NewsResult {
   /** 取得成功かどうか */
   success: boolean;
-  /** ニュースデータ（失敗時はnull） */
+  /** ニュースデータ(失敗時はnull) */
   data: NewsData | null;
   /** データの取得元 */
   source: NewsSource;
-  /** エラー情報（失敗時のみ） */
+  /** エラー情報(失敗時のみ) */
   error?: NewsError;
 }
 
@@ -81,7 +81,7 @@ export type CacheSetter = (
 
 /**
  * News Repository設定
- * 依存性注入（DI）によりテスタビリティを向上
+ * 依存性注入(DI)によりテスタビリティを向上
  */
 export interface NewsRepositoryConfig {
   /** Firestoreからニュースを取得する関数 */
@@ -114,7 +114,7 @@ export class NewsRepository {
 
   /**
    * NewsRepositoryのコンストラクタ
-   * @param config - 設定（テスト用にモック関数を注入可能）
+   * @param config - 設定(テスト用にモック関数を注入可能)
    */
   constructor(config?: NewsRepositoryConfig) {
     this.firestoreFetcher = config?.firestoreFetcher || fetchTodayNews;
@@ -135,7 +135,7 @@ export class NewsRepository {
   /**
    * 今日のニュースを取得する
    *
-   * 1. キャッシュを検証（メタデータでlastUpdated > cachedAtをチェック）
+   * 1. キャッシュを検証(メタデータでlastUpdated > cachedAtをチェック)
    * 2. キャッシュが有効な場合はキャッシュから返す
    * 3. キャッシュが無効な場合はFirestoreから取得
    * 4. Firestoreから取得した場合はキャッシュに保存
@@ -173,7 +173,7 @@ export class NewsRepository {
       const firestoreResult = await this.firestoreFetcher();
 
       if (!firestoreResult.exists || !firestoreResult.data) {
-        // データが存在しない場合（まだバッチが実行されていない等）
+        // データが存在しない場合(まだバッチが実行されていない等)
         return {
           success: true,
           data: null,
@@ -181,7 +181,7 @@ export class NewsRepository {
         };
       }
 
-      // Step 3: キャッシュに保存（エラーは無視）
+      // Step 3: キャッシュに保存(エラーは無視)
       try {
         await this.cacheSetter('news', today, firestoreResult.data);
         console.log('[NewsRepository] Data cached successfully');

@@ -4,8 +4,8 @@
  *
  * AsyncStorageを使用したローカルキャッシュ管理
  * - 日付ベースのキャッシュキー生成
- * - メタデータによるキャッシュ有効性チェック（案B）
- * - オフライン時のデータ取得（1秒以内）
+ * - メタデータによるキャッシュ有効性チェック(案B)
+ * - オフライン時のデータ取得(1秒以内)
  * - 古いキャッシュの自動削除
  *
  * Requirements: 2.5, 2.6, 5.4, 7.2
@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CacheType, CacheKey, CacheEntry, BatchMetadata, CACHE_KEY_PREFIX } from './types';
 
 /**
- * JSTタイムゾーンオフセット（ミリ秒）
+ * JSTタイムゾーンオフセット(ミリ秒)
  */
 const JST_OFFSET = 9 * 60 * 60 * 1000;
 
@@ -32,7 +32,7 @@ function formatDateToJST(date: Date): string {
 /**
  * キャッシュキーから日付を抽出する
  * @param key - キャッシュキー
- * @returns 日付文字列（YYYY-MM-DD形式）またはnull
+ * @returns 日付文字列(YYYY-MM-DD形式)またはnull
  */
 function extractDateFromCacheKey(key: string): string | null {
   const match = key.match(/cache_(news|terms)_(\d{4}-\d{2}-\d{2})/);
@@ -48,7 +48,7 @@ export type MetadataFetcher = () => Promise<BatchMetadata | null>;
  * キャッシュ検証結果の型
  */
 export interface CacheValidationResult<T> {
-  /** キャッシュデータ（無効な場合はnull） */
+  /** キャッシュデータ(無効な場合はnull) */
   data: T | null;
   /** キャッシュが有効かどうか */
   isValid: boolean;
@@ -58,7 +58,7 @@ export interface CacheValidationResult<T> {
  * キャッシュマネージャークラス
  *
  * AsyncStorageを使用してニュース・用語データをローカルにキャッシュします。
- * メタデータ（metadata/batch）のlastUpdatedとキャッシュのcachedAtを比較し、
+ * メタデータ(metadata/batch)のlastUpdatedとキャッシュのcachedAtを比較し、
  * 新しいデータがある場合のみキャッシュを無効化します。
  */
 export class CacheManager {
@@ -66,7 +66,7 @@ export class CacheManager {
 
   /**
    * CacheManagerのコンストラクタ
-   * @param metadataFetcher - Firestoreからメタデータを取得する関数（DI用）
+   * @param metadataFetcher - Firestoreからメタデータを取得する関数(DI用)
    */
   constructor(metadataFetcher?: MetadataFetcher) {
     this.metadataFetcher = metadataFetcher || (async () => null);
@@ -74,8 +74,8 @@ export class CacheManager {
 
   /**
    * キャッシュキーを生成する
-   * @param type - キャッシュの種類（'news' | 'terms'）
-   * @param dateStr - 日付文字列（YYYY-MM-DD形式）
+   * @param type - キャッシュの種類('news' | 'terms')
+   * @param dateStr - 日付文字列(YYYY-MM-DD形式)
    * @returns キャッシュキー
    */
   static generateCacheKey(type: CacheType, dateStr: string): CacheKey {
@@ -84,7 +84,7 @@ export class CacheManager {
 
   /**
    * 今日の日付でキャッシュキーを生成する
-   * @param type - キャッシュの種類（'news' | 'terms'）
+   * @param type - キャッシュの種類('news' | 'terms')
    * @returns 今日の日付のキャッシュキー
    */
   static generateTodayCacheKey(type: CacheType): CacheKey {
@@ -95,7 +95,7 @@ export class CacheManager {
   /**
    * データをキャッシュに保存する
    * @param type - キャッシュの種類
-   * @param dateStr - 日付文字列（YYYY-MM-DD形式）
+   * @param dateStr - 日付文字列(YYYY-MM-DD形式)
    * @param data - 保存するデータ
    */
   async setCache<T>(type: CacheType, dateStr: string, data: T): Promise<void> {
@@ -110,7 +110,7 @@ export class CacheManager {
     try {
       await AsyncStorage.setItem(key, JSON.stringify(entry));
     } catch (error) {
-      // エラーをログに記録するが、例外はスローしない（キャッシュ失敗はアプリ動作に影響しない）
+      // エラーをログに記録するが、例外はスローしない(キャッシュ失敗はアプリ動作に影響しない)
       console.error('Cache write error:', error);
     }
   }
@@ -126,9 +126,9 @@ export class CacheManager {
   }
 
   /**
-   * キャッシュエントリを取得する（メタデータチェックなし）
+   * キャッシュエントリを取得する(メタデータチェックなし)
    * @param type - キャッシュの種類
-   * @param dateStr - 日付文字列（YYYY-MM-DD形式）
+   * @param dateStr - 日付文字列(YYYY-MM-DD形式)
    * @returns キャッシュエントリ、存在しない場合はnull
    */
   async getCacheEntry<T>(type: CacheType, dateStr: string): Promise<CacheEntry<T> | null> {
@@ -150,15 +150,15 @@ export class CacheManager {
   }
 
   /**
-   * キャッシュを検証付きで取得する（メタデータチェックあり）
+   * キャッシュを検証付きで取得する(メタデータチェックあり)
    *
    * 1. キャッシュが存在しない場合 → { data: null, isValid: false }
-   * 2. メタデータ取得失敗（オフライン）の場合 → キャッシュをそのまま返す
-   * 3. lastUpdated <= cachedAt の場合 → キャッシュを返す（有効）
+   * 2. メタデータ取得失敗(オフライン)の場合 → キャッシュをそのまま返す
+   * 3. lastUpdated <= cachedAt の場合 → キャッシュを返す(有効)
    * 4. lastUpdated > cachedAt の場合 → キャッシュを削除し { data: null, isValid: false }
    *
    * @param type - キャッシュの種類
-   * @param dateStr - 日付文字列（YYYY-MM-DD形式）
+   * @param dateStr - 日付文字列(YYYY-MM-DD形式)
    * @returns キャッシュ検証結果
    */
   async getValidatedCache<T>(
@@ -174,7 +174,7 @@ export class CacheManager {
     // メタデータを取得
     const metadata = await this.metadataFetcher();
 
-    // オフライン時（メタデータ取得失敗）はキャッシュをそのまま使用
+    // オフライン時(メタデータ取得失敗)はキャッシュをそのまま使用
     if (!metadata) {
       return { data: entry.data, isValid: true };
     }
@@ -206,7 +206,7 @@ export class CacheManager {
   /**
    * 指定したキャッシュを削除する
    * @param type - キャッシュの種類
-   * @param dateStr - 日付文字列（YYYY-MM-DD形式）
+   * @param dateStr - 日付文字列(YYYY-MM-DD形式)
    */
   async removeCache(type: CacheType, dateStr: string): Promise<void> {
     const key = CacheManager.generateCacheKey(type, dateStr);
@@ -218,7 +218,7 @@ export class CacheManager {
   }
 
   /**
-   * 古いキャッシュを削除する（今日以外のキャッシュを削除）
+   * 古いキャッシュを削除する(今日以外のキャッシュを削除)
    */
   async clearOldCache(): Promise<void> {
     try {
@@ -262,7 +262,7 @@ export class CacheManager {
   /**
    * キャッシュエントリが存在するかどうかを確認する
    * @param type - キャッシュの種類
-   * @param dateStr - 日付文字列（YYYY-MM-DD形式）
+   * @param dateStr - 日付文字列(YYYY-MM-DD形式)
    * @returns キャッシュエントリが存在する場合はtrue
    */
   async hasCacheEntry(type: CacheType, dateStr: string): Promise<boolean> {

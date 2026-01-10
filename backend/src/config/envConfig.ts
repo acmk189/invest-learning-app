@@ -15,7 +15,7 @@
 /**
  * 環境変数の名前
  *
- * Firebase関連（移行後は削除予定）とSupabase関連の環境変数を含みます。
+ * Firebase関連(移行後は削除予定)とSupabase関連の環境変数を含みます。
  */
 export type EnvVarName =
   | 'FIREBASE_PROJECT_ID'
@@ -34,7 +34,7 @@ export type EnvVarName =
 /**
  * 環境変数の設定情報
  *
- * @property description - 環境変数の説明（日本語）
+ * @property description - 環境変数の説明(日本語)
  * @property required - 必須かどうか
  * @property example - 設定例
  */
@@ -53,12 +53,12 @@ export interface EnvVarInfo {
 export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
   // Firebase Admin SDK用の環境変数
   FIREBASE_PROJECT_ID: {
-    description: 'Firebase プロジェクトID（Firebase Consoleで確認可能）',
+    description: 'Firebase プロジェクトID(Firebase Consoleで確認可能)',
     required: true,
     example: 'your-firebase-project-id',
   },
   FIREBASE_PRIVATE_KEY: {
-    description: 'Firebase サービスアカウントの秘密鍵（JSON形式からコピー）',
+    description: 'Firebase サービスアカウントの秘密鍵(JSON形式からコピー)',
     required: true,
     example: '"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"',
   },
@@ -68,16 +68,16 @@ export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
     example: 'firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com',
   },
 
-  // Claude API（Anthropic）用の環境変数
+  // Claude API(Anthropic)用の環境変数
   CLAUDE_API_KEY: {
-    description: 'Claude API（Anthropic）のAPIキー',
+    description: 'Claude API(Anthropic)のAPIキー',
     required: true,
     example: 'sk-ant-api03-xxxxxxxx',
   },
 
   // NewsAPI用の環境変数
   NEWS_API_KEY: {
-    description: 'NewsAPI v2のAPIキー（無料枠: 100リクエスト/日）',
+    description: 'NewsAPI v2のAPIキー(無料枠: 100リクエスト/日)',
     required: true,
     example: 'your-newsapi-key',
   },
@@ -89,7 +89,7 @@ export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
     example: 'generated-secure-secret-64-chars-hex',
   },
 
-  // Supabase用の環境変数（本番環境）
+  // Supabase用の環境変数(本番環境)
   // 2025年以降の新しいAPIキー形式に対応
   // 参考: https://github.com/orgs/supabase/discussions/29260
   SUPABASE_URL: {
@@ -98,29 +98,29 @@ export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
     example: 'https://your-project.supabase.co',
   },
   SUPABASE_PUBLISHABLE_KEY: {
-    description: 'Supabase publishable key（クライアントサイド用、旧anon key）',
+    description: 'Supabase publishable key(クライアントサイド用、旧anon key)',
     required: false, // 移行期間中はオプション
     example: 'sb_publishable_xxxxxxxx',
   },
   SUPABASE_SECRET_KEY: {
-    description: 'Supabase secret key（サーバーサイド用、旧service_role key）',
+    description: 'Supabase secret key(サーバーサイド用、旧service_role key)',
     required: false, // 移行期間中はオプション
     example: 'sb_secret_xxxxxxxx',
   },
 
-  // Supabase用の環境変数（ローカル開発環境）
+  // Supabase用の環境変数(ローカル開発環境)
   LOCAL_SUPABASE_URL: {
-    description: 'ローカルSupabase URL（Docker）',
+    description: 'ローカルSupabase URL(Docker)',
     required: false,
     example: 'http://127.0.0.1:54321',
   },
   LOCAL_SUPABASE_PUBLISHABLE_KEY: {
-    description: 'ローカルSupabase publishable key（supabase start時に生成）',
+    description: 'ローカルSupabase publishable key(supabase start時に生成)',
     required: false,
     example: 'sb_publishable_xxxxxxxx',
   },
   LOCAL_SUPABASE_SECRET_KEY: {
-    description: 'ローカルSupabase secret key（supabase start時に生成）',
+    description: 'ローカルSupabase secret key(supabase start時に生成)',
     required: false,
     example: 'sb_secret_xxxxxxxx',
   },
@@ -171,7 +171,7 @@ function isEnvVarSet(value: string | undefined): boolean {
  * 各環境変数が設定されているか確認し、検証結果を返します。
  * この関数はアプリケーション起動時やヘルスチェック時に使用します。
  *
- * @returns 検証結果（isValid, missingVars, configuredVars）
+ * @returns 検証結果(isValid, missingVars, configuredVars)
  *
  * @example
  * const result = validateAllEnvVars();
@@ -256,7 +256,7 @@ export function generateEnvVarErrorMessage(missingVars: EnvVarName[]): string {
 /**
  * Supabase環境変数の設定結果
  *
- * 2025年以降の新しいAPIキー形式（publishable/secret）に対応
+ * 2025年以降の新しいAPIキー形式(publishable/secret)に対応
  */
 export interface SupabaseEnvConfig {
   url: string;
@@ -271,7 +271,7 @@ export interface SupabaseEnvConfig {
  * - development: LOCAL_SUPABASE_* を優先、なければ SUPABASE_*
  * - production: SUPABASE_* を使用
  *
- * 2025年以降の新しいAPIキー形式（publishable/secret）に対応
+ * 2025年以降の新しいAPIキー形式(publishable/secret)に対応
  *
  * @returns Supabase接続設定
  * @throws 必要な環境変数が設定されていない場合
@@ -296,7 +296,7 @@ export function getSupabaseEnvConfig(): SupabaseEnvConfig {
     // ローカル環境変数がない場合は本番環境変数にフォールバック
   }
 
-  // 本番環境（またはフォールバック）
+  // 本番環境(またはフォールバック)
   const url = process.env.SUPABASE_URL;
   const secretKey = process.env.SUPABASE_SECRET_KEY;
   const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;

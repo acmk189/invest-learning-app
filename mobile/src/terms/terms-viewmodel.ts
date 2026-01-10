@@ -32,11 +32,11 @@ export type TermsState = 'loading' | 'success' | 'error';
 export interface TermsViewModelResult {
   /** 現在の状態 */
   state: TermsState;
-  /** ローディング中かどうか（state === 'loading' のショートカット） */
+  /** ローディング中かどうか(state === 'loading' のショートカット) */
   loading: boolean;
-  /** 用語リスト（未取得時はnull） */
+  /** 用語リスト(未取得時はnull) */
   terms: TermItem[] | null;
-  /** エラー情報（エラー時のみ） */
+  /** エラー情報(エラー時のみ) */
   error: TermsError | null;
   /** データを再取得する関数 */
   retry: () => Promise<void>;
@@ -48,7 +48,7 @@ export interface TermsViewModelResult {
  * 依存性注入(DI)により、TermsRepositoryをパラメータで受け取ります。
  * これにより、テスト時にモックリポジトリを注入可能です。
  *
- * @param repository - TermsRepository（省略時はデフォルトを使用）
+ * @param repository - TermsRepository(省略時はデフォルトを使用)
  * @returns TermsViewModelResult - 用語表示に必要な状態と関数
  *
  * @example
@@ -72,7 +72,7 @@ export interface TermsViewModelResult {
 export function useTermsViewModel(
   repository?: TermsRepository
 ): TermsViewModelResult {
-  // デフォルトのリポジトリを使用（テスト時はモックを注入）
+  // デフォルトのリポジトリを使用(テスト時はモックを注入)
   const repo = repository || createTermsRepository();
 
   // 状態管理
@@ -93,7 +93,7 @@ export function useTermsViewModel(
       const result = await repo.getTodayTerms();
 
       if (result.success) {
-        // 成功: 用語リストを保持（Requirement 5.1: 3つの用語）
+        // 成功: 用語リストを保持(Requirement 5.1: 3つの用語)
         setTerms(result.data?.terms || null);
         setError(null);
         setState('success');
@@ -104,7 +104,7 @@ export function useTermsViewModel(
         setState('error');
       }
     } catch (unexpectedError) {
-      // 予期しないエラー（通常は起こらないはず）
+      // 予期しないエラー(通常は起こらないはず)
       console.error('[TermsViewModel] Unexpected error:', unexpectedError);
       setTerms(null);
       setError({
@@ -118,7 +118,7 @@ export function useTermsViewModel(
 
   /**
    * リトライ関数
-   * ユーザーが手動でデータを再取得する際に使用（Requirement 7.5）
+   * ユーザーが手動でデータを再取得する際に使用(Requirement 7.5)
    */
   const retry = useCallback(async () => {
     await fetchTerms();

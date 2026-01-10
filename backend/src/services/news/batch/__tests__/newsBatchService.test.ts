@@ -121,7 +121,7 @@ describe('NewsBatchService', () => {
     },
   ];
 
-  // 有効な要約文（2000文字）
+  // 有効な要約文(2000文字)
   const validSummary = 'あ'.repeat(2000);
 
   const createMockSummaryResult = (summary: string): SummaryResult => ({
@@ -250,7 +250,7 @@ describe('NewsBatchService', () => {
       );
     });
 
-    it('部分的な取得成功時も処理を継続する（世界ニュースのみ成功）', async () => {
+    it('部分的な取得成功時も処理を継続する(世界ニュースのみ成功)', async () => {
       mockJapanNewsFetcher.fetchJapanNews.mockRejectedValue(
         new Error('RSS Error')
       );
@@ -263,7 +263,7 @@ describe('NewsBatchService', () => {
       expect(result.japanNews).toBeUndefined();
     });
 
-    it('部分的な取得成功時も処理を継続する（日本ニュースのみ成功）', async () => {
+    it('部分的な取得成功時も処理を継続する(日本ニュースのみ成功)', async () => {
       mockWorldNewsFetcher.fetchTopHeadlines.mockRejectedValue(
         new Error('API Error')
       );

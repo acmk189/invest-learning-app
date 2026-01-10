@@ -23,9 +23,9 @@ let supabaseClient: SupabaseClient | undefined;
 export interface SupabaseConfigValidation {
   /** 設定が有効かどうか */
   isValid: boolean;
-  /** Supabase URL（有効な場合） */
+  /** Supabase URL(有効な場合) */
   url?: string;
-  /** エラーメッセージ（無効な場合） */
+  /** エラーメッセージ(無効な場合) */
   error?: string;
 }
 

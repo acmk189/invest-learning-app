@@ -27,14 +27,14 @@ export interface NewsBatchRetryConfig {
   maxRetries?: number;
 
   /**
-   * 基本遅延時間（ミリ秒）
+   * 基本遅延時間(ミリ秒)
    * 指数バックオフの基準となる時間
    * @default 1000
    */
   baseDelayMs?: number;
 
   /**
-   * 最大遅延時間（ミリ秒）
+   * 最大遅延時間(ミリ秒)
    * 指数バックオフで計算された遅延がこの値を超えないよう制限
    * @default 30000
    */
@@ -44,7 +44,7 @@ export interface NewsBatchRetryConfig {
    * リトライ時に呼び出されるコールバック関数
    * ログ記録や監視に使用
    *
-   * @param attempt - 現在のリトライ回数（1始まり）
+   * @param attempt - 現在のリトライ回数(1始まり)
    * @param delayMs - 次のリトライまでの待機時間
    * @param result - 失敗したバッチ結果
    */
@@ -60,19 +60,19 @@ export interface NewsBatchRetryResult {
   /** 最終的な成功/失敗 */
   success: boolean;
 
-  /** 部分的な成功（片方のニュースだけ成功） */
+  /** 部分的な成功(片方のニュースだけ成功) */
   partialSuccess: boolean;
 
   /** 最終的なバッチ処理結果 */
   finalResult: NewsBatchResult;
 
-  /** 総試行回数（初回 + リトライ回数） */
+  /** 総試行回数(初回 + リトライ回数) */
   attemptCount: number;
 
-  /** リトライ回数（最大3） */
+  /** リトライ回数(最大3) */
   totalRetries: number;
 
-  /** 総処理時間（リトライ待機時間を含む） */
+  /** 総処理時間(リトライ待機時間を含む) */
   totalProcessingTimeMs: number;
 
   /** 例外が発生したかどうか */
@@ -141,7 +141,7 @@ export class NewsBatchRetryHandler {
    * リトライ付きでバッチ処理を実行
    *
    * バッチ処理が失敗した場合、最大maxRetries回までリトライする
-   * 部分成功（片方のニュースのみ成功）の場合はリトライしない
+   * 部分成功(片方のニュースのみ成功)の場合はリトライしない
    *
    * @param executeFn - バッチ処理を実行する関数
    * @returns リトライ結果
@@ -213,7 +213,7 @@ export class NewsBatchRetryHandler {
       }
     }
 
-    // 結果がない場合（通常は発生しない）
+    // 結果がない場合(通常は発生しない)
     if (!lastResult) {
       lastResult = this.createEmptyResult();
     }
@@ -243,8 +243,8 @@ export class NewsBatchRetryHandler {
    * 計算式: baseDelay * 2^(attempt-1)
    * 例: baseDelay=1000の場合、1回目=1000ms, 2回目=2000ms, 3回目=4000ms
    *
-   * @param attempt - 現在のリトライ回数（1始まり）
-   * @returns 遅延時間（ミリ秒）
+   * @param attempt - 現在のリトライ回数(1始まり)
+   * @returns 遅延時間(ミリ秒)
    */
   calculateDelay(attempt: number): number {
     // 指数バックオフ: baseDelay * 2^(attempt-1)
@@ -256,7 +256,7 @@ export class NewsBatchRetryHandler {
   /**
    * 指定時間待機する
    *
-   * @param ms - 待機時間（ミリ秒）
+   * @param ms - 待機時間(ミリ秒)
    */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -287,7 +287,7 @@ export class NewsBatchRetryHandler {
   }
 
   /**
-   * 空の結果を作成（フォールバック用）
+   * 空の結果を作成(フォールバック用)
    *
    * @returns 空のバッチ結果
    */

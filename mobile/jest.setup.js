@@ -51,7 +51,7 @@ jest.mock('expo-router', () => {
   // Tabs.Screen呼び出しを記録するためのモック関数
   const mockTabsScreen = jest.fn(({ name: _name, options: _options }) => null);
 
-  // Tabsコンポーネント（子要素をそのままレンダリング）
+  // Tabsコンポーネント(子要素をそのままレンダリング)
   const MockTabs = ({ children, screenOptions: _screenOptions }) => {
     return React.createElement(React.Fragment, null, children);
   };

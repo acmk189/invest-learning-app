@@ -115,7 +115,7 @@ describe('TermsBatchStepLogger', () => {
       expect(logs).toHaveLength(3);
     });
 
-    it('元の配列を変更しても影響しない（コピーを返す）', () => {
+    it('元の配列を変更しても影響しない(コピーを返す)', () => {
       logger.logStepSuccess(TermsBatchStep.TERM_GENERATION_BEGINNER);
       const logs = logger.getLogs();
       logs.push({} as StepLogEntry);

@@ -83,7 +83,7 @@ describe('NewsDocument Model', () => {
         date: '2026-01-01',
         worldNews: {
           title: '世界の投資ニュース',
-          summary: 'x'.repeat(500), // 500文字（短すぎる）
+          summary: 'x'.repeat(500), // 500文字(短すぎる)
           updatedAt: new Date(),
         },
         japanNews: {
@@ -103,7 +103,7 @@ describe('NewsDocument Model', () => {
         date: '2026-01-01',
         worldNews: {
           title: '世界の投資ニュース',
-          summary: 'x'.repeat(3000), // 3000文字（長すぎる）
+          summary: 'x'.repeat(3000), // 3000文字(長すぎる)
           updatedAt: new Date(),
         },
         japanNews: {
@@ -139,19 +139,19 @@ describe('NewsDocument Model', () => {
     });
 
     it('ドキュメントサイズが1MBを超える場合はエラーをスローする', () => {
-      // 要約文の文字数制限（1800〜2200文字）をクリアしつつ、
+      // 要約文の文字数制限(1800〜2200文字)をクリアしつつ、
       // 全体のドキュメントサイズが1MBを超える極端なケース
-      // （実際のユースケースでは発生しにくいが、境界値テストとして実装）
+      // (実際のユースケースでは発生しにくいが、境界値テストとして実装)
       const largeNews: NewsDocument = {
         date: '2026-01-01',
         worldNews: {
-          title: 'x'.repeat(600000), // タイトルを大きくする（600KB）
-          summary: 'x'.repeat(2000), // 2000文字（有効範囲内）
+          title: 'x'.repeat(600000), // タイトルを大きくする(600KB)
+          summary: 'x'.repeat(2000), // 2000文字(有効範囲内)
           updatedAt: new Date(),
         },
         japanNews: {
-          title: 'x'.repeat(600000), // タイトルを大きくする（600KB）
-          summary: 'x'.repeat(2000), // 2000文字（有効範囲内）
+          title: 'x'.repeat(600000), // タイトルを大きくする(600KB)
+          summary: 'x'.repeat(2000), // 2000文字(有効範囲内)
           updatedAt: new Date(),
         },
         createdAt: new Date(),

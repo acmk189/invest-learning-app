@@ -16,8 +16,8 @@ import { VercelRequest } from '@vercel/node';
 import { randomBytes, timingSafeEqual } from 'crypto';
 
 /**
- * CRON_SECRETのデフォルト長（バイト数）
- * 32バイト = 256ビット = 64文字（hex）
+ * CRON_SECRETのデフォルト長(バイト数)
+ * 32バイト = 256ビット = 64文字(hex)
  */
 export const CRON_SECRET_LENGTH = 32;
 
@@ -34,8 +34,8 @@ export type CronAuthErrorCode =
  * Cron認証結果の型定義
  *
  * @property isValid - 認証が成功した場合true
- * @property error - エラーメッセージ（認証失敗時）
- * @property errorCode - エラーコード（認証失敗時）
+ * @property error - エラーメッセージ(認証失敗時)
+ * @property errorCode - エラーコード(認証失敗時)
  */
 export interface CronAuthResult {
   isValid: boolean;
@@ -94,7 +94,7 @@ export function validateCronSecret(req: VercelRequest): CronAuthResult {
   // Step 4: トークンを抽出して比較
   const token = authHeader.substring(7); // "Bearer " の後ろを取得
 
-  // タイミング攻撃を防ぐため、固定時間で比較（crypto.timingSafeEqual使用）
+  // タイミング攻撃を防ぐため、固定時間で比較(crypto.timingSafeEqual使用)
   const tokenBuffer = Buffer.from(token);
   const secretBuffer = Buffer.from(cronSecret);
 
@@ -120,8 +120,8 @@ export function validateCronSecret(req: VercelRequest): CronAuthResult {
  * 初回セットアップ時にCRON_SECRETを生成するためのユーティリティ関数
  * 生成された値はVercel環境変数に設定する
  *
- * @param length - シークレットの長さ（バイト数）。デフォルトは32バイト
- * @returns 生成されたシークレット（hex文字列）
+ * @param length - シークレットの長さ(バイト数)。デフォルトは32バイト
+ * @returns 生成されたシークレット(hex文字列)
  */
 export function generateCronSecret(length: number = CRON_SECRET_LENGTH): string {
   return randomBytes(length).toString('hex');

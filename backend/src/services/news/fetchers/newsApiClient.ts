@@ -11,13 +11,13 @@
  */
 
 /**
- * NewsAPIのベースURL（HTTPS通信）
+ * NewsAPIのベースURL(HTTPS通信)
  * @see https://newsapi.org/docs/endpoints
  */
 const NEWS_API_BASE_URL = 'https://newsapi.org/v2';
 
 /**
- * デフォルトのタイムアウト時間（ミリ秒）
+ * デフォルトのタイムアウト時間(ミリ秒)
  */
 const DEFAULT_TIMEOUT_MS = 10000;
 
@@ -88,14 +88,14 @@ export interface NewsApiClientConfig {
   apiKey?: string;
 
   /**
-   * リクエストタイムアウト時間（ミリ秒）
+   * リクエストタイムアウト時間(ミリ秒)
    * @default 10000
    */
   timeoutMs?: number;
 }
 
 /**
- * NewsAPIクライアントの設定情報（読み取り専用）
+ * NewsAPIクライアントの設定情報(読み取り専用)
  *
  * APIキーは隠蔽して返します。
  */
@@ -106,7 +106,7 @@ export interface NewsApiClientInfo {
   apiKeyConfigured: boolean;
 
   /**
-   * タイムアウト時間（ミリ秒）
+   * タイムアウト時間(ミリ秒)
    */
   timeoutMs: number;
 }
@@ -149,7 +149,7 @@ export class NewsApiClient {
   /**
    * NewsAPIのベースURLを取得
    *
-   * @returns ベースURL（HTTPS）
+   * @returns ベースURL(HTTPS)
    */
   getBaseUrl(): string {
     return NEWS_API_BASE_URL;
@@ -170,7 +170,7 @@ export class NewsApiClient {
   }
 
   /**
-   * APIキーを取得（内部使用）
+   * APIキーを取得(内部使用)
    *
    * @returns APIキー
    */

@@ -2,7 +2,7 @@
  * AIサービスエラーハンドラー
  * Task 3.5: AIサービスエラーハンドリング
  *
- * Claude API（Anthropic）のエラーを適切にハンドリングし、
+ * Claude API(Anthropic)のエラーを適切にハンドリングし、
  * タイムアウト、API障害、その他のエラーを分類・ログ記録します。
  *
  * Requirements: 8.5 (外部API障害時エラーハンドリング+ログ), 11.3 (詳細ログ記録)
@@ -17,11 +17,11 @@ import { ErrorLogger } from '../errors/error-logger';
  * AIサービスエラー
  *
  * Claude APIとの通信で発生する一般的なエラー。
- * 操作名（operation）を保持し、どの処理で失敗したかを追跡できます。
+ * 操作名(operation)を保持し、どの処理で失敗したかを追跡できます。
  */
 export class AIServiceError extends AppError {
   /**
-   * 操作名（例: 'news-summary', 'term-generation'）
+   * 操作名(例: 'news-summary', 'term-generation')
    */
   public readonly operation?: string;
 
@@ -40,7 +40,7 @@ export class AIServiceError extends AppError {
  */
 export class AIServiceTimeoutError extends AIServiceError {
   /**
-   * タイムアウト時間（ミリ秒）
+   * タイムアウト時間(ミリ秒)
    */
   public readonly timeoutMs: number;
 
@@ -59,7 +59,7 @@ export class AIServiceTimeoutError extends AIServiceError {
 /**
  * AIサービス利用不可エラー
  *
- * APIサービスが利用できない場合（503、500、502、504など）にスローされるエラー。
+ * APIサービスが利用できない場合(503、500、502、504など)にスローされるエラー。
  * HTTPステータスコードを保持します。
  */
 export class AIServiceUnavailableError extends AIServiceError {
@@ -86,7 +86,7 @@ export class AIServiceUnavailableError extends AIServiceError {
  * AIサービスエラーかどうかを判定する
  *
  * @param error - 判定するエラーオブジェクト
- * @returns AIServiceError（またはそのサブクラス）の場合true
+ * @returns AIServiceError(またはそのサブクラス)の場合true
  */
 export function isAIServiceError(error: unknown): error is AIServiceError {
   return error instanceof AIServiceError;
@@ -128,7 +128,7 @@ export function isTimeoutError(error: unknown): boolean {
 }
 
 /**
- * サーバーエラー（5xx）かどうかを判定する
+ * サーバーエラー(5xx)かどうかを判定する
  *
  * @param error - 判定するエラーオブジェクト
  * @returns 5xxエラーの場合、ステータスコードを返す。そうでない場合undefined
@@ -162,7 +162,7 @@ function getServerErrorStatus(error: unknown): number | undefined {
  */
 export interface AIServiceErrorHandlerConfig {
   /**
-   * デフォルトのタイムアウト時間（ミリ秒）
+   * デフォルトのタイムアウト時間(ミリ秒)
    * @default 30000
    */
   defaultTimeoutMs?: number;
@@ -232,7 +232,7 @@ export class AIServiceErrorHandler {
 
     const originalError = error instanceof Error ? error : undefined;
 
-    // サーバーエラー（5xx）を先にチェック
+    // サーバーエラー(5xx)を先にチェック
     // 504 Gateway Timeout はサーバーエラーとして扱う
     const serverErrorStatus = getServerErrorStatus(error);
     if (serverErrorStatus !== undefined) {
@@ -244,7 +244,7 @@ export class AIServiceErrorHandler {
       );
     }
 
-    // タイムアウトエラーの場合（クライアント側のタイムアウト）
+    // タイムアウトエラーの場合(クライアント側のタイムアウト)
     if (isTimeoutError(error)) {
       return new AIServiceTimeoutError(
         originalError?.message || 'Request timed out',

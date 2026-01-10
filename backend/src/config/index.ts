@@ -4,7 +4,7 @@
  * Firebase設定、Supabase設定、環境変数管理を統合的にエクスポートします。
  */
 
-// Firebase Admin SDK設定（移行後は削除予定）
+// Firebase Admin SDK設定(移行後は削除予定)
 export {
   initializeFirebase,
   getFirestore,

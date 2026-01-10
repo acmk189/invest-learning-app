@@ -40,7 +40,7 @@ export class ErrorLogger {
   /**
    * エラーをFirestoreに記録する
    * @param error - 記録するエラー
-   * @param context - 追加のコンテキスト情報（オプション）
+   * @param context - 追加のコンテキスト情報(オプション)
    */
   async logError(error: AppError, context?: Record<string, any>): Promise<void> {
     try {

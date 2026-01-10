@@ -28,9 +28,9 @@ const VALID_DIFFICULTIES: TermDifficulty[] = ['beginner', 'intermediate', 'advan
 export interface TermParseResult {
   /** パース成功かどうか */
   success: boolean;
-  /** 抽出された用語（成功時のみ） */
+  /** 抽出された用語(成功時のみ) */
   term?: Term;
-  /** エラーメッセージ（失敗時のみ） */
+  /** エラーメッセージ(失敗時のみ) */
   error?: string;
   /** 使用されたモデル名 */
   model: string;
@@ -48,14 +48,14 @@ export interface TermParseResult {
 export interface TermValidationResult {
   /** 文字数が許容範囲内かどうか */
   isValid: boolean;
-  /** 文字数（空白・改行を除く） */
+  /** 文字数(空白・改行を除く) */
   characterCount: number;
-  /** 警告メッセージ（範囲外の場合） */
+  /** 警告メッセージ(範囲外の場合) */
   warning?: string;
 }
 
 /**
- * JSON形式の用語データ（パース前の生データ）
+ * JSON形式の用語データ(パース前の生データ)
  */
 interface RawTermData {
   name?: unknown;
@@ -64,7 +64,7 @@ interface RawTermData {
 }
 
 /**
- * 文字数をカウントする（空白・改行を除く）
+ * 文字数をカウントする(空白・改行を除く)
  *
  * @param text - カウント対象のテキスト
  * @returns 空白・改行を除いた文字数
@@ -80,7 +80,7 @@ function countCharacters(text: string): number {
 /**
  * コンテンツからJSONを抽出する
  *
- * コードブロック（```json ... ```）で囲まれている場合は中身を抽出します。
+ * コードブロック(```json ... ```)で囲まれている場合は中身を抽出します。
  *
  * @param content - Claude APIのレスポンスコンテンツ
  * @returns 抽出されたJSON文字列
@@ -169,7 +169,7 @@ export function parseTermResponse(response: ClaudeResponse): TermParseResult {
       return {
         ...baseResult,
         success: false,
-        error: `difficultyフィールドが無効です。beginner, intermediate, advancedのいずれかを指定してください。（現在: ${String(data.difficulty)}）`,
+        error: `difficultyフィールドが無効です。beginner, intermediate, advancedのいずれかを指定してください。(現在: ${String(data.difficulty)})`,
       };
     }
 
@@ -198,7 +198,7 @@ export function parseTermResponse(response: ClaudeResponse): TermParseResult {
 /**
  * 解説文の文字数を検証
  *
- * 解説文が許容範囲（400〜600文字）内かどうかをチェックします。
+ * 解説文が許容範囲(400〜600文字)内かどうかをチェックします。
  * 範囲外の場合は警告メッセージを含む結果を返します。
  *
  * @param description - 検証する解説文
@@ -227,7 +227,7 @@ export function validateTermDescription(description: string): TermValidationResu
     return {
       isValid: false,
       characterCount,
-      warning: `解説文が短すぎます（${characterCount}文字）。目標は${TERM_GENERATION_CONFIG.minCharacters}〜${TERM_GENERATION_CONFIG.maxCharacters}文字です。`,
+      warning: `解説文が短すぎます(${characterCount}文字)。目標は${TERM_GENERATION_CONFIG.minCharacters}〜${TERM_GENERATION_CONFIG.maxCharacters}文字です。`,
     };
   }
 
@@ -236,7 +236,7 @@ export function validateTermDescription(description: string): TermValidationResu
     return {
       isValid: false,
       characterCount,
-      warning: `解説文が長すぎます（${characterCount}文字）。目標は${TERM_GENERATION_CONFIG.minCharacters}〜${TERM_GENERATION_CONFIG.maxCharacters}文字です。`,
+      warning: `解説文が長すぎます(${characterCount}文字)。目標は${TERM_GENERATION_CONFIG.minCharacters}〜${TERM_GENERATION_CONFIG.maxCharacters}文字です。`,
     };
   }
 

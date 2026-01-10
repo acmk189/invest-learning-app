@@ -65,7 +65,7 @@ describe('CacheManager', () => {
   });
 
   describe('setCache', () => {
-    it('ニュースデータをキャッシュに保存する（cachedAtを記録）', async () => {
+    it('ニュースデータをキャッシュに保存する(cachedAtを記録)', async () => {
       const newsData: NewsData = {
         worldNews: {
           title: '世界のニュース',
@@ -158,7 +158,7 @@ describe('CacheManager', () => {
     });
   });
 
-  describe('getValidatedCache（メタデータチェック）', () => {
+  describe('getValidatedCache(メタデータチェック)', () => {
     const newsData: NewsData = {
       worldNews: {
         title: '世界のニュース',
@@ -180,7 +180,7 @@ describe('CacheManager', () => {
       expect(result).toEqual({ data: null, isValid: false });
     });
 
-    it('メタデータ取得失敗（オフライン）時、キャッシュをそのまま返す', async () => {
+    it('メタデータ取得失敗(オフライン)時、キャッシュをそのまま返す', async () => {
       const cacheEntry: CacheEntry<NewsData> = {
         data: newsData,
         cachedAt: Date.now() - 3600000, // 1時間前
@@ -194,7 +194,7 @@ describe('CacheManager', () => {
       expect(result).toEqual({ data: newsData, isValid: true });
     });
 
-    it('メタデータのlastUpdated <= cachedAtの場合、キャッシュを返す（キャッシュ有効）', async () => {
+    it('メタデータのlastUpdated <= cachedAtの場合、キャッシュを返す(キャッシュ有効)', async () => {
       const cachedAt = Date.now() - 3600000; // 1時間前
       const cacheEntry: CacheEntry<NewsData> = {
         data: newsData,
@@ -212,7 +212,7 @@ describe('CacheManager', () => {
       expect(result).toEqual({ data: newsData, isValid: true });
     });
 
-    it('メタデータのlastUpdated > cachedAtの場合、nullを返しキャッシュを削除（新データあり）', async () => {
+    it('メタデータのlastUpdated > cachedAtの場合、nullを返しキャッシュを削除(新データあり)', async () => {
       const cachedAt = Date.now() - 3600000; // 1時間前
       const cacheEntry: CacheEntry<NewsData> = {
         data: newsData,
@@ -291,7 +291,7 @@ describe('CacheManager', () => {
   });
 
   describe('clearOldCache', () => {
-    it('古いキャッシュを全て削除する（日付ベース）', async () => {
+    it('古いキャッシュを全て削除する(日付ベース)', async () => {
       mockAsyncStorage.getAllKeys.mockResolvedValueOnce([
         'cache_news_2026-01-01', // 今日
         'cache_news_2025-12-31', // 昨日
@@ -353,7 +353,7 @@ describe('CacheManager', () => {
   });
 
   describe('パフォーマンス要件', () => {
-    it('キャッシュ読み込みが1秒以内に完了する（モック環境、オフライン時）', async () => {
+    it('キャッシュ読み込みが1秒以内に完了する(モック環境、オフライン時)', async () => {
       const newsData: NewsData = {
         worldNews: {
           title: '世界のニュース',

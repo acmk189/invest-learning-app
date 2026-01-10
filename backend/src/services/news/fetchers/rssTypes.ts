@@ -10,7 +10,7 @@
  */
 
 /**
- * RSSフィードのアイテム（1つの記事）
+ * RSSフィードのアイテム(1つの記事)
  *
  * Google News RSSから取得される記事情報
  */
@@ -26,17 +26,17 @@ export interface GoogleNewsRssItem {
   link: string;
 
   /**
-   * 記事の説明・概要（HTML形式の場合あり）
+   * 記事の説明・概要(HTML形式の場合あり)
    */
   description: string | null;
 
   /**
-   * 記事の公開日時（ISO 8601形式）
+   * 記事の公開日時(ISO 8601形式)
    */
   publishedAt: string;
 
   /**
-   * ソース名（元の配信元）
+   * ソース名(元の配信元)
    */
   source: string | null;
 }
@@ -80,7 +80,7 @@ export interface GoogleNewsRssFeed {
  */
 export interface RssParserConfig {
   /**
-   * リクエストタイムアウト（ミリ秒）
+   * リクエストタイムアウト(ミリ秒)
    *
    * @default 30000 (30秒)
    */

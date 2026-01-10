@@ -1,12 +1,12 @@
 # Requirements Document
 
 ## Project Description (Input)
-Firebase Firestore から Supabase（PostgreSQL）へのデータベース移行
+Firebase Firestore から Supabase(PostgreSQL)へのデータベース移行
 
 ## 1. 概要
 
 ### 1.1 移行の背景
-React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプリのビルドが失敗する。この問題を解決するため、データベースをFirebase FirestoreからSupabase（PostgreSQL）に移行する。
+React Native(Expo Dev Client)とFirebaseの相性問題により、iOSアプリのビルドが失敗する。この問題を解決するため、データベースをFirebase FirestoreからSupabase(PostgreSQL)に移行する。
 
 ### 1.2 移行スコープ
 
@@ -18,10 +18,10 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 | オフライン永続化 | Firestore組み込み機能 | AsyncStorage + カスタム実装 |
 
 ### 1.3 移行対象外
-- AI処理（Claude API）
-- ニュース取得（NewsAPI, Google News RSS）
-- Vercel Cron Jobs（エンドポイントURLは維持）
-- UIコンポーネント（Repository層以下のみ変更）
+- AI処理(Claude API)
+- ニュース取得(NewsAPI, Google News RSS)
+- Vercel Cron Jobs(エンドポイントURLは維持)
+- UIコンポーネント(Repository層以下のみ変更)
 
 ---
 
@@ -33,9 +33,9 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 
 #### Acceptance Criteria
 - [ ] AC1: Supabaseプロジェクトを作成し、PostgreSQLデータベースを有効化する
-- [ ] AC2: プロジェクトURLとAPIキー（anon key, service_role key）を取得する
-- [ ] AC3: 環境変数（SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY）を設定する
-- [ ] AC4: Row Level Security (RLS) ポリシーを設計する（読み取り: 全員許可、書き込み: サービスロールのみ）
+- [ ] AC2: プロジェクトURLとAPIキー(anon key, service_role key)を取得する
+- [ ] AC3: 環境変数(SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)を設定する
+- [ ] AC4: Row Level Security (RLS) ポリシーを設計する(読み取り: 全員許可、書き込み: サービスロールのみ)
 
 ---
 
@@ -44,12 +44,12 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 **Objective:** As a 開発者, I want PostgreSQLスキーマを設計する, so that Firestoreのデータを正規化して保存できる
 
 #### Acceptance Criteria
-- [ ] AC1: `news`テーブルを作成する（date: DATE PRIMARY KEY, world_news_title, world_news_summary, japan_news_title, japan_news_summary, created_at, updated_at）
-- [ ] AC2: `terms`テーブルを作成する（id: SERIAL PRIMARY KEY, date: DATE, name, description, difficulty, created_at）
-- [ ] AC3: `terms_history`テーブルを作成する（id: SERIAL PRIMARY KEY, term_name, delivered_at, difficulty）
-- [ ] AC4: `batch_metadata`テーブルを作成する（id: INTEGER PRIMARY KEY DEFAULT 1, news_last_updated, terms_last_updated）
+- [ ] AC1: `news`テーブルを作成する(date: DATE PRIMARY KEY, world_news_title, world_news_summary, japan_news_title, japan_news_summary, created_at, updated_at)
+- [ ] AC2: `terms`テーブルを作成する(id: SERIAL PRIMARY KEY, date: DATE, name, description, difficulty, created_at)
+- [ ] AC3: `terms_history`テーブルを作成する(id: SERIAL PRIMARY KEY, term_name, delivered_at, difficulty)
+- [ ] AC4: `batch_metadata`テーブルを作成する(id: INTEGER PRIMARY KEY DEFAULT 1, news_last_updated, terms_last_updated)
 - [ ] AC5: 日付カラムにインデックスを作成し、クエリパフォーマンスを最適化する
-- [ ] AC6: CHECK制約で difficulty の値を制限する（'beginner', 'intermediate', 'advanced'）
+- [ ] AC6: CHECK制約で difficulty の値を制限する('beginner', 'intermediate', 'advanced')
 
 ---
 
@@ -73,7 +73,7 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 - [ ] AC1: `backend/src/models/`のモデルをSupabase用に更新する
 - [ ] AC2: Timestamp型をISO 8601文字列またはDate型に変更する
 - [ ] AC3: 新しいモデル用のバリデーション関数を実装する
-- [ ] AC4: 既存のバリデーションロジック（文字数制限等）を維持する
+- [ ] AC4: 既存のバリデーションロジック(文字数制限等)を維持する
 
 ---
 
@@ -137,7 +137,7 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 - [ ] AC2: `TermsRepository`のFirestore依存をSupabaseに変更する
 - [ ] AC3: キャッシュマネージャーとの統合を維持する
 - [ ] AC4: エラー型をSupabase用に更新する
-- [ ] AC5: 既存のインターフェース（NewsResult, TermsResult）を維持する
+- [ ] AC5: 既存のインターフェース(NewsResult, TermsResult)を維持する
 
 ---
 
@@ -161,7 +161,7 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 #### Acceptance Criteria
 - [ ] AC1: `@react-native-firebase/*`パッケージをアンインストールする
 - [ ] AC2: `firebase-admin`パッケージをアンインストールする
-- [ ] AC3: Firebase設定ファイル（GoogleService-Info.plist等）を削除する
+- [ ] AC3: Firebase設定ファイル(GoogleService-Info.plist等)を削除する
 - [ ] AC4: Firebase関連のコード・型定義を削除する
 - [ ] AC5: Expoビルドが成功することを確認する
 
@@ -225,13 +225,13 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 - バッチ処理の成功率98%以上を維持
 
 ### 3.2 コスト要件
-- Supabase無料プランの制限（500MB、2GB帯域/月）を遵守する
+- Supabase無料プランの制限(500MB、2GB帯域/月)を遵守する
 - 月間運用コスト1,000円以下を維持する
 
 ### 3.3 運用要件
 - 移行中のサービス停止を最小化する
-- 既存のAPIエンドポイント（/api/batch/news, /api/batch/terms）のURLを維持する
-- 既存のCron設定（毎日8:00 JST）を維持する
+- 既存のAPIエンドポイント(/api/batch/news, /api/batch/terms)のURLを維持する
+- 既存のCron設定(毎日8:00 JST)を維持する
 
 ---
 
@@ -249,7 +249,7 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 
 1. Expo Dev Clientでのビルドが成功する
 2. 全てのユニットテストがパスする
-3. バッチ処理が正常に動作する（98%以上の成功率）
+3. バッチ処理が正常に動作する(98%以上の成功率)
 4. オフライン時にキャッシュデータを1秒以内に表示する
 5. 既存機能が全て正常に動作する
 
@@ -262,7 +262,7 @@ React Native（Expo Dev Client）とFirebaseの相性問題により、iOSアプ
 #### news コレクション
 ```
 news/{YYYY-MM-DD}
-├── date: string           # ドキュメントID（YYYY-MM-DD）
+├── date: string           # ドキュメントID(YYYY-MM-DD)
 ├── worldNews
 │   ├── title: string
 │   ├── summary: string    # 約2000文字
@@ -278,7 +278,7 @@ news/{YYYY-MM-DD}
 #### terms コレクション
 ```
 terms/{YYYY-MM-DD}
-├── date: string           # ドキュメントID（YYYY-MM-DD）
+├── date: string           # ドキュメントID(YYYY-MM-DD)
 ├── terms: Array<Term>     # 3つの用語
 │   └── Term
 │       ├── name: string
@@ -305,7 +305,7 @@ metadata/batch
 
 ### 6.2 現行の依存関係
 
-#### バックエンド（backend/）
+#### バックエンド(backend/)
 | ファイル | Firebase依存 |
 |----------|-------------|
 | src/config/firebase.ts | firebase-admin初期化 |
@@ -315,7 +315,7 @@ metadata/batch
 | api/batch/news.ts | Firestore経由でデータ保存 |
 | api/batch/terms.ts | Firestore経由でデータ保存 |
 
-#### フロントエンド（mobile/）
+#### フロントエンド(mobile/)
 | ファイル | Firebase依存 |
 |----------|-------------|
 | src/config/firebase.ts | Firebase初期化設定 |
@@ -325,4 +325,4 @@ metadata/batch
 | src/firestore/types.ts | Firestore型定義 |
 | src/news/news-repository.ts | Firestoreクエリ使用 |
 | src/terms/terms-repository.ts | Firestoreクエリ使用 |
-| src/cache/cache-manager.ts | メタデータ取得（間接依存） |
+| src/cache/cache-manager.ts | メタデータ取得(間接依存) |

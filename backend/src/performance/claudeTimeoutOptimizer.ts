@@ -13,7 +13,7 @@
  */
 
 /**
- * デフォルトのタイムアウト時間（60秒）
+ * デフォルトのタイムアウト時間(60秒)
  *
  * 通常のニュース要約・用語生成は30秒以内に完了するため、
  * 60秒のタイムアウトで十分なマージンを確保
@@ -21,7 +21,7 @@
 const DEFAULT_TIMEOUT_MS = 60000;
 
 /**
- * デフォルトの最大タイムアウト時間（2分）
+ * デフォルトの最大タイムアウト時間(2分)
  *
  * バッチ全体の5分制限を考慮し、単一API呼び出しが
  * 長時間ブロックしないよう制限
@@ -29,7 +29,7 @@ const DEFAULT_TIMEOUT_MS = 60000;
 const DEFAULT_MAX_TIMEOUT_MS = 120000;
 
 /**
- * デフォルトの最小タイムアウト時間（10秒）
+ * デフォルトの最小タイムアウト時間(10秒)
  *
  * 短すぎるタイムアウトは誤検出を引き起こすため、
  * 最小値を設定
@@ -46,20 +46,20 @@ export type OperationTimeouts = Record<string, number>;
  */
 export interface ClaudeTimeoutConfig {
   /**
-   * デフォルトのタイムアウト時間（ミリ秒）
+   * デフォルトのタイムアウト時間(ミリ秒)
    * @default 60000
    */
   defaultTimeoutMs?: number;
 
   /**
-   * 最大タイムアウト時間（ミリ秒）
+   * 最大タイムアウト時間(ミリ秒)
    * この値を超えるタイムアウト設定は制限される
    * @default 120000
    */
   maxTimeoutMs?: number;
 
   /**
-   * 最小タイムアウト時間（ミリ秒）
+   * 最小タイムアウト時間(ミリ秒)
    * この値を下回るタイムアウト設定は制限される
    * @default 10000
    */
@@ -67,7 +67,7 @@ export interface ClaudeTimeoutConfig {
 
   /**
    * 操作タイプごとのタイムアウト設定
-   * キーは操作名（例: 'news-summary', 'term-generation'）
+   * キーは操作名(例: 'news-summary', 'term-generation')
    */
   operationTimeouts?: OperationTimeouts;
 
@@ -78,7 +78,7 @@ export interface ClaudeTimeoutConfig {
   retryOnTimeout?: boolean;
 
   /**
-   * 最大リトライ回数（retryOnTimeoutがtrueの場合）
+   * 最大リトライ回数(retryOnTimeoutがtrueの場合)
    * @default 1
    */
   maxRetries?: number;
@@ -90,7 +90,7 @@ export interface ClaudeTimeoutConfig {
  * Claude APIリクエストに適用するオプション
  */
 export interface OptimizedRequestOptions {
-  /** タイムアウト時間（ミリ秒） */
+  /** タイムアウト時間(ミリ秒) */
   timeoutMs: number;
   /** タイムアウト時にリトライするか */
   retryOnTimeout: boolean;
@@ -163,7 +163,7 @@ export class ClaudeTimeoutOptimizer {
    * 操作タイプに応じたタイムアウト設定を返します。
    * 操作タイプが未定義の場合はデフォルト値を使用します。
    *
-   * @param operation - 操作タイプ（省略時はデフォルト）
+   * @param operation - 操作タイプ(省略時はデフォルト)
    * @returns 最適化されたリクエストオプション
    */
   getOptimizedOptions(operation?: string): OptimizedRequestOptions {
@@ -209,7 +209,7 @@ export class ClaudeTimeoutOptimizer {
    * 事前定義された操作タイプのタイムアウト推奨値を返します。
    *
    * @param operation - 操作タイプ
-   * @returns 推奨タイムアウト（ミリ秒）
+   * @returns 推奨タイムアウト(ミリ秒)
    */
   getRecommendedTimeout(operation: string): number {
     // 事前定義された推奨タイムアウト

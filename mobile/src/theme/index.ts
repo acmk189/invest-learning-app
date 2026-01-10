@@ -17,5 +17,5 @@ export { ThemeProvider, useTheme, useThemeColors } from './theme-provider';
 // 型定義
 export type { ThemeMode, ThemeColors, ThemeContextValue } from './types';
 
-// 色定義（直接使用する場合のみインポート）
+// 色定義(直接使用する場合のみインポート)
 export { lightColors, darkColors, getThemeColors } from './colors';

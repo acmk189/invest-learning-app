@@ -4,20 +4,20 @@
  * Task 4: バックエンドデータモデル移行
  * Requirements: 4
  *
- * Firebase用モデル（Date型）からSupabase用型（ISO 8601文字列）への
- * 変換関数を提供します。既存のバリデーションロジック（文字数制限等）を維持しつつ、
+ * Firebase用モデル(Date型)からSupabase用型(ISO 8601文字列)への
+ * 変換関数を提供します。既存のバリデーションロジック(文字数制限等)を維持しつつ、
  * Supabase PostgreSQLに適したデータ構造へ変換します。
  *
  * ## 関数の用途分類
  *
- * ### 継続利用（Supabase運用で必要）
+ * ### 継続利用(Supabase運用で必要)
  * - `batchMetadataRowToClientFormat()` - メタデータのクライアント形式変換
  * - `createBatchMetadataUpdatePayload()` - バッチ処理でのメタデータ更新
  * - `validateNewsRow()` - ニュースデータのバリデーション
  * - `validateTermInsertPayload()` - 用語データのバリデーション
  * - `validateTermInsertPayloads()` - 用語配列のバリデーション
  *
- * ### データ移行用（Phase 3スキップのため将来的に削除の可能性あり）
+ * ### データ移行用(Phase 3スキップのため将来的に削除の可能性あり)
  * - `newsDocumentToNewsRow()` - Firebase NewsDocument → Supabase NewsRow
  * - `newsDocumentToUpsertPayload()` - Firebase NewsDocument → upsertペイロード
  * - `termsDocumentToTermRows()` - Firebase TermsDocument → Supabase TermInsertPayload[]
@@ -40,7 +40,7 @@ import { VALID_DIFFICULTIES } from './supabase.types';
 import type { BatchMetadata } from './metadata.model';
 
 /**
- * NewsDocumentをNewsRow（Supabase用）に変換する
+ * NewsDocumentをNewsRow(Supabase用)に変換する
  *
  * Date型の日時をISO 8601文字列に変換し、フラットな構造に変換します。
  *
@@ -93,7 +93,7 @@ export function termsDocumentToTermRows(doc: TermsDocument): TermInsertPayload[]
  * 単一のTermをTermInsertPayloadに変換する
  *
  * @param term - 用語
- * @param date - 日付（YYYY-MM-DD形式）
+ * @param date - 日付(YYYY-MM-DD形式)
  * @returns Supabase terms テーブル用のTermInsertPayload
  */
 export function termToTermInsertPayload(term: Term, date: string): TermInsertPayload {
@@ -126,7 +126,7 @@ export function termHistoryDocumentToPayload(
 /**
  * NewsRowを検証する
  *
- * 既存のバリデーションロジック（文字数制限等）を維持しつつ、
+ * 既存のバリデーションロジック(文字数制限等)を維持しつつ、
  * Supabase用の型で検証します。
  *
  * @param row - 検証対象のNewsRow
@@ -134,7 +134,7 @@ export function termHistoryDocumentToPayload(
  *
  * 検証項目:
  * - 日付がYYYY-MM-DD形式であること
- * - 要約文が1800〜2200文字の範囲内であること（Requirement 1.4）
+ * - 要約文が1800〜2200文字の範囲内であること(Requirement 1.4)
  */
 export function validateNewsRow(row: NewsRow): void {
   // 日付フォーマット検証
@@ -147,7 +147,7 @@ export function validateNewsRow(row: NewsRow): void {
   const worldSummaryLength = row.world_news_summary.length;
   if (worldSummaryLength < 1800 || worldSummaryLength > 2200) {
     throw new Error(
-      `世界ニュースの要約文は1800〜2200文字である必要があります（現在: ${worldSummaryLength}文字）`
+      `世界ニュースの要約文は1800〜2200文字である必要があります(現在: ${worldSummaryLength}文字)`
     );
   }
 
@@ -155,7 +155,7 @@ export function validateNewsRow(row: NewsRow): void {
   const japanSummaryLength = row.japan_news_summary.length;
   if (japanSummaryLength < 1800 || japanSummaryLength > 2200) {
     throw new Error(
-      `日本ニュースの要約文は1800〜2200文字である必要があります（現在: ${japanSummaryLength}文字）`
+      `日本ニュースの要約文は1800〜2200文字である必要があります(現在: ${japanSummaryLength}文字)`
     );
   }
 }
@@ -163,7 +163,7 @@ export function validateNewsRow(row: NewsRow): void {
 /**
  * TermInsertPayloadを検証する
  *
- * 既存のバリデーションロジック（文字数制限等）を維持しつつ、
+ * 既存のバリデーションロジック(文字数制限等)を維持しつつ、
  * Supabase用の型で検証します。
  *
  * @param payload - 検証対象のTermInsertPayload
@@ -172,7 +172,7 @@ export function validateNewsRow(row: NewsRow): void {
  * 検証項目:
  * - 日付がYYYY-MM-DD形式であること
  * - 用語名が空でないこと
- * - 解説文が400〜600文字の範囲内であること（Requirement 4.2）
+ * - 解説文が400〜600文字の範囲内であること(Requirement 4.2)
  * - 難易度が有効な値であること
  */
 export function validateTermInsertPayload(payload: TermInsertPayload): void {
@@ -191,20 +191,20 @@ export function validateTermInsertPayload(payload: TermInsertPayload): void {
   const descriptionLength = payload.description.length;
   if (descriptionLength < 400 || descriptionLength > 600) {
     throw new Error(
-      `解説文は400〜600文字である必要があります（現在: ${descriptionLength}文字）`
+      `解説文は400〜600文字である必要があります(現在: ${descriptionLength}文字)`
     );
   }
 
   // 難易度検証
   if (!VALID_DIFFICULTIES.includes(payload.difficulty as Difficulty)) {
     throw new Error(
-      `難易度はbeginner, intermediate, advancedのいずれかである必要があります（現在: ${payload.difficulty}）`
+      `難易度はbeginner, intermediate, advancedのいずれかである必要があります(現在: ${payload.difficulty})`
     );
   }
 }
 
 /**
- * TermInsertPayload配列（3つの用語）を検証する
+ * TermInsertPayload配列(3つの用語)を検証する
  *
  * @param payloads - 検証対象のTermInsertPayload配列
  * @throws {Error} 検証失敗時
@@ -212,7 +212,7 @@ export function validateTermInsertPayload(payload: TermInsertPayload): void {
 export function validateTermInsertPayloads(payloads: TermInsertPayload[]): void {
   // 用語数検証
   if (payloads.length !== 3) {
-    throw new Error(`用語は必ず3つである必要があります（現在: ${payloads.length}個）`);
+    throw new Error(`用語は必ず3つである必要があります(現在: ${payloads.length}個)`);
   }
 
   // 各用語を検証
@@ -232,10 +232,10 @@ export function validateTermInsertPayloads(payloads: TermInsertPayload[]): void 
  *
  * Supabaseから取得したbatch_metadataテーブルの行を、
  * フロントエンドで使用するBatchMetadata形式に変換します。
- * ISO 8601文字列をUnixタイムスタンプ（ミリ秒）に変換します。
+ * ISO 8601文字列をUnixタイムスタンプ(ミリ秒)に変換します。
  *
  * @param row - Supabase batch_metadataテーブルの行
- * @returns クライアント向けBatchMetadata（Unixタイムスタンプ形式）
+ * @returns クライアント向けBatchMetadata(Unixタイムスタンプ形式)
  */
 export function batchMetadataRowToClientFormat(row: BatchMetadataRow): BatchMetadata {
   return {
@@ -252,10 +252,10 @@ export function batchMetadataRowToClientFormat(row: BatchMetadataRow): BatchMeta
  * バッチメタデータ更新用ペイロードを生成する
  *
  * バッチ処理完了時にbatch_metadataテーブルを更新するためのペイロードを生成します。
- * 指定された種別（news/terms）の最終更新日時のみを設定します。
+ * 指定された種別(news/terms)の最終更新日時のみを設定します。
  *
- * @param type - 更新対象（'news' または 'terms'）
- * @param timestamp - 更新日時（Date型）
+ * @param type - 更新対象('news' または 'terms')
+ * @param timestamp - 更新日時(Date型)
  * @returns Supabase batch_metadataテーブル更新用ペイロード
  */
 export function createBatchMetadataUpdatePayload(

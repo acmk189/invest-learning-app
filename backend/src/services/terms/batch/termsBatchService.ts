@@ -2,7 +2,7 @@
  * 用語バッチサービス
  *
  * Task 11: 用語バッチ処理
- * - 11.1 用語バッチAPIエンドポイント基盤（本ファイルと/api/batch/terms.tsで対応）
+ * - 11.1 用語バッチAPIエンドポイント基盤(本ファイルと/api/batch/terms.tsで対応)
  * - 11.2 3用語生成オーケストレーション
  * - 11.4 Firestore用語保存機能
  * - 11.5 用語履歴保存機能
@@ -37,7 +37,7 @@ import {
 import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
 
 /**
- * デフォルトのタイムアウト時間（5分）
+ * デフォルトのタイムアウト時間(5分)
  *
  * Requirements 1.8: バッチ処理は5分以内に完了する必要がある
  */
@@ -57,7 +57,7 @@ const DIFFICULTY_ORDER: TermDifficulty[] = ['beginner', 'intermediate', 'advance
  */
 export class TermsBatchError extends AppError {
   /**
-   * 操作名（例: 'term-generation', 'firestore-save'）
+   * 操作名(例: 'term-generation', 'firestore-save')
    */
   public readonly operation: string;
 
@@ -72,7 +72,7 @@ export class TermsBatchError extends AppError {
  * バッチ処理中のエラー情報
  */
 export interface BatchErrorInfo {
-  /** エラータイプ（どの処理で発生したか） */
+  /** エラータイプ(どの処理で発生したか) */
   type: string;
   /** エラーメッセージ */
   message: string;
@@ -86,7 +86,7 @@ export interface BatchErrorInfo {
 export interface TermsBatchResult {
   /** 全処理が成功したかどうか */
   success: boolean;
-  /** 部分的な成功（一部の用語だけ成功）かどうか */
+  /** 部分的な成功(一部の用語だけ成功)かどうか */
   partialSuccess: boolean;
   /** 生成された用語の配列 */
   terms?: Term[];
@@ -96,11 +96,11 @@ export interface TermsBatchResult {
   historyUpdated: boolean;
   /** メタデータの更新が成功したかどうか */
   metadataUpdated: boolean;
-  /** 処理時間（ミリ秒） */
+  /** 処理時間(ミリ秒) */
   processingTimeMs: number;
-  /** 処理日付（YYYY-MM-DD形式） */
+  /** 処理日付(YYYY-MM-DD形式) */
   date: string;
-  /** エラー情報（発生した場合） */
+  /** エラー情報(発生した場合) */
   errors?: BatchErrorInfo[];
 }
 
@@ -109,7 +109,7 @@ export interface TermsBatchResult {
  */
 export interface TermsBatchServiceConfig {
   /**
-   * タイムアウト時間（ミリ秒）
+   * タイムアウト時間(ミリ秒)
    * @default 300000 (5分)
    */
   timeoutMs?: number;
@@ -365,7 +365,7 @@ export class TermsBatchService {
    *
    * Requirements 4.5: 用語データFirestore保存
    *
-   * @param date - ドキュメントID（YYYY-MM-DD形式）
+   * @param date - ドキュメントID(YYYY-MM-DD形式)
    * @param terms - 保存する用語配列
    */
   private async saveTerms(date: string, terms: Term[]): Promise<void> {
@@ -381,7 +381,7 @@ export class TermsBatchService {
   /**
    * 用語履歴を更新
    *
-   * Requirements 4.6: 全履歴保持（重複チェック用）
+   * Requirements 4.6: 全履歴保持(重複チェック用)
    *
    * @param terms - 追加する用語配列
    */

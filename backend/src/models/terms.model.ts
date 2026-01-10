@@ -6,7 +6,7 @@
  * - Requirement 4.1: 1日3つ投資用語生成
  * - Requirement 4.2: 各用語に500文字解説生成
  * - Requirement 4.5: 用語データFirestore保存
- * - Requirement 4.6: 全履歴保持（重複チェック用）
+ * - Requirement 4.6: 全履歴保持(重複チェック用)
  *
  * Firestoreスキーマ:
  * - Collection: terms
@@ -28,7 +28,7 @@ export type TermDifficulty = 'beginner' | 'intermediate' | 'advanced';
 export interface Term {
   /** 用語名 */
   name: string;
-  /** 解説文（約500文字） */
+  /** 解説文(約500文字) */
   description: string;
   /** 難易度 */
   difficulty: TermDifficulty;
@@ -40,7 +40,7 @@ export interface Term {
  * Firestoreパス: terms/{date}
  */
 export interface TermsDocument {
-  /** 日付（ドキュメントID）: YYYY-MM-DD形式 */
+  /** 日付(ドキュメントID): YYYY-MM-DD形式 */
   date: string;
   /** 3つの用語 */
   terms: Term[];
@@ -55,7 +55,7 @@ export interface TermsDocument {
  *
  * Firestoreパス: terms_history/{auto-generated-id}
  *
- * 用途: 過去30日以内の重複チェック用（Requirement 4.3）
+ * 用途: 過去30日以内の重複チェック用(Requirement 4.3)
  */
 export interface TermHistoryDocument {
   /** 用語名 */
@@ -74,8 +74,8 @@ export interface TermHistoryDocument {
  *
  * 検証項目:
  * - 日付がYYYY-MM-DD形式であること
- * - 用語が必ず3つであること（Requirement 4.1）
- * - 各用語の解説文が400〜600文字の範囲内であること（Requirement 4.2）
+ * - 用語が必ず3つであること(Requirement 4.1)
+ * - 各用語の解説文が400〜600文字の範囲内であること(Requirement 4.2)
  */
 export function validateTermsDocument(termsDoc: TermsDocument): void {
   // 日付フォーマット検証
@@ -87,7 +87,7 @@ export function validateTermsDocument(termsDoc: TermsDocument): void {
   // 用語数検証
   if (termsDoc.terms.length !== 3) {
     throw new Error(
-      `用語は必ず3つである必要があります（現在: ${termsDoc.terms.length}個）`
+      `用語は必ず3つである必要があります(現在: ${termsDoc.terms.length}個)`
     );
   }
 
@@ -124,7 +124,7 @@ export function validateTerm(term: Term): void {
   const descriptionLength = term.description.length;
   if (descriptionLength < 400 || descriptionLength > 600) {
     throw new Error(
-      `解説文は400〜600文字である必要があります（現在: ${descriptionLength}文字）`
+      `解説文は400〜600文字である必要があります(現在: ${descriptionLength}文字)`
     );
   }
 
@@ -132,7 +132,7 @@ export function validateTerm(term: Term): void {
   const validDifficulties: TermDifficulty[] = ['beginner', 'intermediate', 'advanced'];
   if (!validDifficulties.includes(term.difficulty)) {
     throw new Error(
-      `難易度はbeginner, intermediate, advancedのいずれかである必要があります（現在: ${term.difficulty}）`
+      `難易度はbeginner, intermediate, advancedのいずれかである必要があります(現在: ${term.difficulty})`
     );
   }
 }
@@ -140,7 +140,7 @@ export function validateTerm(term: Term): void {
 /**
  * Firestore用の用語ドキュメントを作成する
  *
- * @param date 日付（YYYY-MM-DD形式）
+ * @param date 日付(YYYY-MM-DD形式)
  * @param terms 3つの用語
  * @returns 用語ドキュメント
  */

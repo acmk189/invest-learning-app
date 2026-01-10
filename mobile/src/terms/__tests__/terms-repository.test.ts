@@ -21,19 +21,19 @@ const mockTermsData: TermsData = {
   date: '2024-01-15',
   terms: [
     {
-      name: 'PER（株価収益率）',
+      name: 'PER(株価収益率)',
       description:
         '株価を1株当たり利益で割った指標。企業の収益性と株価の割安・割高を判断する際に使用されます。PERが低いほど割安とされますが、業界や成長性によって適正水準は異なります。一般的に成長企業は高めのPERが許容される傾向があります。',
       difficulty: 'beginner',
     },
     {
-      name: 'REIT（不動産投資信託）',
+      name: 'REIT(不動産投資信託)',
       description:
         '投資家から集めた資金で不動産に投資し、その賃料収入や売買益を投資家に分配する金融商品。少額から不動産投資が可能で、株式市場で売買できる流動性の高さが特徴です。オフィスビル、商業施設、住宅など様々なタイプがあります。',
       difficulty: 'intermediate',
     },
     {
-      name: 'デリバティブ（金融派生商品）',
+      name: 'デリバティブ(金融派生商品)',
       description:
         '株式、債券、通貨などの原資産から派生した金融商品の総称。先物取引、オプション取引、スワップ取引などが含まれます。リスクヘッジや投機目的で利用され、少額の証拠金で大きな取引が可能なレバレッジ効果があります。',
       difficulty: 'advanced',
@@ -249,7 +249,7 @@ describe('TermsRepository', () => {
       expect(result.data).toEqual(mockTermsData);
     });
 
-    it('3つの用語が含まれるデータを正しく返す（Requirement 5.1）', async () => {
+    it('3つの用語が含まれるデータを正しく返す(Requirement 5.1)', async () => {
       // Arrange
       const mockCacheValidator = createMockCacheValidator({
         data: mockTermsData,
@@ -275,12 +275,12 @@ describe('TermsRepository', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data?.terms).toHaveLength(3);
-      expect(result.data?.terms[0].name).toBe('PER（株価収益率）');
-      expect(result.data?.terms[1].name).toBe('REIT（不動産投資信託）');
-      expect(result.data?.terms[2].name).toBe('デリバティブ（金融派生商品）');
+      expect(result.data?.terms[0].name).toBe('PER(株価収益率)');
+      expect(result.data?.terms[1].name).toBe('REIT(不動産投資信託)');
+      expect(result.data?.terms[2].name).toBe('デリバティブ(金融派生商品)');
     });
 
-    it('各用語に難易度が設定されている（Requirement 4.4）', async () => {
+    it('各用語に難易度が設定されている(Requirement 4.4)', async () => {
       // Arrange
       const mockCacheValidator = createMockCacheValidator({
         data: mockTermsData,

@@ -2,23 +2,23 @@
 
 ## Overview
 
-**Purpose**: Firebase FirestoreからSupabase PostgreSQLへのデータベース移行を実施し、React Native（Expo Dev Client）とFirebaseの相性問題によるiOSビルド失敗を解決する。
+**Purpose**: Firebase FirestoreからSupabase PostgreSQLへのデータベース移行を実施し、React Native(Expo Dev Client)とFirebaseの相性問題によるiOSビルド失敗を解決する。
 
-**Users**: 開発者（バッチ処理、API開発）およびエンドユーザー（モバイルアプリ利用者）。
+**Users**: 開発者(バッチ処理、API開発)およびエンドユーザー(モバイルアプリ利用者)。
 
 **Impact**: バックエンド・フロントエンド両方のデータ永続化層を完全に置換し、Firebase依存を排除してExpoビルドを正常化する。
 
 ### Goals
 - Firebase依存を完全に排除し、Expo Dev Clientでのビルド成功
 - Supabase PostgreSQLへのスキーマ移行とRLS設定
-- 既存機能（ニュース取得、用語生成、オフラインキャッシュ）の維持
+- 既存機能(ニュース取得、用語生成、オフラインキャッシュ)の維持
 - バッチ処理成功率98%以上、オフライン時1秒以内のデータ表示
 
 ### Non-Goals
-- AI処理（Claude API）の変更
-- ニュース取得ソース（NewsAPI, Google News RSS）の変更
+- AI処理(Claude API)の変更
+- ニュース取得ソース(NewsAPI, Google News RSS)の変更
 - UIコンポーネントの変更
-- 認証機能の追加（現行は認証なし）
+- 認証機能の追加(現行は認証なし)
 
 ---
 
@@ -29,9 +29,9 @@
 現行システムはVercel Serverless Functions + Firebase Firestoreで構成されている。
 
 - **バッチ処理**: NewsBatchService, TermsBatchServiceがFirestore書き込みを直接実行
-- **モバイル**: Repository層（NewsRepository, TermsRepository）がFirestoreクエリを発行
+- **モバイル**: Repository層(NewsRepository, TermsRepository)がFirestoreクエリを発行
 - **キャッシュ**: CacheManagerがAsyncStorageとFirestoreメタデータを統合
-- **依存パッケージ**: firebase-admin（バックエンド）、@react-native-firebase/firestore（フロントエンド）
+- **依存パッケージ**: firebase-admin(バックエンド)、@react-native-firebase/firestore(フロントエンド)
 
 ### Architecture Pattern & Boundary Map
 
@@ -73,8 +73,8 @@ graph TB
 ```
 
 **Architecture Integration**:
-- **Selected pattern**: 直接置換（Repository層維持） - 既存のサービス層モジュール分離を活かす
-- **Domain boundaries**: バックエンド（バッチ処理）とフロントエンド（データ取得）で責務分離
+- **Selected pattern**: 直接置換(Repository層維持) - 既存のサービス層モジュール分離を活かす
+- **Domain boundaries**: バックエンド(バッチ処理)とフロントエンド(データ取得)で責務分離
 - **Existing patterns preserved**: Service層、Repository層、CacheManager
 - **New components**: backend/src/config/supabase.ts, mobile/src/supabase/*
 - **Steering compliance**: 既存のVercel + Expo構成を維持
@@ -85,7 +85,7 @@ graph TB
 |-------|------------------|-----------------|-------|
 | Backend | Node.js 20+, TypeScript 5.9 | Vercel Serverless Functions | Node.js 18はSupabase SDK v2.79.0+で非対応 |
 | Database Client | @supabase/supabase-js ^2.90.1 | PostgreSQL接続・クエリ実行 | バックエンド/フロントエンド共通 |
-| Database | Supabase PostgreSQL | データ永続化 | 無料プラン（500MB、2GB帯域/月） |
+| Database | Supabase PostgreSQL | データ永続化 | 無料プラン(500MB、2GB帯域/月) |
 | Frontend | Expo SDK, React Native | モバイルアプリ | AsyncStorage継続利用 |
 | Storage | @react-native-async-storage/async-storage | オフラインキャッシュ | 既存実装を拡張 |
 | Local Dev | Supabase CLI + Docker | ローカル開発環境 | `supabase start` でDockerスタック起動 |
@@ -271,7 +271,7 @@ interface SupabaseClientService {
 - Trigger: Vercel Cron (毎日8:00 JST)
 - Input: NewsApiArticle[], GoogleNewsRssItem[]
 - Output: news テーブルへのupsert
-- Idempotency: 日付をPKとしてupsert（同日再実行は上書き）
+- Idempotency: 日付をPKとしてupsert(同日再実行は上書き)
 
 ```typescript
 interface NewsUpsertPayload {
@@ -310,7 +310,7 @@ interface NewsUpsertPayload {
 - Trigger: Vercel Cron (毎日8:00 JST)
 - Input: GeneratedTerm[]
 - Output: terms, terms_history テーブルへのinsert
-- Idempotency: 日付をPKとしてupsert（terms）、履歴は追記のみ
+- Idempotency: 日付をPKとしてupsert(terms)、履歴は追記のみ
 
 ```typescript
 interface TermInsertPayload {
@@ -340,9 +340,9 @@ interface TermHistoryInsertPayload {
 | Requirements | 7 |
 
 **Responsibilities & Constraints**
-- anon keyを使用（RLSで読み取り制限）
-- AsyncStorageとの統合（セッション永続化は不要）
-- detectSessionInUrl: false（React Native向け設定）
+- anon keyを使用(RLSで読み取り制限)
+- AsyncStorageとの統合(セッション永続化は不要)
+- detectSessionInUrl: false(React Native向け設定)
 
 **Dependencies**
 - External: @supabase/supabase-js — Supabaseクライアントライブラリ (P0)
@@ -434,18 +434,18 @@ interface SupabaseQueriesService {
 
 ##### State Management
 - State model: `{ news: CachedNews, terms: CachedTerms, metadata: CachedMetadata }`
-- Persistence: AsyncStorage（キー: `@cache/news/{date}`, `@cache/terms/{date}`, `@cache/metadata`）
-- Concurrency strategy: Optimistic update（読み込みと更新を非同期で並行）
+- Persistence: AsyncStorage(キー: `@cache/news/{date}`, `@cache/terms/{date}`, `@cache/metadata`)
+- Concurrency strategy: Optimistic update(読み込みと更新を非同期で並行)
 
 ```typescript
 interface CacheManagerService {
   /**
-   * キャッシュからニュースを取得（なければnull）
+   * キャッシュからニュースを取得(なければnull)
    */
   getCachedNews(date: string): Promise<CachedNews | null>;
 
   /**
-   * キャッシュからニュースを取得（なければnull）
+   * キャッシュからニュースを取得(なければnull)
    */
   getCachedTerms(date: string): Promise<CachedTerms | null>;
 
@@ -591,9 +591,9 @@ Supabase固有のエラーコードをAppErrorにマッピングし、既存の�
 |----------------|----------|----------|
 | PGRST116 (No rows found) | User Error | null返却、キャッシュフォールバック |
 | 42P01 (Table not found) | System Error | ログ出力、緊急通知 |
-| 23505 (Unique violation) | Business Logic | upsertで解決（ニュース）、スキップ（履歴） |
+| 23505 (Unique violation) | Business Logic | upsertで解決(ニュース)、スキップ(履歴) |
 | 28000 (Invalid auth) | System Error | 環境変数確認、アラート |
-| Connection timeout | System Error | リトライ（既存ロジック活用） |
+| Connection timeout | System Error | リトライ(既存ロジック活用) |
 
 ### Monitoring
 - バッチ処理: 既存のBatchErrorInfo構造を維持、Supabaseエラー詳細を含める
@@ -604,7 +604,7 @@ Supabase固有のエラーコードをAppErrorにマッピングし、既存の�
 ## Testing Strategy
 
 ### Unit Tests
-- SupabaseClient初期化テスト（環境変数チェック、シングルトン）
+- SupabaseClient初期化テスト(環境変数チェック、シングルトン)
 - NewsRow/TermRow型変換テスト
 - CacheManager更新ロジックテスト
 
@@ -614,9 +614,9 @@ Supabase固有のエラーコードをAppErrorにマッピングし、既存の�
 - オフラインキャッシュ: AsyncStorage読み書き、メタデータ差分チェック
 
 ### E2E Tests
-- バッチ処理フルフロー（Vercel Cron → Supabase保存）
+- バッチ処理フルフロー(Vercel Cron → Supabase保存)
 - モバイルアプリ: オンライン取得、オフライン表示、オンライン復帰時同期
-- iOSビルド成功確認（Firebase依存排除後）
+- iOSビルド成功確認(Firebase依存排除後)
 
 ---
 
@@ -624,12 +624,12 @@ Supabase固有のエラーコードをAppErrorにマッピングし、既存の�
 
 ### Phase 1: 基盤構築
 1. Supabaseプロジェクト作成、環境変数設定
-2. PostgreSQLスキーマ作成（DDL実行）
+2. PostgreSQLスキーマ作成(DDL実行)
 3. RLSポリシー設定
 4. バックエンドSupabaseクライアント実装
 
 ### Phase 2: バックエンド移行
-1. データモデル（型定義）更新
+1. データモデル(型定義)更新
 2. NewsBatchService移行
 3. TermsBatchService移行
 4. バッチ処理テスト
@@ -697,17 +697,17 @@ invest-learning-app/
 │   │   └── 20260110000004_create_rls_policies.sql
 │   └── seed.sql              # 開発用シードデータ
 ├── Makefile                  # コマンド集約
-├── .env.local                # ローカル環境変数（gitignore）
+├── .env.local                # ローカル環境変数(gitignore)
 └── .env.example              # 環境変数テンプレート
 ```
 
 ### Supabase CLI Setup
 
 ```bash
-# Supabase CLIインストール（macOS）
+# Supabase CLIインストール(macOS)
 brew install supabase/tap/supabase
 
-# プロジェクト初期化（初回のみ）
+# プロジェクト初期化(初回のみ)
 supabase init
 
 # ローカルスタック起動
@@ -732,7 +732,7 @@ help:
 	@echo "Supabase:"
 	@echo "  supabase-start    - ローカルSupabaseを起動"
 	@echo "  supabase-stop     - ローカルSupabaseを停止"
-	@echo "  supabase-reset    - データベースをリセット（マイグレーション再適用）"
+	@echo "  supabase-reset    - データベースをリセット(マイグレーション再適用)"
 	@echo "  supabase-status   - Supabaseスタック状態確認"
 	@echo ""
 	@echo "Database:"

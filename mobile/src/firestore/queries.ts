@@ -26,7 +26,7 @@ import {
 import { toFirestoreError, logFirestoreError } from './errors';
 
 /**
- * JSTタイムゾーンオフセット（ミリ秒）
+ * JSTタイムゾーンオフセット(ミリ秒)
  * UTC+9
  */
 const JST_OFFSET = 9 * 60 * 60 * 1000;
@@ -64,7 +64,7 @@ function timestampToString(timestamp: { toDate: () => Date }): string {
  * Firestoreリスナーを使用せず、1回の読み取りでデータを取得します。
  * Requirement 2.4: 1日中同じニュース内容を表示するため、日付をキーに使用。
  *
- * @returns ニュースデータ（見つからない場合はnull）
+ * @returns ニュースデータ(見つからない場合はnull)
  * @throws {FirestoreError} 取得失敗時
  *
  * @example
@@ -122,7 +122,7 @@ export async function fetchTodayNews(): Promise<FirestoreQueryResult<NewsData>> 
  * Firestoreリスナーを使用せず、1回の読み取りでデータを取得します。
  * Requirement 5.3: 1日中同じ3用語を表示するため、日付をキーに使用。
  *
- * @returns 用語データ（見つからない場合はnull）
+ * @returns 用語データ(見つからない場合はnull)
  * @throws {FirestoreError} 取得失敗時
  *
  * @example
@@ -173,9 +173,9 @@ export async function fetchTodayTerms(): Promise<FirestoreQueryResult<TermsData>
  * バッチメタデータを取得する
  *
  * キャッシュ有効性チェック用のメタデータを取得します。
- * オフライン時やエラー時はnullを返します（キャッシュフォールバック用）。
+ * オフライン時やエラー時はnullを返します(キャッシュフォールバック用)。
  *
- * @returns バッチメタデータ（取得失敗時はnull）
+ * @returns バッチメタデータ(取得失敗時はnull)
  *
  * @example
  * ```typescript
@@ -219,7 +219,7 @@ export async function fetchBatchMetadata(): Promise<BatchMetadata | null> {
 /**
  * 特定の日付のニュースを取得する
  *
- * @param dateStr - 日付（YYYY-MM-DD形式）
+ * @param dateStr - 日付(YYYY-MM-DD形式)
  * @returns ニュースデータ
  * @throws {FirestoreError} 取得失敗時
  */
@@ -266,7 +266,7 @@ export async function fetchNewsByDate(
 /**
  * 特定の日付の用語を取得する
  *
- * @param dateStr - 日付（YYYY-MM-DD形式）
+ * @param dateStr - 日付(YYYY-MM-DD形式)
  * @returns 用語データ
  * @throws {FirestoreError} 取得失敗時
  */

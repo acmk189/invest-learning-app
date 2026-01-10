@@ -146,7 +146,7 @@ describe('Task 27.1: ParallelFetchOptimizer - 並列実行最適化', () => {
       const optimizer = new ParallelFetchOptimizer();
       const config = optimizer.getConfig();
 
-      // デフォルトタイムアウトは30秒（各タスク）
+      // デフォルトタイムアウトは30秒(各タスク)
       expect(config.task1TimeoutMs).toBe(30000);
       expect(config.task2TimeoutMs).toBe(30000);
     });
@@ -243,7 +243,7 @@ describe('Task 27.2: ClaudeTimeoutOptimizer - タイムアウト最適化', () =
 
     it('最小タイムアウトを下回らないこと', () => {
       const config: ClaudeTimeoutConfig = {
-        defaultTimeoutMs: 1000, // 1秒（短すぎる）
+        defaultTimeoutMs: 1000, // 1秒(短すぎる)
         minTimeoutMs: 10000, // 最小10秒
       };
       const optimizer = new ClaudeTimeoutOptimizer(config);

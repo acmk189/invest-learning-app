@@ -185,7 +185,7 @@ describe('fetchBatchMetadata', () => {
     expect(result).toBeNull();
   });
 
-  it('エラー発生時にnullを返すこと（キャッシュフォールバック用）', async () => {
+  it('エラー発生時にnullを返すこと(キャッシュフォールバック用)', async () => {
     mockGet.mockRejectedValueOnce(new Error('Network error'));
 
     const result = await fetchBatchMetadata();

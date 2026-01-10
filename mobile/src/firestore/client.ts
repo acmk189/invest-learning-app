@@ -37,7 +37,7 @@ export class FirestoreClient {
    * オフライン永続化とキャッシュサイズを設定します。
    * 二度呼び出しても設定は一度のみ適用されます。
    *
-   * @param config - Firestore設定（オプション）
+   * @param config - Firestore設定(オプション)
    * @throws {FirestoreError} 初期化失敗時
    *
    * @example
@@ -58,8 +58,8 @@ export class FirestoreClient {
 
     try {
       // Firestore設定を適用
-      // persistence: オフライン永続化（データをローカルにキャッシュ）
-      // cacheSizeBytes: キャッシュサイズ（デフォルト100MB）
+      // persistence: オフライン永続化(データをローカルにキャッシュ)
+      // cacheSizeBytes: キャッシュサイズ(デフォルト100MB)
       await firestore().settings({
         persistence: this.config.persistence,
         cacheSizeBytes: this.config.cacheSizeBytes,
@@ -106,7 +106,7 @@ export class FirestoreClient {
 }
 
 /**
- * デフォルトのFirestoreクライアント（シングルトン）
+ * デフォルトのFirestoreクライアント(シングルトン)
  */
 let defaultClient: FirestoreClient | null = null;
 
@@ -140,11 +140,11 @@ export function isFirestoreInitialized(): boolean {
 }
 
 /**
- * Firestoreを初期化する（ショートカット関数）
+ * Firestoreを初期化する(ショートカット関数)
  *
  * デフォルトクライアントを使用してFirestoreを初期化します。
  *
- * @param config - Firestore設定（オプション）
+ * @param config - Firestore設定(オプション)
  * @throws {FirestoreError} 初期化失敗時
  *
  * @example
@@ -160,7 +160,7 @@ export async function initializeFirestoreClient(
 }
 
 /**
- * Firestoreインスタンスを取得する（ショートカット関数）
+ * Firestoreインスタンスを取得する(ショートカット関数)
  *
  * デフォルトクライアントからFirestoreインスタンスを取得します。
  *

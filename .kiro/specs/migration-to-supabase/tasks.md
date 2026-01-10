@@ -10,9 +10,9 @@
   - _Requirements: 1_
 - [x] 1.2 環境変数テンプレート更新
   - `.env.example`にSupabase環境変数テンプレートを追加
-  - バックエンド用（SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY）
-  - フロントエンド用（SUPABASE_URL, SUPABASE_ANON_KEY）
-  - ローカル開発用変数（LOCAL_SUPABASE_*）
+  - バックエンド用(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+  - フロントエンド用(SUPABASE_URL, SUPABASE_ANON_KEY)
+  - ローカル開発用変数(LOCAL_SUPABASE_*)
   - _Requirements: 13_
 - [x] 1.3 バックエンド環境変数設定ユーティリティ実装
   - `backend/src/config/envConfig.ts`を更新
@@ -24,7 +24,7 @@
 - [x] 2.1 Supabase CLI初期化とディレクトリ構成 (P)
   - `supabase init`でプロジェクト初期化
   - `supabase/config.toml`設定
-  - ディレクトリ構造の作成（supabase/migrations/）
+  - ディレクトリ構造の作成(supabase/migrations/)
   - _Requirements: 15_
 - [x] 2.2 DDLマイグレーションファイル作成 (P)
   - `20260110000000_create_news_table.sql`
@@ -35,9 +35,9 @@
   - インデックス作成とCHECK制約設定
   - _Requirements: 2, 15_
 - [x] 2.3 Makefile作成 (P)
-  - Supabaseコマンド（start, stop, reset, status）
-  - データベースコマンド（migrate, seed, push）
-  - 開発コマンド（backend-dev, mobile-dev, test）
+  - Supabaseコマンド(start, stop, reset, status)
+  - データベースコマンド(migrate, seed, push)
+  - 開発コマンド(backend-dev, mobile-dev, test)
   - デプロイコマンド
   - _Requirements: 15_
 - [x] 2.4 ローカル開発環境動作確認
@@ -51,7 +51,7 @@
 - [x] 3. バックエンドSupabaseクライアント実装
 - [x] 3.1 Supabase SDKインストールと型定義
   - `@supabase/supabase-js`パッケージをインストール
-  - `backend/src/models/supabase.types.ts`に型定義を作成（NewsRow, TermRow, TermHistoryRow, BatchMetadataRow）
+  - `backend/src/models/supabase.types.ts`に型定義を作成(NewsRow, TermRow, TermHistoryRow, BatchMetadataRow)
   - _Requirements: 3, 4_
 - [x] 3.2 Supabaseクライアント初期化実装
   - `backend/src/config/supabase.ts`を作成
@@ -121,10 +121,10 @@
   - モック設定の変更
   - _Requirements: 6, 14_
 
-## Phase 3: データ移行（スキップ）
+## Phase 3: データ移行(スキップ)
 
 > **注記**: Firebaseにデータが存在しないため、本フェーズはスキップします。
-> Task 4で実装したFirebase→Supabase変換関数（`newsDocumentToNewsRow`等）は、
+> Task 4で実装したFirebase→Supabase変換関数(`newsDocumentToNewsRow`等)は、
 > Task 5, 6実装時に不要であれば削除します。
 
 - [x] 7. Firestoreデータエクスポートと移行 _(スキップ: データなし)_
@@ -143,7 +143,7 @@
 - [ ] 8.2 Supabaseクライアント初期化実装
   - `mobile/src/supabase/client.ts`を作成
   - anon keyによるクライアントサイド認証設定
-  - detectSessionInUrl: false設定（React Native向け）
+  - detectSessionInUrl: false設定(React Native向け)
   - _Requirements: 7_
 - [ ] 8.3 接続テスト機能実装
   - クライアント初期化テスト
@@ -158,7 +158,7 @@
   - _Requirements: 8_
 - [ ] 9.2 用語クエリ実装
   - getTodayTerms(date)クエリ
-  - TermRow[]型の返却（3件）
+  - TermRow[]型の返却(3件)
   - _Requirements: 8_
 - [ ] 9.3 メタデータクエリ実装
   - getBatchMetadata()クエリ
@@ -172,12 +172,12 @@
 - [ ] 10. フロントエンドRepository移行
 - [ ] 10.1 NewsRepository移行
   - Firestore依存をSupabaseQueriesに変更
-  - 既存インターフェース（NewsResult）の維持
+  - 既存インターフェース(NewsResult)の維持
   - CacheManagerとの統合維持
   - _Requirements: 9_
 - [ ] 10.2 TermsRepository移行
   - Firestore依存をSupabaseQueriesに変更
-  - 既存インターフェース（TermsResult）の維持
+  - 既存インターフェース(TermsResult)の維持
   - CacheManagerとの統合維持
   - _Requirements: 9_
 - [ ] 10.3 Supabaseエラー型対応
@@ -189,7 +189,7 @@
 - [ ] 11.1 CacheManager Supabase対応
   - AsyncStorageベースのキャッシュ拡張
   - Supabaseデータのキャッシュ保存
-  - キャッシュキーの設計（@cache/news/{date}等）
+  - キャッシュキーの設計(@cache/news/{date}等)
   - _Requirements: 10_
 - [ ] 11.2 メタデータチェック機能実装
   - Supabaseからメタデータ取得
@@ -221,7 +221,7 @@
   - _Requirements: 11_
 - [ ] 12.3 Firebase設定ファイル削除
   - GoogleService-Info.plist削除
-  - google-services.json削除（Android用があれば）
+  - google-services.json削除(Android用があれば)
   - Firebase環境変数の削除
   - _Requirements: 11_
 - [ ] 12.4 Expoビルド確認
@@ -244,11 +244,11 @@
   - CacheManager テスト
   - _Requirements: 14_
 - [ ] 13.3 統合テスト実施
-  - バッチ処理フルフロー（Cron → Supabase保存）
-  - データ取得フルフロー（App → Repository → Supabase）
+  - バッチ処理フルフロー(Cron → Supabase保存)
+  - データ取得フルフロー(App → Repository → Supabase)
   - _Requirements: 14_
 - [ ] 13.4 オフライン動作検証
-  - オフライン時のキャッシュ表示（1秒以内）
+  - オフライン時のキャッシュ表示(1秒以内)
   - オンライン復帰時の同期
   - ネットワーク切り替えの安定性
   - _Requirements: 10, 14_
@@ -258,7 +258,7 @@
   - バッチ成功率98%以上の確認
   - _Requirements: 14_
 
-## Vercel環境変数設定（手動作業）
+## Vercel環境変数設定(手動作業)
 
 - [ ] 14. 本番環境設定
 - [ ] 14.1 Vercel環境変数追加

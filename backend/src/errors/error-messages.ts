@@ -19,7 +19,7 @@ export const USER_ERROR_MESSAGES: Record<ErrorType, string> = {
 };
 
 /**
- * 詳細なエラーメッセージマップ（開発者向け）
+ * 詳細なエラーメッセージマップ(開発者向け)
  */
 export const DETAILED_ERROR_MESSAGES = {
   // ネットワークエラー

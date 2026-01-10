@@ -2,11 +2,11 @@
 
 ## Summary
 - **Feature**: migration-to-supabase
-- **Discovery Scope**: Complex Integration（Firebase → Supabase完全移行）
+- **Discovery Scope**: Complex Integration(Firebase → Supabase完全移行)
 - **Key Findings**:
   - @supabase/supabase-js v2.90.1 が最新版、Node.js 20+必須
   - RLSはパフォーマンスを考慮してインデックス付与が重要
-  - React Native + AsyncStorageによるオフライン対応には既知の問題あり（セッション復元）
+  - React Native + AsyncStorageによるオフライン対応には既知の問題あり(セッション復元)
 
 ## Research Log
 
@@ -20,7 +20,7 @@
   - 最新バージョン: v2.90.1
   - Node.js 18は2025年4月30日でEOL、v2.79.0以降はNode.js 20+必須
   - 型サポート強化、非同期認証メソッド、改善されたエラーハンドリング
-  - CDN、npm、JSR（Deno）での提供
+  - CDN、npm、JSR(Deno)での提供
 - **Implications**:
   - backend/package.jsonのNode.jsバージョン確認が必要
   - TypeScript型安全性が向上するため、モデル定義の移行がスムーズ
@@ -33,11 +33,11 @@
   - [Securing your API | Supabase Docs](https://supabase.com/docs/guides/api/securing-your-api)
 - **Findings**:
   - RLS有効化後、ポリシーなしではanonキーでデータアクセス不可
-  - パフォーマンス最適化: `auth.uid() = user_id`のようなRLSにはインデックス必須（100倍改善実績）
+  - パフォーマンス最適化: `auth.uid() = user_id`のようなRLSにはインデックス必須(100倍改善実績)
   - `FOR ALL`ではなく、SELECT/INSERT/UPDATE/DELETE個別ポリシー推奨
   - service_roleキーはRLSをバイパスする
 - **Implications**:
-  - news, terms, terms_history, batch_metadataテーブルにSELECTポリシー（全員許可）を設定
+  - news, terms, terms_history, batch_metadataテーブルにSELECTポリシー(全員許可)を設定
   - バッチ処理はservice_roleキーを使用するためRLSをバイパス
   - date列へのインデックス追加でクエリパフォーマンス最適化
 
@@ -51,7 +51,7 @@
 - **Findings**:
   - 必須パッケージ: `@supabase/supabase-js`, `@react-native-async-storage/async-storage`
   - expo-sqlite/localStorageの利用が推奨される場合もあり
-  - オフライン起動時にセッション消失する既知の問題あり（startAutoRefreshが原因）
+  - オフライン起動時にセッション消失する既知の問題あり(startAutoRefreshが原因)
   - WatermelonDB + Supabaseの組み合わせで完全オフラインファーストも可能
 - **Implications**:
   - 本プロジェクトでは認証不要のため、セッション問題は影響なし
@@ -62,7 +62,7 @@
 - **Context**: 移行対象ファイルと影響範囲の特定
 - **Sources Consulted**: プロジェクト内部コード分析
 - **Findings**:
-  - バックエンド依存ファイル: 32ファイル（config, models, services, tests）
+  - バックエンド依存ファイル: 32ファイル(config, models, services, tests)
   - 主要依存: `firebase-admin`, `Timestamp` from `firebase-admin/firestore`
   - `getFirestore()` 呼び出し箇所: newsBatchService.ts, termsBatchService.ts
   - テストファイルも多数Firebase依存あり
@@ -79,7 +79,7 @@
 | Repository抽象化 | DB操作をRepository層で抽象化 | 将来の柔軟性、テスト容易 | 実装コスト増 | 既存パターンを踏襲 |
 | Adapter Pattern | Firebase/Supabase両対応Adapter | 段階的移行、ロールバック可能 | 複雑性増大 | 移行期間中のみ有用 |
 
-**選択**: 直接置換（Repository層維持）
+**選択**: 直接置換(Repository層維持)
 - 既存コードは既にサービス層でのモジュール分離ができている
 - フロントエンドは既存Repositoryパターンを維持
 - 移行期間が短いためAdapter不要
@@ -93,41 +93,41 @@
   2. 正規化した個別テーブル設計
 - **Selected Approach**: 正規化した個別テーブル設計
 - **Rationale**:
-  - PostgreSQLの利点（インデックス、制約、クエリ最適化）を活かせる
-  - 将来の拡張性（JOINクエリ、集計）が高い
+  - PostgreSQLの利点(インデックス、制約、クエリ最適化)を活かせる
+  - 将来の拡張性(JOINクエリ、集計)が高い
 - **Trade-offs**:
   - 移行スクリプトでのデータ変換が必要
   - クエリ構造の変更が必要
-- **Follow-up**: termsテーブルの正規化レベル（1日3用語を個別行 vs 配列）の最終決定
+- **Follow-up**: termsテーブルの正規化レベル(1日3用語を個別行 vs 配列)の最終決定
 
 ### Decision: オフラインキャッシュ戦略
 - **Context**: Firestoreのオフライン永続化に代わる仕組みの設計
 - **Alternatives Considered**:
-  1. WatermelonDB + Supabase（完全オフラインファースト）
+  1. WatermelonDB + Supabase(完全オフラインファースト)
   2. AsyncStorage + カスタムキャッシュ実装
   3. expo-sqlite + ローカルDB
 - **Selected Approach**: AsyncStorage + カスタムキャッシュ実装
 - **Rationale**:
   - 既存のcache-manager.tsを拡張可能
-  - 認証不要のシンプルなデータ（ニュース、用語）に適切
+  - 認証不要のシンプルなデータ(ニュース、用語)に適切
   - 実装コストが低い
 - **Trade-offs**:
   - WatermelonDBほどの堅牢性はない
-  - 大量データには不向き（現状は問題なし）
+  - 大量データには不向き(現状は問題なし)
 - **Follow-up**: キャッシュ有効期限とメタデータチェック頻度の調整
 
 ### Decision: 環境変数管理
 - **Context**: Supabase認証情報の安全な管理
 - **Selected Approach**:
-  - バックエンド: Vercel環境変数（SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY）
-  - フロントエンド: Expo環境変数（SUPABASE_URL, SUPABASE_ANON_KEY）
+  - バックエンド: Vercel環境変数(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+  - フロントエンド: Expo環境変数(SUPABASE_URL, SUPABASE_ANON_KEY)
 - **Rationale**: 既存のFirebase環境変数管理と同じパターン
-- **Trade-offs**: anon keyはクライアントに公開される（RLSで保護）
+- **Trade-offs**: anon keyはクライアントに公開される(RLSで保護)
 
 ## Risks & Mitigations
 - **リスク1**: オフライン起動時のデータ表示遅延
   - 緩和策: キャッシュファースト戦略、メタデータによる差分チェック
-- **リスク2**: Supabase無料プラン制限（500MB、2GB帯域/月）
+- **リスク2**: Supabase無料プラン制限(500MB、2GB帯域/月)
   - 緩和策: クエリ最適化、不要なフィールド取得を回避、キャッシュ活用
 - **リスク3**: Firebase依存の完全削除漏れ
   - 緩和策: grep検索で依存チェック、ビルドテストで確認
@@ -142,22 +142,22 @@
   - [CLI Reference - supabase start](https://supabase.com/docs/reference/cli/start)
 - **Findings**:
   - `supabase init` で `supabase/config.toml` を生成
-  - `supabase start` でDocker経由でローカルスタック起動（PostgreSQL、Auth、Storage等）
-  - 初回起動時にDockerイメージダウンロード（時間がかかる）
-  - ローカル認証情報（URL、anon key、service_role key）が起動時に表示される
+  - `supabase start` でDocker経由でローカルスタック起動(PostgreSQL、Auth、Storage等)
+  - 初回起動時にDockerイメージダウンロード(時間がかかる)
+  - ローカル認証情報(URL、anon key、service_role key)が起動時に表示される
   - `supabase stop` で停止、`--no-backup` で状態リセット
   - `supabase db reset` でマイグレーション再適用
 - **Implications**:
   - Supabase CLIをプロジェクトに導入
   - `supabase/migrations/` にDDLを配置してバージョン管理
-  - Makefileでコマンドを集約（start, stop, reset, migrate等）
+  - Makefileでコマンドを集約(start, stop, reset, migrate等)
   - 環境変数でlocal/productionを切り替え
 
 ### Decision: ローカル開発環境構成
 - **Context**: 開発時はDockerローカルSupabase、本番はSupabase Cloudを使用
 - **Alternatives Considered**:
   1. docker-compose.ymlを自前で構成
-  2. Supabase CLI（公式推奨）を使用
+  2. Supabase CLI(公式推奨)を使用
 - **Selected Approach**: Supabase CLI を使用
 - **Rationale**:
   - 公式サポートで安定性が高い
@@ -165,7 +165,7 @@
   - `supabase/config.toml` で設定管理
 - **Trade-offs**:
   - Supabase CLI のインストールが必要
-  - Dockerが必須（開発者環境に依存）
+  - Dockerが必須(開発者環境に依存)
 - **Follow-up**: CI/CDでのマイグレーション適用フローの設計
 
 ## References

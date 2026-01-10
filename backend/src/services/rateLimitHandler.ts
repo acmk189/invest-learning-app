@@ -2,7 +2,7 @@
  * レート制限ハンドラー
  * Task 3.4: レート制限ハンドリング
  *
- * Claude API（Anthropic）のレート制限エラーを検出し、
+ * Claude API(Anthropic)のレート制限エラーを検出し、
  * 適切な待機・リトライ処理を提供します。
  *
  * Requirements: 12.5 (Claude API使用)
@@ -109,13 +109,13 @@ export interface RateLimitConfig {
   maxRetries?: number;
 
   /**
-   * デフォルトの待機秒数（retry-afterがない場合）
+   * デフォルトの待機秒数(retry-afterがない場合)
    * @default 60
    */
   defaultWaitSeconds?: number;
 
   /**
-   * 最大待機秒数（retry-afterがこの値を超える場合に制限）
+   * 最大待機秒数(retry-afterがこの値を超える場合に制限)
    * @default 300
    */
   maxWaitSeconds?: number;
@@ -129,7 +129,7 @@ export interface RateLimitExecuteOptions {
    * リトライ時のコールバック関数
    *
    * @param error - 発生したRateLimitError
-   * @param attempt - 現在のリトライ回数（1から開始）
+   * @param attempt - 現在のリトライ回数(1から開始)
    * @param waitSeconds - 待機する秒数
    */
   onRetry?: (error: RateLimitError, attempt: number, waitSeconds: number) => void;
@@ -253,7 +253,7 @@ export class RateLimitRetryHandler {
   /**
    * 指定時間待機する
    *
-   * @param ms - 待機時間（ミリ秒）
+   * @param ms - 待機時間(ミリ秒)
    */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));

@@ -18,7 +18,7 @@
 export interface WorldNews {
   /** ニュースタイトル */
   title: string;
-  /** 要約本文（約2000文字） */
+  /** 要約本文(約2000文字) */
   summary: string;
   /** 更新日時 */
   updatedAt: Date;
@@ -30,7 +30,7 @@ export interface WorldNews {
 export interface JapanNews {
   /** ニュースタイトル */
   title: string;
-  /** 要約本文（約2000文字） */
+  /** 要約本文(約2000文字) */
   summary: string;
   /** 更新日時 */
   updatedAt: Date;
@@ -42,7 +42,7 @@ export interface JapanNews {
  * Firestoreパス: news/{date}
  */
 export interface NewsDocument {
-  /** 日付（ドキュメントID）: YYYY-MM-DD形式 */
+  /** 日付(ドキュメントID): YYYY-MM-DD形式 */
   date: string;
   /** 世界のニュース要約 */
   worldNews: WorldNews;
@@ -62,8 +62,8 @@ export interface NewsDocument {
  *
  * 検証項目:
  * - 日付がYYYY-MM-DD形式であること
- * - 要約文が1800〜2200文字の範囲内であること（Requirement 1.4）
- * - ドキュメントサイズが1MB以下であること（Requirement 3.3）
+ * - 要約文が1800〜2200文字の範囲内であること(Requirement 1.4)
+ * - ドキュメントサイズが1MB以下であること(Requirement 3.3)
  */
 export function validateNewsDocument(newsDoc: NewsDocument): void {
   // 日付フォーマット検証
@@ -76,7 +76,7 @@ export function validateNewsDocument(newsDoc: NewsDocument): void {
   const worldSummaryLength = newsDoc.worldNews.summary.length;
   if (worldSummaryLength < 1800 || worldSummaryLength > 2200) {
     throw new Error(
-      `世界ニュースの要約文は1800〜2200文字である必要があります（現在: ${worldSummaryLength}文字）`
+      `世界ニュースの要約文は1800〜2200文字である必要があります(現在: ${worldSummaryLength}文字)`
     );
   }
 
@@ -84,16 +84,16 @@ export function validateNewsDocument(newsDoc: NewsDocument): void {
   const japanSummaryLength = newsDoc.japanNews.summary.length;
   if (japanSummaryLength < 1800 || japanSummaryLength > 2200) {
     throw new Error(
-      `日本ニュースの要約文は1800〜2200文字である必要があります（現在: ${japanSummaryLength}文字）`
+      `日本ニュースの要約文は1800〜2200文字である必要があります(現在: ${japanSummaryLength}文字)`
     );
   }
 
-  // ドキュメントサイズ検証（1MB = 1,048,576 bytes）
+  // ドキュメントサイズ検証(1MB = 1,048,576 bytes)
   const docSize = estimateDocumentSize(newsDoc);
   const maxSize = 1048576; // 1MB
   if (docSize > maxSize) {
     throw new Error(
-      `ドキュメントサイズが1MBを超えています（現在: ${Math.round(docSize / 1024)}KB）`
+      `ドキュメントサイズが1MBを超えています(現在: ${Math.round(docSize / 1024)}KB)`
     );
   }
 }
@@ -102,10 +102,10 @@ export function validateNewsDocument(newsDoc: NewsDocument): void {
  * ドキュメントのサイズを推定する
  *
  * @param doc ドキュメント
- * @returns 推定サイズ（bytes）
+ * @returns 推定サイズ(bytes)
  */
 function estimateDocumentSize(doc: NewsDocument): number {
-  // JSON文字列化してバイト数を計算（UTF-8エンコーディング）
+  // JSON文字列化してバイト数を計算(UTF-8エンコーディング)
   const jsonString = JSON.stringify(doc);
   return Buffer.byteLength(jsonString, 'utf8');
 }
@@ -113,7 +113,7 @@ function estimateDocumentSize(doc: NewsDocument): number {
 /**
  * Firestore用のニュースドキュメントを作成する
  *
- * @param date 日付（YYYY-MM-DD形式）
+ * @param date 日付(YYYY-MM-DD形式)
  * @param worldNews 世界のニュース要約
  * @param japanNews 日本のニュース要約
  * @returns ニュースドキュメント

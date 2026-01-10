@@ -32,10 +32,10 @@ import { validateCronSecret, CronLogger } from '../../src/services/cron';
  *
  * @property success - 処理成功フラグ
  * @property message - レスポンスメッセージ
- * @property data - バッチ処理結果（成功時）
+ * @property data - バッチ処理結果(成功時)
  * @property timestamp - レスポンス生成時刻
- * @property error - エラーメッセージ（失敗時）
- * @property duration - 処理時間（ミリ秒）
+ * @property error - エラーメッセージ(失敗時)
+ * @property duration - 処理時間(ミリ秒)
  */
 interface BatchNewsResponse {
   success: boolean;
@@ -61,10 +61,10 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse<BatchNewsResponse>
 ) {
-  // Cronロガーを初期化（処理時間計測とログ出力）
+  // Cronロガーを初期化(処理時間計測とログ出力)
   const logger = new CronLogger('news-batch');
 
-  // POSTメソッドのみ許可（GETはVercel Cron Jobsからの呼び出しでも使用可能）
+  // POSTメソッドのみ許可(GETはVercel Cron Jobsからの呼び出しでも使用可能)
   if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({
       success: false,
@@ -73,7 +73,7 @@ export default async function handler(
     });
   }
 
-  // CRON_SECRET認証（共通モジュールを使用）
+  // CRON_SECRET認証(共通モジュールを使用)
   const authResult = validateCronSecret(req);
   if (!authResult.isValid) {
     logger.log('error', `Authentication failed: ${authResult.error}`);

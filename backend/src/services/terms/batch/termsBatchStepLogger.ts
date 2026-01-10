@@ -27,7 +27,7 @@ export enum TermsBatchStep {
   TERM_GENERATION_INTERMEDIATE = 'term-generation-intermediate',
   /** 上級用語生成 */
   TERM_GENERATION_ADVANCED = 'term-generation-advanced',
-  /** 重複チェック（将来の拡張用） */
+  /** 重複チェック(将来の拡張用) */
   DUPLICATE_CHECK = 'duplicate-check',
   /** Firestoreへの保存 */
   FIRESTORE_SAVE = 'firestore-save',
@@ -49,11 +49,11 @@ export interface StepLogEntry {
   step: TermsBatchStep;
   /** 成功フラグ */
   success: boolean;
-  /** エラー情報（失敗時） */
+  /** エラー情報(失敗時) */
   error?: BatchErrorInfo;
   /** タイムスタンプ */
   timestamp: Date;
-  /** 追加メタデータ（任意） */
+  /** 追加メタデータ(任意) */
   metadata?: Record<string, unknown>;
 }
 
@@ -120,7 +120,7 @@ export class TermsBatchStepLogger {
    * ステップの成功を記録
    *
    * @param step - 成功したステップ
-   * @param metadata - 追加情報（任意）
+   * @param metadata - 追加情報(任意)
    */
   logStepSuccess(step: TermsBatchStep, metadata?: Record<string, unknown>): void {
     const entry: StepLogEntry = {

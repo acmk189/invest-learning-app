@@ -3,9 +3,9 @@
  *
  * Requirements: 12.5, 10.3
  *
- * Claude API（Anthropic）のクライアントを提供します。
+ * Claude API(Anthropic)のクライアントを提供します。
  * Haikuモデルをデフォルトとして設定し、コスト最適化を実現します。
- * トークン使用量の追跡機能も提供します（Requirement 10.3）。
+ * トークン使用量の追跡機能も提供します(Requirement 10.3)。
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -15,7 +15,7 @@ import { getTokenUsageTracker } from './tokenUsageTracker';
 export { ApiKeyError } from './apiKeyConfig';
 
 /**
- * 利用可能なClaudeモデル（エイリアス - 常に最新バージョンを使用）
+ * 利用可能なClaudeモデル(エイリアス - 常に最新バージョンを使用)
  */
 export const CLAUDE_MODELS = {
   haiku: 'claude-haiku-4-5',
@@ -23,7 +23,7 @@ export const CLAUDE_MODELS = {
 } as const;
 
 /**
- * デフォルトモデル（コスト最適化のためHaiku）
+ * デフォルトモデル(コスト最適化のためHaiku)
  */
 export const DEFAULT_MODEL = CLAUDE_MODELS.haiku;
 
@@ -41,7 +41,7 @@ export interface SendMessageOptions {
   temperature?: number;
   system?: string;
   /**
-   * 操作名（トークン使用量追跡用）
+   * 操作名(トークン使用量追跡用)
    *
    * 指定するとトークン使用量がTokenUsageTrackerに記録されます。
    * 例: 'news-summary', 'term-generation'
@@ -163,7 +163,7 @@ export class ClaudeClient {
   }
 
   /**
-   * 内部のAnthropicクライアントを取得（テスト用）
+   * 内部のAnthropicクライアントを取得(テスト用)
    *
    * @returns Anthropicクライアントインスタンス
    */
@@ -202,7 +202,7 @@ export function getClaudeClient(): ClaudeClient {
 }
 
 /**
- * シングルトンインスタンスをリセット（テスト用）
+ * シングルトンインスタンスをリセット(テスト用)
  */
 export function resetClaudeClient(): void {
   claudeClientInstance = undefined;

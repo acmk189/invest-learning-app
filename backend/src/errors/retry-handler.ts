@@ -11,9 +11,9 @@ import { AppError } from './types';
 export interface RetryConfig {
   /** 最大リトライ回数 */
   maxRetries?: number;
-  /** 基本遅延時間（ミリ秒） */
+  /** 基本遅延時間(ミリ秒) */
   baseDelay?: number;
-  /** 最大遅延時間（ミリ秒） */
+  /** 最大遅延時間(ミリ秒) */
   maxDelay?: number;
   /** リトライ時のコールバック */
   onRetry?: (error: Error, attempt: number, delay: number) => void;
@@ -101,7 +101,7 @@ export class RetryHandler {
   /**
    * 指数バックオフを使用して遅延時間を計算する
    * @param attempt - 現在のリトライ回数
-   * @returns 遅延時間（ミリ秒）
+   * @returns 遅延時間(ミリ秒)
    */
   calculateDelay(attempt: number): number {
     const exponentialDelay = this.baseDelay * Math.pow(2, attempt - 1);
@@ -110,7 +110,7 @@ export class RetryHandler {
 
   /**
    * 指定時間待機する
-   * @param ms - 待機時間（ミリ秒）
+   * @param ms - 待機時間(ミリ秒)
    */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));

@@ -64,7 +64,7 @@ export class RssParser {
   /**
    * コンストラクタ
    *
-   * @param config - パーサー設定（省略時はデフォルト値を使用）
+   * @param config - パーサー設定(省略時はデフォルト値を使用)
    */
   constructor(config?: Partial<RssParserConfig>) {
     this.config = {
@@ -154,12 +154,12 @@ export class RssParser {
    * @returns アプリケーション用のアイテムデータ
    */
   private transformItem(item: ParsedItem): GoogleNewsRssItem {
-    // タイトルからソース名を抽出（Google News形式: 「記事タイトル - ソース名」）
+    // タイトルからソース名を抽出(Google News形式: 「記事タイトル - ソース名」)
     const rawTitle = item.title || '';
     const { articleTitle, source: titleSource } =
       this.extractSourceFromTitle(rawTitle);
 
-    // ソース情報の取得（source要素があれば優先、なければタイトルから抽出）
+    // ソース情報の取得(source要素があれば優先、なければタイトルから抽出)
     let source: string | null = null;
     if (item.source) {
       // source要素がオブジェクトの場合
@@ -224,8 +224,8 @@ export class RssParser {
   /**
    * 説明文からHTMLタグを除去
    *
-   * @param description - HTML形式の説明文（nullの場合あり）
-   * @returns プレーンテキストの説明文（空文字の場合はnull）
+   * @param description - HTML形式の説明文(nullの場合あり)
+   * @returns プレーンテキストの説明文(空文字の場合はnull)
    *
    * @example
    * const clean = parser.cleanDescription('<p>テスト</p>');

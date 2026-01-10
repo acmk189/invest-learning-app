@@ -4,7 +4,7 @@
  * Task 13.1: Cron設定とスケジュール定義
  *
  * Vercel Cron Jobsのスケジュール設定とエンドポイント定義
- * 毎日8:00 JST（23:00 UTC）にニュース・用語バッチを実行
+ * 毎日8:00 JST(23:00 UTC)にニュース・用語バッチを実行
  *
  * Requirements:
  * - 12.4 (Vercel Cron Jobs使用)
@@ -30,20 +30,20 @@ const CRON_FIELD_RANGES = {
 /**
  * Cronスケジュール定義
  *
- * UTC時刻で定義（Vercel Cron JobsはUTCで動作）
+ * UTC時刻で定義(Vercel Cron JobsはUTCで動作)
  * JST = UTC + 9時間
  *
- * 例: JST 8:00 = UTC 23:00（前日）
+ * 例: JST 8:00 = UTC 23:00(前日)
  */
 export const CRON_SCHEDULE = {
   /**
-   * ニュースバッチ: 毎日23:00 UTC（8:00 JST）
+   * ニュースバッチ: 毎日23:00 UTC(8:00 JST)
    * Cron式: 分 時 日 月 曜日
    */
   NEWS: '0 23 * * *',
 
   /**
-   * 用語バッチ: 毎日23:00 UTC（8:00 JST）
+   * 用語バッチ: 毎日23:00 UTC(8:00 JST)
    * ニュースバッチと同時刻に実行
    */
   TERMS: '0 23 * * *',
@@ -53,9 +53,9 @@ export const CRON_SCHEDULE = {
  * Cronエンドポイントの型定義
  */
 export interface CronEndpoint {
-  /** APIパス（例: /api/batch/news） */
+  /** APIパス(例: /api/batch/news) */
   path: string;
-  /** Cronスケジュール（Cron式） */
+  /** Cronスケジュール(Cron式) */
   schedule: string;
   /** エンドポイントの説明 */
   description?: string;
@@ -70,19 +70,19 @@ export const CRON_ENDPOINTS: CronEndpoint[] = [
   {
     path: '/api/batch/news',
     schedule: CRON_SCHEDULE.NEWS,
-    description: 'ニュースバッチ処理（世界・日本のニュース取得・要約）',
+    description: 'ニュースバッチ処理(世界・日本のニュース取得・要約)',
   },
   {
     path: '/api/batch/terms',
     schedule: CRON_SCHEDULE.TERMS,
-    description: '用語バッチ処理（投資用語3つ生成）',
+    description: '用語バッチ処理(投資用語3つ生成)',
   },
 ];
 
 /**
  * Cron式が有効かどうかを検証する
  *
- * 5フィールド形式（分 時 日 月 曜日）のCron式を検証
+ * 5フィールド形式(分 時 日 月 曜日)のCron式を検証
  *
  * @param expression - Cron式
  * @returns 有効な場合true
@@ -128,18 +128,18 @@ function isValidCronField(field: string, min: number, max: number): boolean {
     return true;
   }
 
-  // カンマ区切り（リスト）
+  // カンマ区切り(リスト)
   if (field.includes(',')) {
     return field.split(',').every((part) => isValidCronField(part, min, max));
   }
 
-  // ハイフン（範囲）
+  // ハイフン(範囲)
   if (field.includes('-')) {
     const [start, end] = field.split('-').map(Number);
     return !isNaN(start) && !isNaN(end) && start >= min && end <= max && start <= end;
   }
 
-  // スラッシュ（間隔）
+  // スラッシュ(間隔)
   if (field.includes('/')) {
     const [base, step] = field.split('/');
     const stepNum = Number(step);
@@ -161,20 +161,20 @@ function isValidCronField(field: string, min: number, max: number): boolean {
  * JSTへの変換結果
  */
 export interface CronJSTResult {
-  /** 時（0-23） */
+  /** 時(0-23) */
   hour: number;
-  /** 分（0-59） */
+  /** 分(0-59) */
   minute: number;
-  /** JST時刻文字列（例: "08:00 JST"） */
+  /** JST時刻文字列(例: "08:00 JST") */
   jstString: string;
 }
 
 /**
  * Cron式のUTC時刻をJSTに変換する
  *
- * 毎日実行のCron式（時と分が固定）を対象とする
+ * 毎日実行のCron式(時と分が固定)を対象とする
  *
- * @param expression - Cron式（UTC）
+ * @param expression - Cron式(UTC)
  * @returns JSTへの変換結果
  */
 export function parseCronToJST(expression: string): CronJSTResult {

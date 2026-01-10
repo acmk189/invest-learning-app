@@ -14,13 +14,13 @@
  */
 
 /**
- * Cronタイムアウト時間（ミリ秒）
+ * Cronタイムアウト時間(ミリ秒)
  * Vercel Serverless Functionsの最大実行時間: 5分 = 300秒
  */
 export const CRON_TIMEOUT_MS = 300000;
 
 /**
- * タイムアウト警告閾値（ミリ秒）
+ * タイムアウト警告閾値(ミリ秒)
  * 4分 = 240秒でタイムアウト接近の警告を出力
  */
 export const CRON_TIMEOUT_WARNING_MS = 240000;
@@ -56,13 +56,13 @@ export interface CronJobSummary {
   startTime: string;
   /** 終了時刻 */
   endTime: string;
-  /** 処理時間（ミリ秒） */
+  /** 処理時間(ミリ秒) */
   durationMs: number;
-  /** 処理時間（フォーマット済み） */
+  /** 処理時間(フォーマット済み) */
   durationFormatted: string;
   /** 成功フラグ */
   success: boolean;
-  /** エラーメッセージ（失敗時） */
+  /** エラーメッセージ(失敗時) */
   error?: string;
   /** ステップ履歴 */
   steps: Array<{
@@ -92,7 +92,7 @@ export class CronLogger {
   private hasWarned = false;
 
   /**
-   * @param jobName - ジョブ名（例: 'news-batch', 'terms-batch'）
+   * @param jobName - ジョブ名(例: 'news-batch', 'terms-batch')
    */
   constructor(jobName: string) {
     this.jobName = jobName;
@@ -196,8 +196,8 @@ export class CronLogger {
    *
    * @param stepName - ステップ名
    * @param success - 成功フラグ
-   * @param durationMs - 処理時間（ミリ秒）
-   * @param error - エラーメッセージ（失敗時）
+   * @param durationMs - 処理時間(ミリ秒)
+   * @param error - エラーメッセージ(失敗時)
    */
   logStep(
     stepName: string,
@@ -238,7 +238,7 @@ export class CronLogger {
       return true;
     }
 
-    // 警告閾値（一度だけ警告）
+    // 警告閾値(一度だけ警告)
     if (elapsed >= CRON_TIMEOUT_WARNING_MS && !this.hasWarned) {
       this.hasWarned = true;
       console.warn(

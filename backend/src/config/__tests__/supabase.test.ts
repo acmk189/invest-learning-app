@@ -113,7 +113,7 @@ describe('Supabase Client', () => {
 
       const client2 = getSupabase();
 
-      // 新しいインスタンスが作成されている（オブジェクト参照が異なる）
+      // 新しいインスタンスが作成されている(オブジェクト参照が異なる)
       expect(client1).not.toBe(client2);
     });
   });

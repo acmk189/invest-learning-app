@@ -33,7 +33,7 @@ export type TermsSource = 'cache' | 'firestore';
 export interface TermsError {
   /** エラーコード */
   code: FirestoreErrorCode;
-  /** ユーザー向けエラーメッセージ（日本語） */
+  /** ユーザー向けエラーメッセージ(日本語) */
   message: string;
   /** リトライ可能かどうか */
   retryable: boolean;
@@ -46,11 +46,11 @@ export interface TermsError {
 export interface TermsResult {
   /** 取得成功かどうか */
   success: boolean;
-  /** 用語データ（失敗時はnull） */
+  /** 用語データ(失敗時はnull) */
   data: TermsData | null;
   /** データの取得元 */
   source: TermsSource;
-  /** エラー情報（失敗時のみ） */
+  /** エラー情報(失敗時のみ) */
   error?: TermsError;
 }
 
@@ -81,7 +81,7 @@ export type CacheSetter = (
 
 /**
  * Terms Repository設定
- * 依存性注入（DI）によりテスタビリティを向上
+ * 依存性注入(DI)によりテスタビリティを向上
  */
 export interface TermsRepositoryConfig {
   /** Firestoreから用語を取得する関数 */
@@ -114,7 +114,7 @@ export class TermsRepository {
 
   /**
    * TermsRepositoryのコンストラクタ
-   * @param config - 設定（テスト用にモック関数を注入可能）
+   * @param config - 設定(テスト用にモック関数を注入可能)
    */
   constructor(config?: TermsRepositoryConfig) {
     this.firestoreFetcher = config?.firestoreFetcher || fetchTodayTerms;
@@ -137,7 +137,7 @@ export class TermsRepository {
   /**
    * 今日の用語を取得する
    *
-   * 1. キャッシュを検証（メタデータでlastUpdated > cachedAtをチェック）
+   * 1. キャッシュを検証(メタデータでlastUpdated > cachedAtをチェック)
    * 2. キャッシュが有効な場合はキャッシュから返す
    * 3. キャッシュが無効な場合はFirestoreから取得
    * 4. Firestoreから取得した場合はキャッシュに保存
@@ -175,7 +175,7 @@ export class TermsRepository {
       const firestoreResult = await this.firestoreFetcher();
 
       if (!firestoreResult.exists || !firestoreResult.data) {
-        // データが存在しない場合（まだバッチが実行されていない等）
+        // データが存在しない場合(まだバッチが実行されていない等)
         return {
           success: true,
           data: null,
@@ -183,7 +183,7 @@ export class TermsRepository {
         };
       }
 
-      // Step 3: キャッシュに保存（エラーは無視）
+      // Step 3: キャッシュに保存(エラーは無視)
       try {
         await this.cacheSetter('terms', today, firestoreResult.data);
         console.log('[TermsRepository] Data cached successfully');

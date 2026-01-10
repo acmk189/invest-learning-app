@@ -21,12 +21,12 @@ const mockNewsData: NewsData = {
   date: '2024-01-15',
   worldNews: {
     title: '世界ニュースのタイトル',
-    summary: '世界ニュースの要約（約2000文字）...',
+    summary: '世界ニュースの要約(約2000文字)...',
     updatedAt: '2024-01-15T08:00:00.000Z',
   },
   japanNews: {
     title: '日本ニュースのタイトル',
-    summary: '日本ニュースの要約（約2000文字）...',
+    summary: '日本ニュースの要約(約2000文字)...',
     updatedAt: '2024-01-15T08:00:00.000Z',
   },
   createdAt: '2024-01-15T08:00:00.000Z',

@@ -58,7 +58,7 @@ export interface TermsData {
 export interface CacheEntry<T> {
   /** キャッシュされたデータ */
   data: T;
-  /** キャッシュされた日時（タイムスタンプ） */
+  /** キャッシュされた日時(タイムスタンプ) */
   cachedAt: number;
 }
 
@@ -72,9 +72,9 @@ export type CacheResult<T> = T | null;
  * Firestoreのmetadata/batchドキュメントから取得
  */
 export interface BatchMetadata {
-  /** ニュースバッチの最終更新時刻（Unixタイムスタンプ、ミリ秒） */
+  /** ニュースバッチの最終更新時刻(Unixタイムスタンプ、ミリ秒) */
   newsLastUpdated: number;
-  /** 用語バッチの最終更新時刻（Unixタイムスタンプ、ミリ秒） */
+  /** 用語バッチの最終更新時刻(Unixタイムスタンプ、ミリ秒) */
   termsLastUpdated: number;
 }
 

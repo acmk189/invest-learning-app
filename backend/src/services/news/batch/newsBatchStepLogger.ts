@@ -21,9 +21,9 @@ import { BatchErrorInfo } from './newsBatchService';
  * バッチ処理の各段階を識別するために使用
  */
 export enum BatchStep {
-  /** 世界ニュース取得（NewsAPI） */
+  /** 世界ニュース取得(NewsAPI) */
   WORLD_NEWS_FETCH = 'world-news-fetch',
-  /** 日本ニュース取得（Google News RSS） */
+  /** 日本ニュース取得(Google News RSS) */
   JAPAN_NEWS_FETCH = 'japan-news-fetch',
   /** 世界ニュースAI要約処理 */
   WORLD_NEWS_SUMMARY = 'world-news-summary',
@@ -47,11 +47,11 @@ export interface StepLogEntry {
   step: BatchStep;
   /** 成功フラグ */
   success: boolean;
-  /** エラー情報（失敗時） */
+  /** エラー情報(失敗時) */
   error?: BatchErrorInfo;
   /** タイムスタンプ */
   timestamp: Date;
-  /** 追加メタデータ（任意） */
+  /** 追加メタデータ(任意) */
   metadata?: Record<string, unknown>;
 }
 
@@ -117,7 +117,7 @@ export class NewsBatchStepLogger {
    * ステップの成功を記録
    *
    * @param step - 成功したステップ
-   * @param metadata - 追加情報（任意）
+   * @param metadata - 追加情報(任意)
    */
   logStepSuccess(step: BatchStep, metadata?: Record<string, unknown>): void {
     const entry: StepLogEntry = {

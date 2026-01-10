@@ -18,7 +18,7 @@ import { SUMMARY_CONFIG } from './newsSummaryPrompt';
 export interface SummaryParseResult {
   /** 抽出された要約文 */
   summary: string;
-  /** 要約文の文字数（空白・改行を除く） */
+  /** 要約文の文字数(空白・改行を除く) */
   characterCount: number;
   /** 使用されたモデル名 */
   model: string;
@@ -36,14 +36,14 @@ export interface SummaryParseResult {
 export interface SummaryValidationResult {
   /** 文字数が許容範囲内かどうか */
   isValid: boolean;
-  /** 文字数（空白・改行を除く） */
+  /** 文字数(空白・改行を除く) */
   characterCount: number;
-  /** 警告メッセージ（範囲外の場合） */
+  /** 警告メッセージ(範囲外の場合) */
   warning?: string;
 }
 
 /**
- * 文字数をカウントする（空白・改行を除く）
+ * 文字数をカウントする(空白・改行を除く)
  *
  * @param text - カウント対象のテキスト
  * @returns 空白・改行を除いた文字数
@@ -66,7 +66,7 @@ export function parseSummaryResponse(response: ClaudeResponse): SummaryParseResu
   // コンテンツをトリム
   const summary = response.content.trim();
 
-  // 文字数をカウント（空白・改行を除く）
+  // 文字数をカウント(空白・改行を除く)
   const characterCount = countCharacters(summary);
 
   return {
@@ -81,7 +81,7 @@ export function parseSummaryResponse(response: ClaudeResponse): SummaryParseResu
 /**
  * 要約文の文字数を検証
  *
- * 要約文が許容範囲（1800〜2200文字）内かどうかをチェックします。
+ * 要約文が許容範囲(1800〜2200文字)内かどうかをチェックします。
  * 範囲外の場合は警告メッセージを含む結果を返します。
  *
  * @param summary - 検証する要約文
@@ -104,7 +104,7 @@ export function validateSummaryLength(summary: string): SummaryValidationResult 
     return {
       isValid: false,
       characterCount,
-      warning: `要約文が短すぎます（${characterCount}文字）。目標は${SUMMARY_CONFIG.minCharacters}〜${SUMMARY_CONFIG.maxCharacters}文字です。`,
+      warning: `要約文が短すぎます(${characterCount}文字)。目標は${SUMMARY_CONFIG.minCharacters}〜${SUMMARY_CONFIG.maxCharacters}文字です。`,
     };
   }
 
@@ -113,7 +113,7 @@ export function validateSummaryLength(summary: string): SummaryValidationResult 
     return {
       isValid: false,
       characterCount,
-      warning: `要約文が長すぎます（${characterCount}文字）。目標は${SUMMARY_CONFIG.minCharacters}〜${SUMMARY_CONFIG.maxCharacters}文字です。`,
+      warning: `要約文が長すぎます(${characterCount}文字)。目標は${SUMMARY_CONFIG.minCharacters}〜${SUMMARY_CONFIG.maxCharacters}文字です。`,
     };
   }
 

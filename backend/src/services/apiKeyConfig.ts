@@ -3,14 +3,14 @@
  *
  * Requirements: 9.1, 9.3, 9.4
  *
- * このモジュールは、Claude API（Anthropic）のAPIキーを環境変数から安全に読み込み、
+ * このモジュールは、Claude API(Anthropic)のAPIキーを環境変数から安全に読み込み、
  * HTTPS通信設定を管理します。
  *
  * @see https://docs.anthropic.com/en/api/getting-started - Anthropic API ドキュメント
  */
 
 /**
- * Anthropic APIのベースURL（HTTPS通信）
+ * Anthropic APIのベースURL(HTTPS通信)
  *
  * Anthropic SDKはデフォルトでこのURLを使用してHTTPS通信を行います。
  * TLS 1.2以上で暗号化された通信を保証します。
@@ -90,7 +90,7 @@ export function validateApiKey(apiKey: string): boolean {
  * HTTPS通信を保証するため、固定のベースURLを返します。
  * Anthropic SDKはこのURLを使用してセキュアな通信を行います。
  *
- * @returns Anthropic APIのベースURL（HTTPS）
+ * @returns Anthropic APIのベースURL(HTTPS)
  *
  * @example
  * const baseUrl = getApiBaseUrl(); // "https://api.anthropic.com"

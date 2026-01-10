@@ -110,7 +110,7 @@ describe('要約レスポンスパーサー', () => {
       expect(result.warning).toBeUndefined();
     });
 
-    it('最小文字数（1800文字）ちょうどは有効', () => {
+    it('最小文字数(1800文字)ちょうどは有効', () => {
       const summary = 'あ'.repeat(SUMMARY_CONFIG.minCharacters);
       const result = validateSummaryLength(summary);
 
@@ -118,7 +118,7 @@ describe('要約レスポンスパーサー', () => {
       expect(result.characterCount).toBe(SUMMARY_CONFIG.minCharacters);
     });
 
-    it('最大文字数（2200文字）ちょうどは有効', () => {
+    it('最大文字数(2200文字)ちょうどは有効', () => {
       const summary = 'あ'.repeat(SUMMARY_CONFIG.maxCharacters);
       const result = validateSummaryLength(summary);
 

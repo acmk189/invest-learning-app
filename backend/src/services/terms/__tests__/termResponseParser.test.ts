@@ -146,7 +146,7 @@ describe('termResponseParser', () => {
   });
 
   describe('validateTermDescription', () => {
-    it('許容範囲内（400〜600文字）の場合は有効であること', () => {
+    it('許容範囲内(400〜600文字)の場合は有効であること', () => {
       const description = generateDescription(500);
 
       const result = validateTermDescription(description);
@@ -156,7 +156,7 @@ describe('termResponseParser', () => {
       expect(result.warning).toBeUndefined();
     });
 
-    it('最小文字数（400文字）丁度の場合は有効であること', () => {
+    it('最小文字数(400文字)丁度の場合は有効であること', () => {
       const description = generateDescription(400);
 
       const result = validateTermDescription(description);
@@ -165,7 +165,7 @@ describe('termResponseParser', () => {
       expect(result.characterCount).toBe(400);
     });
 
-    it('最大文字数（600文字）丁度の場合は有効であること', () => {
+    it('最大文字数(600文字)丁度の場合は有効であること', () => {
       const description = generateDescription(600);
 
       const result = validateTermDescription(description);
@@ -174,7 +174,7 @@ describe('termResponseParser', () => {
       expect(result.characterCount).toBe(600);
     });
 
-    it('最小文字数未満（399文字以下）の場合は無効であること', () => {
+    it('最小文字数未満(399文字以下)の場合は無効であること', () => {
       const description = generateDescription(399);
 
       const result = validateTermDescription(description);
@@ -184,7 +184,7 @@ describe('termResponseParser', () => {
       expect(result.warning).toContain('短すぎます');
     });
 
-    it('最大文字数超過（601文字以上）の場合は無効であること', () => {
+    it('最大文字数超過(601文字以上)の場合は無効であること', () => {
       const description = generateDescription(601);
 
       const result = validateTermDescription(description);

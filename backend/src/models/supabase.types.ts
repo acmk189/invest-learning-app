@@ -18,13 +18,13 @@ export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 /**
  * news テーブルの行型
  *
- * @property date - 日付（YYYY-MM-DD形式、PRIMARY KEY）
+ * @property date - 日付(YYYY-MM-DD形式、PRIMARY KEY)
  * @property world_news_title - 世界ニュースのタイトル
- * @property world_news_summary - 世界ニュースの要約（約2000文字）
+ * @property world_news_summary - 世界ニュースの要約(約2000文字)
  * @property japan_news_title - 日本ニュースのタイトル
- * @property japan_news_summary - 日本ニュースの要約（約2000文字）
- * @property created_at - 作成日時（ISO 8601形式）
- * @property updated_at - 更新日時（ISO 8601形式）
+ * @property japan_news_summary - 日本ニュースの要約(約2000文字)
+ * @property created_at - 作成日時(ISO 8601形式)
+ * @property updated_at - 更新日時(ISO 8601形式)
  */
 export interface NewsRow {
   date: string;
@@ -53,12 +53,12 @@ export interface NewsUpsertPayload {
 /**
  * terms テーブルの行型
  *
- * @property id - 自動生成されるID（SERIAL PRIMARY KEY）
- * @property date - 日付（YYYY-MM-DD形式）
+ * @property id - 自動生成されるID(SERIAL PRIMARY KEY)
+ * @property date - 日付(YYYY-MM-DD形式)
  * @property name - 用語名
- * @property description - 用語の説明（約500文字）
- * @property difficulty - 難易度（beginner, intermediate, advanced）
- * @property created_at - 作成日時（ISO 8601形式）
+ * @property description - 用語の説明(約500文字)
+ * @property difficulty - 難易度(beginner, intermediate, advanced)
+ * @property created_at - 作成日時(ISO 8601形式)
  */
 export interface TermRow {
   id: number;
@@ -84,9 +84,9 @@ export interface TermInsertPayload {
 /**
  * terms_history テーブルの行型
  *
- * @property id - 自動生成されるID（SERIAL PRIMARY KEY）
+ * @property id - 自動生成されるID(SERIAL PRIMARY KEY)
  * @property term_name - 用語名
- * @property delivered_at - 配信日時（ISO 8601形式）
+ * @property delivered_at - 配信日時(ISO 8601形式)
  * @property difficulty - 難易度
  */
 export interface TermHistoryRow {
@@ -110,9 +110,9 @@ export interface TermHistoryInsertPayload {
 /**
  * batch_metadata テーブルの行型
  *
- * @property id - ID（常に1、シングルトンレコード）
- * @property news_last_updated - ニュースの最終更新日時（ISO 8601形式、null許容）
- * @property terms_last_updated - 用語の最終更新日時（ISO 8601形式、null許容）
+ * @property id - ID(常に1、シングルトンレコード)
+ * @property news_last_updated - ニュースの最終更新日時(ISO 8601形式、null許容)
+ * @property terms_last_updated - 用語の最終更新日時(ISO 8601形式、null許容)
  */
 export interface BatchMetadataRow {
   id: number;
