@@ -9,13 +9,11 @@
 
 import {
   ParallelFetchOptimizer,
-  ParallelFetchResult,
   ParallelFetchConfig,
 } from '../parallelFetchOptimizer';
 import {
   ClaudeTimeoutOptimizer,
   ClaudeTimeoutConfig,
-  OptimizedRequestOptions,
 } from '../claudeTimeoutOptimizer';
 import { BatchPerformanceMonitor, PerformanceMetrics } from '../batchPerformanceMonitor';
 
@@ -309,13 +307,17 @@ describe('BatchPerformanceMonitor - パフォーマンス監視', () => {
       monitor.startStep('fetch-news');
       // フェッチ処理をシミュレート
       let startTime = Date.now();
-      while (Date.now() - startTime < 30) {}
+      while (Date.now() - startTime < 30) {
+        // ビジーウェイト
+      }
       monitor.endStep('fetch-news');
 
       monitor.startStep('summarize');
       // 要約処理をシミュレート
       startTime = Date.now();
-      while (Date.now() - startTime < 20) {}
+      while (Date.now() - startTime < 20) {
+        // ビジーウェイト
+      }
       monitor.endStep('summarize');
 
       const metrics = monitor.endBatch();
@@ -327,8 +329,6 @@ describe('BatchPerformanceMonitor - パフォーマンス監視', () => {
 
   describe('5分タイムアウト検証', () => {
     it('処理時間が5分以内かどうかを検証できること', () => {
-      const monitor = new BatchPerformanceMonitor();
-
       // 5分以内
       const metricsOk: PerformanceMetrics = {
         totalDurationMs: 240000, // 4分
