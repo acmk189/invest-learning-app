@@ -2,18 +2,17 @@
  * ニュースバッチサービスのテスト
  *
  * Task 8: ニュースバッチ処理
- * - 8.1 エンドポイント基盤（認証テスト）
- * - 8.2 並列ニュース取得オーケストレーション
- * - 8.3 AI要約処理統合
- * - 8.4 Firestoreニュース保存機能
- * - 8.5 ニュースメタデータ更新機能
- * - 8.6 ニュースバッチタイムアウト制御
+ * Task 5: Supabase移行 (migration-to-supabase)
+ * - 5.1 NewsBatchService Supabase対応
+ * - 5.2 ニュースメタデータ更新処理
+ * - 5.3 ニュースバッチエラーハンドリング更新
+ * - 5.4 ニュースバッチテスト更新
  *
  * Requirements:
  * - 1.1 (毎日8:00にニュース取得)
  * - 1.2, 1.3 (世界・日本ニュース取得)
  * - 1.4, 1.5 (翻訳+要約)
- * - 1.6 (Firestore保存)
+ * - 1.6 (Supabase保存)
  * - 1.8 (5分以内に完了)
  */
 
@@ -33,17 +32,46 @@ jest.mock('../../fetchers/worldNewsFetcher');
 jest.mock('../../fetchers/japanNewsFetcher');
 jest.mock('../../summarization');
 
-// Firebase Admin SDKのモック
-const mockFirestore = {
-  collection: jest.fn().mockReturnThis(),
-  doc: jest.fn().mockReturnThis(),
-  set: jest.fn().mockResolvedValue(undefined),
-  get: jest.fn(),
-  update: jest.fn().mockResolvedValue(undefined),
+// Supabaseクライアントのモック
+const mockSupabaseFrom = jest.fn();
+const mockSupabaseUpsert = jest.fn();
+const mockSupabaseUpdate = jest.fn();
+const mockSupabaseEq = jest.fn();
+const mockSupabaseSelect = jest.fn();
+const mockSupabaseSingle = jest.fn();
+
+const mockSupabaseClient = {
+  from: mockSupabaseFrom,
 };
 
-jest.mock('../../../../config/firebase', () => ({
-  getFirestore: () => mockFirestore,
+// チェーンメソッドの設定
+mockSupabaseFrom.mockImplementation(() => ({
+  upsert: mockSupabaseUpsert,
+  update: mockSupabaseUpdate,
+  select: mockSupabaseSelect,
+}));
+
+mockSupabaseUpsert.mockImplementation(() => ({
+  select: mockSupabaseSelect,
+}));
+
+mockSupabaseUpdate.mockImplementation(() => ({
+  eq: mockSupabaseEq,
+}));
+
+mockSupabaseEq.mockImplementation(() => ({
+  select: mockSupabaseSelect,
+}));
+
+mockSupabaseSelect.mockImplementation(() => ({
+  single: mockSupabaseSingle,
+}));
+
+// デフォルトで成功を返す
+mockSupabaseSingle.mockResolvedValue({ data: { id: 1 }, error: null });
+
+jest.mock('../../../../config/supabase', () => ({
+  getSupabase: () => mockSupabaseClient,
 }));
 
 describe('NewsBatchService', () => {
@@ -108,6 +136,26 @@ describe('NewsBatchService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    // Supabaseモックのリセット
+    mockSupabaseFrom.mockImplementation(() => ({
+      upsert: mockSupabaseUpsert,
+      update: mockSupabaseUpdate,
+      select: mockSupabaseSelect,
+    }));
+    mockSupabaseUpsert.mockImplementation(() => ({
+      select: mockSupabaseSelect,
+    }));
+    mockSupabaseUpdate.mockImplementation(() => ({
+      eq: mockSupabaseEq,
+    }));
+    mockSupabaseEq.mockImplementation(() => ({
+      select: mockSupabaseSelect,
+    }));
+    mockSupabaseSelect.mockImplementation(() => ({
+      single: mockSupabaseSingle,
+    }));
+    mockSupabaseSingle.mockResolvedValue({ data: { id: 1 }, error: null });
+
     // WorldNewsFetcherのモック
     mockWorldNewsFetcher = {
       fetchTopHeadlines: jest.fn().mockResolvedValue({
@@ -162,13 +210,13 @@ describe('NewsBatchService', () => {
       const config = service.getConfig();
 
       expect(config.timeoutMs).toBe(300000); // 5分
-      expect(config.saveToFirestore).toBe(true);
+      expect(config.saveToDatabase).toBe(true);
     });
 
     it('カスタム設定でサービスを初期化できる', () => {
       const customConfig: NewsBatchServiceConfig = {
         timeoutMs: 180000, // 3分
-        saveToFirestore: false,
+        saveToDatabase: false,
       };
       const customService = new NewsBatchService(
         mockWorldNewsFetcher,
@@ -179,7 +227,7 @@ describe('NewsBatchService', () => {
       const config = customService.getConfig();
 
       expect(config.timeoutMs).toBe(180000);
-      expect(config.saveToFirestore).toBe(false);
+      expect(config.saveToDatabase).toBe(false);
     });
   });
 
@@ -283,88 +331,106 @@ describe('NewsBatchService', () => {
     });
   });
 
-  describe('8.4 Firestoreニュース保存機能', () => {
-    it('要約結果をFirestoreに保存する', async () => {
+  describe('5.1 Supabaseニュース保存機能', () => {
+    it('要約結果をSupabaseに保存する', async () => {
       await service.execute();
 
-      expect(mockFirestore.collection).toHaveBeenCalledWith('news');
-      expect(mockFirestore.set).toHaveBeenCalled();
+      expect(mockSupabaseFrom).toHaveBeenCalledWith('news');
+      expect(mockSupabaseUpsert).toHaveBeenCalled();
     });
 
-    it('今日の日付をドキュメントIDとして使用する', async () => {
+    it('日付をPKとしてupsertを実行する', async () => {
       const today = new Date().toISOString().split('T')[0];
 
       await service.execute();
 
-      expect(mockFirestore.doc).toHaveBeenCalledWith(today);
-    });
-
-    it('保存するドキュメントが正しい構造を持つ', async () => {
-      await service.execute();
-
-      const savedDoc = mockFirestore.set.mock.calls[0][0];
-      expect(savedDoc).toHaveProperty('worldNews');
-      expect(savedDoc).toHaveProperty('japanNews');
-      expect(savedDoc).toHaveProperty('createdAt');
-      expect(savedDoc).toHaveProperty('updatedAt');
-    });
-
-    it('保存失敗時にエラーログを記録する', async () => {
-      mockFirestore.set.mockRejectedValueOnce(new Error('Firestore Error'));
-
-      const result = await service.execute();
-
-      expect(result.firestoreSaved).toBe(false);
-      expect(result.errors).toContainEqual(
+      expect(mockSupabaseUpsert).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'firestore-save',
+          date: today,
+        }),
+        expect.objectContaining({
+          onConflict: 'date',
         })
       );
     });
 
-    it('saveToFirestore=falseの場合は保存しない', async () => {
+    it('保存するペイロードが正しい構造を持つ', async () => {
+      await service.execute();
+
+      const upsertCall = mockSupabaseUpsert.mock.calls[0][0];
+      expect(upsertCall).toHaveProperty('date');
+      expect(upsertCall).toHaveProperty('world_news_title');
+      expect(upsertCall).toHaveProperty('world_news_summary');
+      expect(upsertCall).toHaveProperty('japan_news_title');
+      expect(upsertCall).toHaveProperty('japan_news_summary');
+      expect(upsertCall).toHaveProperty('updated_at');
+    });
+
+    it('保存失敗時にエラーログを記録する', async () => {
+      mockSupabaseSingle.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Supabase Error', code: '23505' },
+      });
+
+      const result = await service.execute();
+
+      expect(result.databaseSaved).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          type: 'database-save',
+        })
+      );
+    });
+
+    it('saveToDatabase=falseの場合は保存しない', async () => {
       const noSaveService = new NewsBatchService(
         mockWorldNewsFetcher,
         mockJapanNewsFetcher,
         mockSummaryService,
-        { saveToFirestore: false }
+        { saveToDatabase: false }
       );
 
       await noSaveService.execute();
 
-      expect(mockFirestore.set).not.toHaveBeenCalled();
+      expect(mockSupabaseFrom).not.toHaveBeenCalledWith('news');
     });
   });
 
-  describe('8.5 ニュースメタデータ更新機能', () => {
-    it('バッチ完了時にmetadata/batch.newsLastUpdatedを更新する', async () => {
+  describe('5.2 ニュースメタデータ更新機能', () => {
+    it('バッチ完了時にbatch_metadata.news_last_updatedを更新する', async () => {
       await service.execute();
 
-      expect(mockFirestore.collection).toHaveBeenCalledWith('metadata');
-      expect(mockFirestore.doc).toHaveBeenCalledWith('batch');
+      expect(mockSupabaseFrom).toHaveBeenCalledWith('batch_metadata');
+      expect(mockSupabaseUpdate).toHaveBeenCalled();
     });
 
-    it('メタデータ更新にタイムスタンプが含まれる', async () => {
+    it('メタデータ更新にISO 8601タイムスタンプが含まれる', async () => {
       await service.execute();
 
-      // setまたはupdateの呼び出しを確認
-      const calls = mockFirestore.set.mock.calls;
-      const metadataCall = calls.find((call) => {
-        const data = call[0];
-        return data && 'newsLastUpdated' in data;
-      });
-
-      expect(metadataCall).toBeDefined();
-      if (metadataCall) {
-        expect(metadataCall[0].newsLastUpdated).toBeDefined();
-      }
+      // updateの呼び出しを確認
+      const updatePayload = mockSupabaseUpdate.mock.calls[0][0];
+      expect(updatePayload).toHaveProperty('news_last_updated');
+      // ISO 8601形式のタイムスタンプであることを確認
+      expect(updatePayload.news_last_updated).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
+      );
     });
 
     it('メタデータ更新失敗時はエラーログを記録するが処理は継続する', async () => {
-      // 最初のsetは成功、2回目（metadata更新）は失敗
-      mockFirestore.set
-        .mockResolvedValueOnce(undefined)
-        .mockRejectedValueOnce(new Error('Metadata Error'));
+      // news upsertは成功、metadata updateは失敗
+      let callCount = 0;
+      mockSupabaseSingle.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          // news upsert成功
+          return Promise.resolve({ data: { date: '2026-01-02' }, error: null });
+        }
+        // metadata update失敗
+        return Promise.resolve({
+          data: null,
+          error: { message: 'Metadata Error', code: '42P01' },
+        });
+      });
 
       const result = await service.execute();
 
@@ -442,7 +508,7 @@ describe('NewsBatchService', () => {
       expect(result).toHaveProperty('partialSuccess');
       expect(result).toHaveProperty('worldNews');
       expect(result).toHaveProperty('japanNews');
-      expect(result).toHaveProperty('firestoreSaved');
+      expect(result).toHaveProperty('databaseSaved');
       expect(result).toHaveProperty('metadataUpdated');
       expect(result).toHaveProperty('processingTimeMs');
       expect(result).toHaveProperty('date');

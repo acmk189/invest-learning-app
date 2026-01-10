@@ -2,12 +2,10 @@
  * ニュースバッチサービス
  *
  * Task 8: ニュースバッチ処理
- * - 8.1 エンドポイント基盤
- * - 8.2 並列ニュース取得オーケストレーション
- * - 8.3 AI要約処理統合
- * - 8.4 Firestoreニュース保存機能
- * - 8.5 ニュースメタデータ更新機能
- * - 8.6 ニュースバッチタイムアウト制御
+ * Task 5: Supabase移行 (migration-to-supabase)
+ * - 5.1 NewsBatchService Supabase対応
+ * - 5.2 ニュースメタデータ更新処理
+ * - 5.3 ニュースバッチエラーハンドリング更新
  *
  * Requirements:
  * - 1.1 (毎日8:00にニュース取得)
@@ -15,18 +13,21 @@
  * - 1.3 (Google News RSSから日本ニュース取得)
  * - 1.4 (複数記事を2000文字に要約)
  * - 1.5 (英語記事を日本語に翻訳+要約)
- * - 1.6 (Firestoreに保存)
+ * - 1.6 (Supabaseに保存)
  * - 1.8 (5分以内に完了)
  *
  * @see https://vercel.com/docs/functions/serverless-functions - Vercel Serverless Functions
  */
 
-import { Timestamp } from 'firebase-admin/firestore';
-import { getFirestore } from '../../../config/firebase';
-import { WorldNewsFetcher, JapanNewsFetcher, NewsApiArticle, GoogleNewsRssItem } from '../fetchers';
+import { getSupabase } from '../../../config/supabase';
+import { NewsUpsertPayload } from '../../../models/supabase.types';
+import {
+  WorldNewsFetcher,
+  JapanNewsFetcher,
+  NewsApiArticle,
+  GoogleNewsRssItem,
+} from '../fetchers';
 import { NewsSummaryService, NewsArticle } from '../summarization';
-import { NewsDocument } from '../../../models/news.model';
-import { METADATA_COLLECTION, BATCH_METADATA_DOC_ID } from '../../../models/metadata.model';
 import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
 
 /**
@@ -88,21 +89,21 @@ export interface NewsSummaryData {
 export interface NewsBatchResult {
   /** 全処理が成功したかどうか */
   success: boolean;
-  /** 部分的な成功（片方のニュースだけ成功）かどうか */
+  /** 部分的な成功 (片方のニュースだけ成功) かどうか */
   partialSuccess: boolean;
   /** 世界ニュースの要約データ */
   worldNews?: NewsSummaryData;
   /** 日本ニュースの要約データ */
   japanNews?: NewsSummaryData;
-  /** Firestoreへの保存が成功したかどうか */
-  firestoreSaved: boolean;
+  /** データベースへの保存が成功したかどうか */
+  databaseSaved: boolean;
   /** メタデータの更新が成功したかどうか */
   metadataUpdated: boolean;
-  /** 処理時間（ミリ秒） */
+  /** 処理時間 (ミリ秒) */
   processingTimeMs: number;
-  /** 処理日付（YYYY-MM-DD形式） */
+  /** 処理日付 (YYYY-MM-DD形式) */
   date: string;
-  /** エラー情報（発生した場合） */
+  /** エラー情報 (発生した場合) */
   errors?: BatchErrorInfo[];
 }
 
@@ -111,16 +112,16 @@ export interface NewsBatchResult {
  */
 export interface NewsBatchServiceConfig {
   /**
-   * タイムアウト時間（ミリ秒）
+   * タイムアウト時間 (ミリ秒)
    * @default 300000 (5分)
    */
   timeoutMs?: number;
 
   /**
-   * Firestoreへ保存するかどうか
+   * データベースへ保存するかどうか
    * @default true
    */
-  saveToFirestore?: boolean;
+  saveToDatabase?: boolean;
 }
 
 /**
@@ -146,7 +147,7 @@ export class NewsBatchService {
   private readonly japanNewsFetcher: JapanNewsFetcher;
   private readonly summaryService: NewsSummaryService;
   private readonly timeoutMs: number;
-  private readonly saveToFirestore: boolean;
+  private readonly saveToDatabase: boolean;
 
   /**
    * コンストラクタ
@@ -166,7 +167,7 @@ export class NewsBatchService {
     this.japanNewsFetcher = japanNewsFetcher;
     this.summaryService = summaryService;
     this.timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    this.saveToFirestore = config.saveToFirestore ?? true;
+    this.saveToDatabase = config.saveToDatabase ?? true;
   }
 
   /**
@@ -177,7 +178,7 @@ export class NewsBatchService {
   getConfig(): Required<NewsBatchServiceConfig> {
     return {
       timeoutMs: this.timeoutMs,
-      saveToFirestore: this.saveToFirestore,
+      saveToDatabase: this.saveToDatabase,
     };
   }
 
@@ -201,7 +202,7 @@ export class NewsBatchService {
     const result: NewsBatchResult = {
       success: false,
       partialSuccess: false,
-      firestoreSaved: false,
+      databaseSaved: false,
       metadataUpdated: false,
       processingTimeMs: 0,
       date: today,
@@ -222,15 +223,16 @@ export class NewsBatchService {
       result.success = hasWorldNews && hasJapanNews && errors.length === 0;
       result.partialSuccess = (hasWorldNews || hasJapanNews) && !result.success;
 
-      // Firestoreへの保存
-      if (this.saveToFirestore && (hasWorldNews || hasJapanNews)) {
+      // データベースへの保存
+      if (this.saveToDatabase && (hasWorldNews || hasJapanNews)) {
         try {
           await this.saveNews(today, result.worldNews, result.japanNews);
-          result.firestoreSaved = true;
+          result.databaseSaved = true;
         } catch (error) {
           errors.push({
-            type: 'firestore-save',
-            message: error instanceof Error ? error.message : 'Firestore保存でエラー',
+            type: 'database-save',
+            message:
+              error instanceof Error ? error.message : 'データベース保存でエラー',
             timestamp: new Date(),
           });
         }
@@ -242,7 +244,8 @@ export class NewsBatchService {
         } catch (error) {
           errors.push({
             type: 'metadata-update',
-            message: error instanceof Error ? error.message : 'メタデータ更新でエラー',
+            message:
+              error instanceof Error ? error.message : 'メタデータ更新でエラー',
             timestamp: new Date(),
           });
         }
@@ -465,11 +468,12 @@ export class NewsBatchService {
   }
 
   /**
-   * ニュースをFirestoreに保存
+   * ニュースをSupabaseに保存
    *
-   * Requirements 1.6: 処理完了後Firestoreに保存
+   * Requirements 1.6: 処理完了後データベースに保存
+   * Task 5.1: Supabase upsertに変更
    *
-   * @param date - ドキュメントID（YYYY-MM-DD形式）
+   * @param date - 日付 (YYYY-MM-DD形式、PRIMARY KEY)
    * @param worldNews - 世界ニュースデータ
    * @param japanNews - 日本ニュースデータ
    */
@@ -478,53 +482,54 @@ export class NewsBatchService {
     worldNews?: NewsSummaryData,
     japanNews?: NewsSummaryData
   ): Promise<void> {
-    const db = getFirestore();
+    const supabase = getSupabase();
 
-    // ニュースドキュメントを作成
-    const newsDoc: Partial<NewsDocument> = {
+    // NewsUpsertPayloadを作成
+    const payload: NewsUpsertPayload = {
       date,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      world_news_title: worldNews?.title ?? '',
+      world_news_summary: worldNews?.summary ?? '',
+      japan_news_title: japanNews?.title ?? '',
+      japan_news_summary: japanNews?.summary ?? '',
+      updated_at: new Date().toISOString(),
     };
 
-    if (worldNews) {
-      newsDoc.worldNews = {
-        title: worldNews.title,
-        summary: worldNews.summary,
-        updatedAt: worldNews.updatedAt,
-      };
+    // Supabaseにupsert (日付をPKとして冪等性を確保)
+    const { error } = await supabase
+      .from('news')
+      .upsert(payload, { onConflict: 'date' })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Supabase upsert failed: ${error.message}`);
     }
 
-    if (japanNews) {
-      newsDoc.japanNews = {
-        title: japanNews.title,
-        summary: japanNews.summary,
-        updatedAt: japanNews.updatedAt,
-      };
-    }
-
-    // Firestoreに保存
-    await db.collection('news').doc(date).set(newsDoc);
-
-    console.log(`[NewsBatchService] News saved to Firestore: ${date}`);
+    console.log(`[NewsBatchService] News saved to Supabase: ${date}`);
   }
 
   /**
    * メタデータを更新
    *
-   * バッチ完了時にmetadata/batch.newsLastUpdatedを更新
+   * Task 5.2: batch_metadata.news_last_updatedを更新
    */
   private async updateMetadata(): Promise<void> {
-    const db = getFirestore();
+    const supabase = getSupabase();
 
-    await db.collection(METADATA_COLLECTION).doc(BATCH_METADATA_DOC_ID).set(
-      {
-        newsLastUpdated: Timestamp.now(),
-      },
-      { merge: true }
-    );
+    const { error } = await supabase
+      .from('batch_metadata')
+      .update({
+        news_last_updated: new Date().toISOString(),
+      })
+      .eq('id', 1)
+      .select()
+      .single();
 
-    console.log('[NewsBatchService] Metadata updated');
+    if (error) {
+      throw new Error(`Supabase metadata update failed: ${error.message}`);
+    }
+
+    console.log('[NewsBatchService] Metadata updated in Supabase');
   }
 
   /**

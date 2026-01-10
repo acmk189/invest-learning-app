@@ -79,22 +79,22 @@
   - Timestamp型の変換
   - _Requirements: 4_
 
-- [ ] 5. ニュースバッチ処理移行
-- [ ] 5.1 NewsBatchService Supabase対応
+- [x] 5. ニュースバッチ処理移行
+- [x] 5.1 NewsBatchService Supabase対応
   - Firestore書き込みをSupabase upsertに変更
   - newsテーブルへのupsert実装
   - 日付をPKとした冪等性の確保
   - _Requirements: 5_
-- [ ] 5.2 ニュースメタデータ更新処理
+- [x] 5.2 ニュースメタデータ更新処理
   - batch_metadataテーブルのnews_last_updated更新
   - トランザクション的な整合性確保
   - _Requirements: 5_
-- [ ] 5.3 ニュースバッチエラーハンドリング更新
+- [x] 5.3 ニュースバッチエラーハンドリング更新
   - Supabaseエラーコードのマッピング
   - 既存リトライロジックの維持
-  - BATch処理成功率98%以上の維持
+  - バッチ処理成功率98%以上の維持
   - _Requirements: 5_
-- [ ]* 5.4 ニュースバッチテスト更新
+- [x] 5.4 ニュースバッチテスト更新
   - 既存テストをSupabase用に更新
   - モック設定の変更
   - _Requirements: 5, 14_

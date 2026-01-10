@@ -35,7 +35,7 @@ describe('NewsBatchErrorLogger', () => {
   const createFailedBatchResult = (): NewsBatchResult => ({
     success: false,
     partialSuccess: false,
-    firestoreSaved: false,
+    databaseSaved: false,
     metadataUpdated: false,
     processingTimeMs: 500,
     date: '2026-01-02',
