@@ -46,4 +46,24 @@ export {
   getTodayTerms,
   getBatchMetadata,
   SupabaseQueryError,
+  // Repository層用関数
+  formatDateToJST,
+  newsRowToNewsData,
+  termRowsToTermsData,
+  batchMetadataRowToBatchMetadata,
+  fetchTodayNewsForRepository,
+  fetchTodayTermsForRepository,
+  fetchBatchMetadataForCache,
 } from './queries';
+
+// エラーハンドリング
+export {
+  SupabaseError,
+  SupabaseErrorCode,
+  toSupabaseError,
+  ERROR_MESSAGES,
+  getUserFriendlyMessage,
+  isOfflineError,
+  isRetryableError,
+  logSupabaseError,
+} from './errors';

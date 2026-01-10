@@ -218,3 +218,171 @@ export async function getBatchMetadata(): Promise<BatchMetadataRow | null> {
 
   return data as BatchMetadataRow | null;
 }
+
+// =====================================================
+// データ変換関数 (Repository層用)
+// =====================================================
+
+import {
+  NewsData,
+  TermsData,
+  BatchMetadata,
+  SupabaseQueryResult,
+} from './types';
+
+/**
+ * JSTタイムゾーンオフセット (ミリ秒)
+ * UTC+9
+ */
+const JST_OFFSET = 9 * 60 * 60 * 1000;
+
+/**
+ * 日付をJSTのYYYY-MM-DD形式に変換する
+ *
+ * @param date - 変換する日付
+ * @returns YYYY-MM-DD形式の文字列
+ */
+export function formatDateToJST(date: Date): string {
+  const jstDate = new Date(date.getTime() + JST_OFFSET);
+  return jstDate.toISOString().split('T')[0];
+}
+
+/**
+ * NewsRowをNewsDataに変換する
+ *
+ * Supabaseのテーブル構造からアプリ表示用のデータ構造に変換
+ *
+ * @param row - Supabaseから取得したNewsRow
+ * @returns アプリ表示用のNewsData
+ */
+export function newsRowToNewsData(row: NewsRow): NewsData {
+  return {
+    date: row.date,
+    worldNews: {
+      title: row.world_news_title,
+      summary: row.world_news_summary,
+      updatedAt: row.updated_at,
+    },
+    japanNews: {
+      title: row.japan_news_title,
+      summary: row.japan_news_summary,
+      updatedAt: row.updated_at,
+    },
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/**
+ * TermRow[]をTermsDataに変換する
+ *
+ * Supabaseの行データ(複数)からアプリ表示用のデータ構造に変換
+ *
+ * @param rows - Supabaseから取得したTermRow配列
+ * @param date - 日付(YYYY-MM-DD形式)
+ * @returns アプリ表示用のTermsData
+ */
+export function termRowsToTermsData(rows: TermRow[], date: string): TermsData {
+  // 最新のcreated_atを取得 (バッチ登録時刻)
+  const latestCreatedAt = rows.length > 0 ? rows[rows.length - 1].created_at : new Date().toISOString();
+
+  return {
+    date,
+    terms: rows.map((row) => ({
+      name: row.name,
+      description: row.description,
+      difficulty: row.difficulty,
+    })),
+    createdAt: latestCreatedAt,
+    updatedAt: latestCreatedAt,
+  };
+}
+
+/**
+ * BatchMetadataRowをBatchMetadataに変換する
+ *
+ * ISO 8601文字列をUnixタイムスタンプ(ミリ秒)に変換
+ *
+ * @param row - Supabaseから取得したBatchMetadataRow
+ * @returns キャッシュチェック用のBatchMetadata
+ */
+export function batchMetadataRowToBatchMetadata(row: BatchMetadataRow): BatchMetadata {
+  return {
+    newsLastUpdated: row.news_last_updated ? new Date(row.news_last_updated).getTime() : 0,
+    termsLastUpdated: row.terms_last_updated ? new Date(row.terms_last_updated).getTime() : 0,
+  };
+}
+
+/**
+ * 今日のニュースを取得する (Repository層用)
+ *
+ * Firestoreと同じインターフェース(FirestoreQueryResult互換)で返す
+ *
+ * @returns SupabaseQueryResult<NewsData>
+ * @throws {SupabaseQueryError} Supabaseエラー発生時
+ */
+export async function fetchTodayNewsForRepository(): Promise<SupabaseQueryResult<NewsData>> {
+  const today = formatDateToJST(new Date());
+
+  try {
+    const newsRow = await getTodayNews(today);
+
+    if (!newsRow) {
+      return { data: null, exists: false };
+    }
+
+    return { data: newsRowToNewsData(newsRow), exists: true };
+  } catch (error) {
+    // SupabaseQueryErrorはそのままスロー
+    throw error;
+  }
+}
+
+/**
+ * 今日の用語を取得する (Repository層用)
+ *
+ * Firestoreと同じインターフェース(FirestoreQueryResult互換)で返す
+ *
+ * @returns SupabaseQueryResult<TermsData>
+ * @throws {SupabaseQueryError} Supabaseエラー発生時
+ */
+export async function fetchTodayTermsForRepository(): Promise<SupabaseQueryResult<TermsData>> {
+  const today = formatDateToJST(new Date());
+
+  try {
+    const termRows = await getTodayTerms(today);
+
+    if (termRows.length === 0) {
+      return { data: null, exists: false };
+    }
+
+    return { data: termRowsToTermsData(termRows, today), exists: true };
+  } catch (error) {
+    // SupabaseQueryErrorはそのままスロー
+    throw error;
+  }
+}
+
+/**
+ * バッチメタデータを取得する (キャッシュ用)
+ *
+ * オフライン時やエラー時はnullを返す (キャッシュフォールバック用)
+ *
+ * @returns BatchMetadata or null
+ */
+export async function fetchBatchMetadataForCache(): Promise<BatchMetadata | null> {
+  try {
+    const row = await getBatchMetadata();
+
+    if (!row) {
+      return null;
+    }
+
+    return batchMetadataRowToBatchMetadata(row);
+  } catch (error) {
+    // メタデータ取得失敗時はログを出力してnullを返す
+    // これによりオフライン時にキャッシュを使用できる
+    console.warn('[Supabase] Failed to fetch batch metadata:', error);
+    return null;
+  }
+}

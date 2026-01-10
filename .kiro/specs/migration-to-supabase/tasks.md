@@ -169,18 +169,18 @@
   - エラーハンドリングヘルパー
   - _Requirements: 8_
 
-- [ ] 10. フロントエンドRepository移行
-- [ ] 10.1 NewsRepository移行
+- [x] 10. フロントエンドRepository移行
+- [x] 10.1 NewsRepository移行
   - Firestore依存をSupabaseQueriesに変更
   - 既存インターフェース(NewsResult)の維持
   - CacheManagerとの統合維持
   - _Requirements: 9_
-- [ ] 10.2 TermsRepository移行
+- [x] 10.2 TermsRepository移行
   - Firestore依存をSupabaseQueriesに変更
   - 既存インターフェース(TermsResult)の維持
   - CacheManagerとの統合維持
   - _Requirements: 9_
-- [ ] 10.3 Supabaseエラー型対応
+- [x] 10.3 Supabaseエラー型対応
   - FirestoreエラーからSupabaseエラーへの変更
   - エラー型定義の更新
   - _Requirements: 9_
