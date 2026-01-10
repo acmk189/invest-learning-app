@@ -69,13 +69,27 @@ const formatDateTime = (isoString: string): string => {
  * ニュースカードコンポーネント
  * 各ニュースのタイトル、要約、更新日時を表示
  *
- * @see Requirements: 2.3
+ * アクセシビリティ対応:
+ * - VoiceOver向けにaccessibilityLabelを設定
+ * - カテゴリタイトルとニュースタイトルを読み上げ
+ *
+ * @see Requirements: 2.3, 6.4
  */
-function NewsCard({ categoryTitle, news }: NewsCardProps) {
+interface NewsCardExtendedProps extends NewsCardProps {
+  /** テスト用ID（world/japan） */
+  testId: string;
+}
+
+function NewsCard({ categoryTitle, news, testId }: NewsCardExtendedProps) {
   const colors = useThemeColors();
+
+  // アクセシビリティ用のラベル生成
+  // VoiceOverがカード全体の内容を読み上げるために使用
+  const accessibilityLabel = `${categoryTitle}: ${news.title}。${formatDateTime(news.updatedAt)}更新`;
 
   return (
     <View
+      testID={`news-card-${testId}`}
       style={[
         styles.card,
         {
@@ -83,6 +97,9 @@ function NewsCard({ categoryTitle, news }: NewsCardProps) {
           borderColor: colors.cardBorder,
         },
       ]}
+      accessible={true}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole="article"
     >
       {/* カテゴリタイトル（世界のニュース / 日本のニュース） */}
       <Text style={[styles.categoryTitle, { color: colors.primary }]}>
@@ -156,6 +173,9 @@ function ErrorView({ message, retryable, onRetry }: ErrorViewProps) {
             borderColor: colors.errorText,
           },
         ]}
+        accessible={true}
+        accessibilityLabel={`エラー: ${message}`}
+        accessibilityRole="alert"
       >
         <Text style={[styles.errorText, { color: colors.errorText }]}>
           {message}
@@ -165,6 +185,10 @@ function ErrorView({ message, retryable, onRetry }: ErrorViewProps) {
             style={[styles.retryButton, { backgroundColor: colors.primary }]}
             onPress={onRetry}
             activeOpacity={0.7}
+            accessible={true}
+            accessibilityLabel="再試行ボタン"
+            accessibilityRole="button"
+            accessibilityHint="タップしてニュースの取得を再試行します"
           >
             <Text style={[styles.retryButtonText, { color: colors.primaryText }]}>
               再試行
@@ -231,12 +255,12 @@ export function NewsScreen({ viewModelResult }: NewsScreenProps) {
       >
         {/* 世界のニュース */}
         {worldNews && (
-          <NewsCard categoryTitle="世界のニュース" news={worldNews} />
+          <NewsCard categoryTitle="世界のニュース" news={worldNews} testId="world" />
         )}
 
         {/* 日本のニュース */}
         {japanNews && (
-          <NewsCard categoryTitle="日本のニュース" news={japanNews} />
+          <NewsCard categoryTitle="日本のニュース" news={japanNews} testId="japan" />
         )}
 
         {/* データがない場合のメッセージ */}
@@ -253,12 +277,51 @@ export function NewsScreen({ viewModelResult }: NewsScreenProps) {
 }
 
 /**
+ * タイポグラフィ定数
+ *
+ * iOS Human Interface Guidelinesに基づく可読性の高いフォント設定
+ * - 最小フォントサイズ: 16pt（Requirements: 6.4）
+ * - 行間: フォントサイズの1.5倍以上（Requirements: 6.4）
+ *
+ * @see https://developer.apple.com/design/human-interface-guidelines/typography
+ */
+const TYPOGRAPHY = {
+  /** 本文フォントサイズ（16pt以上を保証） */
+  BODY_FONT_SIZE: 16,
+  /** 本文行間（フォントサイズの1.625倍 = 26pt） */
+  BODY_LINE_HEIGHT: 26,
+  /** タイトルフォントサイズ（本文より大きく） */
+  TITLE_FONT_SIZE: 18,
+  /** タイトル行間 */
+  TITLE_LINE_HEIGHT: 26,
+  /** カテゴリフォントサイズ */
+  CATEGORY_FONT_SIZE: 14,
+  /** 更新日時フォントサイズ */
+  META_FONT_SIZE: 12,
+} as const;
+
+/**
+ * スペーシング定数
+ *
+ * カード間およびカード内の余白設定
+ * @see Requirements: 6.4
+ */
+const SPACING = {
+  /** カード内パディング */
+  CARD_PADDING: 16,
+  /** カード間の余白 */
+  CARD_GAP: 16,
+  /** スクロールビューのパディング */
+  SCROLL_PADDING: 16,
+} as const;
+
+/**
  * スタイル定義
  *
  * フォントサイズと行間は可読性を確保するため、
  * iOS Human Interface Guidelinesに準拠した値を使用
  *
- * @see Requirements: 6.3, 6.4
+ * @see Requirements: 6.3, 6.4, 6.5
  */
 const styles = StyleSheet.create({
   // コンテナ
@@ -267,12 +330,13 @@ const styles = StyleSheet.create({
   },
 
   // スクロールビュー
+  // 長文（約2000文字）の要約を快適に読めるようスクロール設定
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    gap: 16,
+    padding: SPACING.SCROLL_PADDING,
+    gap: SPACING.CARD_GAP,
   },
 
   // センター配置コンテナ（ローディング・エラー用）
@@ -284,10 +348,11 @@ const styles = StyleSheet.create({
   },
 
   // カード
+  // 適切な余白（16pt以上）でコンテンツを囲む
   card: {
     borderRadius: 12,
     borderWidth: 1,
-    padding: 16,
+    padding: SPACING.CARD_PADDING,
     // iOS向けシャドウ
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -299,7 +364,7 @@ const styles = StyleSheet.create({
 
   // カテゴリタイトル（世界のニュース / 日本のニュース）
   categoryTitle: {
-    fontSize: 14,
+    fontSize: TYPOGRAPHY.CATEGORY_FONT_SIZE,
     fontWeight: '600',
     marginBottom: 8,
     textTransform: 'uppercase',
@@ -307,30 +372,32 @@ const styles = StyleSheet.create({
   },
 
   // ニュースタイトル
+  // 本文より大きなフォントサイズで視覚的に区別
   newsTitle: {
-    fontSize: 18,
+    fontSize: TYPOGRAPHY.TITLE_FONT_SIZE,
     fontWeight: '700',
     marginBottom: 8,
-    lineHeight: 26,
+    lineHeight: TYPOGRAPHY.TITLE_LINE_HEIGHT,
   },
 
   // 更新日時
   updatedAt: {
-    fontSize: 12,
+    fontSize: TYPOGRAPHY.META_FONT_SIZE,
     marginBottom: 12,
   },
 
   // 要約本文
+  // 16pt以上のフォント、1.5倍以上の行間で可読性を確保
   summary: {
-    fontSize: 16,
-    lineHeight: 26, // 行間1.625倍（可読性確保）
+    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
+    lineHeight: TYPOGRAPHY.BODY_LINE_HEIGHT, // 行間1.625倍（可読性確保）
     textAlign: 'justify',
   },
 
   // ローディング
   loadingText: {
     marginTop: 12,
-    fontSize: 14,
+    fontSize: TYPOGRAPHY.CATEGORY_FONT_SIZE,
   },
 
   // エラー
@@ -342,7 +409,7 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
   },
   errorText: {
-    fontSize: 16,
+    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
     textAlign: 'center',
     marginBottom: 16,
     lineHeight: 24,
@@ -353,7 +420,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   retryButtonText: {
-    fontSize: 16,
+    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
     fontWeight: '600',
   },
 
@@ -365,7 +432,7 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
     textAlign: 'center',
     lineHeight: 24,
   },
