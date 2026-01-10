@@ -150,21 +150,21 @@
   - 接続確認関数
   - _Requirements: 7_
 
-- [ ] 9. フロントエンドクエリ実装
-- [ ] 9.1 ニュースクエリ実装
+- [x] 9. フロントエンドクエリ実装
+- [x] 9.1 ニュースクエリ実装
   - `mobile/src/supabase/queries.ts`を作成
   - getTodayNews(date)クエリ
   - NewsRow型の返却
   - _Requirements: 8_
-- [ ] 9.2 用語クエリ実装
+- [x] 9.2 用語クエリ実装
   - getTodayTerms(date)クエリ
   - TermRow[]型の返却(3件)
   - _Requirements: 8_
-- [ ] 9.3 メタデータクエリ実装
+- [x] 9.3 メタデータクエリ実装
   - getBatchMetadata()クエリ
   - BatchMetadataRow型の返却
   - _Requirements: 8_
-- [ ] 9.4 クエリエラーハンドリング実装
+- [x] 9.4 クエリエラーハンドリング実装
   - Supabaseエラー型の定義
   - エラーハンドリングヘルパー
   - _Requirements: 8_
