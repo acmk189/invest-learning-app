@@ -2,20 +2,20 @@
 
 ## Phase 1: 基盤構築
 
-- [ ] 1. Supabaseプロジェクト設定と環境変数管理
+- [x] 1. Supabaseプロジェクト設定と環境変数管理
 - [ ] 1.1 Supabaseプロジェクト作成とAPIキー取得
   - Supabase Cloudでプロジェクト作成
   - PostgreSQLデータベース有効化
   - プロジェクトURL、anon key、service_role keyを取得
   - _Requirements: 1_
-- [ ] 1.2 環境変数テンプレート更新
+- [x] 1.2 環境変数テンプレート更新
   - `.env.example`にSupabase環境変数テンプレートを追加
   - バックエンド用（SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY）
   - フロントエンド用（SUPABASE_URL, SUPABASE_ANON_KEY）
   - ローカル開発用変数（LOCAL_SUPABASE_*）
   - _Requirements: 13_
-- [ ] 1.3 バックエンド環境変数設定ユーティリティ実装
-  - `backend/src/config/envConfig.ts`を作成
+- [x] 1.3 バックエンド環境変数設定ユーティリティ実装
+  - `backend/src/config/envConfig.ts`を更新
   - 環境変数バリデーション関数を実装
   - ローカル/本番環境の自動切り替えロジック
   - _Requirements: 13_

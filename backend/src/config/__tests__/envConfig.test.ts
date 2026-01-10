@@ -10,6 +10,8 @@
 import {
   validateAllEnvVars,
   getEnvVarStatus,
+  getSupabaseEnvConfig,
+  isSupabaseConfigured,
   type EnvVarName,
   ENV_VAR_CONFIG,
 } from '../envConfig';
@@ -161,6 +163,153 @@ describe('envConfig', () => {
         expect(ENV_VAR_CONFIG[varName].description).toBeDefined();
         expect(ENV_VAR_CONFIG[varName].required).toBe(true);
       });
+    });
+  });
+
+  describe('Supabase環境変数', () => {
+    it('Supabase環境変数が設定マップに定義されている', () => {
+      const supabaseVars: EnvVarName[] = [
+        'SUPABASE_URL',
+        'SUPABASE_ANON_KEY',
+        'SUPABASE_SERVICE_ROLE_KEY',
+      ];
+
+      supabaseVars.forEach((varName) => {
+        expect(ENV_VAR_CONFIG[varName]).toBeDefined();
+        expect(ENV_VAR_CONFIG[varName].description).toBeDefined();
+      });
+    });
+
+    it('Supabase環境変数が設定されている場合、検証に含まれる', () => {
+      // Arrange: すべての環境変数を設定
+      process.env.FIREBASE_PROJECT_ID = 'test-project';
+      process.env.FIREBASE_PRIVATE_KEY = 'test-private-key';
+      process.env.FIREBASE_CLIENT_EMAIL = 'test@example.com';
+      process.env.CLAUDE_API_KEY = 'sk-ant-test';
+      process.env.NEWS_API_KEY = 'test-news-api-key';
+      process.env.CRON_SECRET = 'test-cron-secret';
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_ANON_KEY = 'test-anon-key';
+      process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+
+      // Act
+      const status = getEnvVarStatus();
+
+      // Assert
+      expect(status.SUPABASE_URL.isConfigured).toBe(true);
+      expect(status.SUPABASE_ANON_KEY.isConfigured).toBe(true);
+      expect(status.SUPABASE_SERVICE_ROLE_KEY.isConfigured).toBe(true);
+    });
+
+    it('ローカル開発用Supabase環境変数がオプションとして定義されている', () => {
+      const localSupabaseVars: EnvVarName[] = [
+        'LOCAL_SUPABASE_URL',
+        'LOCAL_SUPABASE_ANON_KEY',
+        'LOCAL_SUPABASE_SERVICE_ROLE_KEY',
+      ];
+
+      localSupabaseVars.forEach((varName) => {
+        expect(ENV_VAR_CONFIG[varName]).toBeDefined();
+        expect(ENV_VAR_CONFIG[varName].required).toBe(false);
+      });
+    });
+  });
+
+  describe('getSupabaseEnvConfig', () => {
+    it('本番環境でSupabase環境変数を正しく取得する', () => {
+      // Arrange
+      process.env.NODE_ENV = 'production';
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+      process.env.SUPABASE_ANON_KEY = 'test-anon-key';
+
+      // Act
+      const config = getSupabaseEnvConfig();
+
+      // Assert
+      expect(config.url).toBe('https://test.supabase.co');
+      expect(config.serviceRoleKey).toBe('test-service-role-key');
+      expect(config.anonKey).toBe('test-anon-key');
+    });
+
+    it('ローカル開発環境でローカルSupabase環境変数を優先する', () => {
+      // Arrange
+      process.env.NODE_ENV = 'development';
+      process.env.LOCAL_SUPABASE_URL = 'http://127.0.0.1:54321';
+      process.env.LOCAL_SUPABASE_SERVICE_ROLE_KEY = 'local-service-role-key';
+      process.env.LOCAL_SUPABASE_ANON_KEY = 'local-anon-key';
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+
+      // Act
+      const config = getSupabaseEnvConfig();
+
+      // Assert
+      expect(config.url).toBe('http://127.0.0.1:54321');
+      expect(config.serviceRoleKey).toBe('local-service-role-key');
+      expect(config.anonKey).toBe('local-anon-key');
+    });
+
+    it('ローカル環境変数がない場合は本番環境変数にフォールバック', () => {
+      // Arrange
+      process.env.NODE_ENV = 'development';
+      delete process.env.LOCAL_SUPABASE_URL;
+      delete process.env.LOCAL_SUPABASE_SERVICE_ROLE_KEY;
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+
+      // Act
+      const config = getSupabaseEnvConfig();
+
+      // Assert
+      expect(config.url).toBe('https://test.supabase.co');
+      expect(config.serviceRoleKey).toBe('test-service-role-key');
+    });
+
+    it('必要な環境変数がない場合エラーをスロー', () => {
+      // Arrange
+      process.env.NODE_ENV = 'production';
+      delete process.env.SUPABASE_URL;
+      delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      // Act & Assert
+      expect(() => getSupabaseEnvConfig()).toThrow(
+        'Supabase環境変数が不足しています'
+      );
+    });
+  });
+
+  describe('isSupabaseConfigured', () => {
+    it('本番環境でSupabase環境変数が設定されている場合true', () => {
+      // Arrange
+      process.env.NODE_ENV = 'production';
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+
+      // Act & Assert
+      expect(isSupabaseConfigured()).toBe(true);
+    });
+
+    it('ローカル環境でローカルSupabase環境変数が設定されている場合true', () => {
+      // Arrange
+      process.env.NODE_ENV = 'development';
+      process.env.LOCAL_SUPABASE_URL = 'http://127.0.0.1:54321';
+      process.env.LOCAL_SUPABASE_SERVICE_ROLE_KEY = 'local-service-role-key';
+
+      // Act & Assert
+      expect(isSupabaseConfigured()).toBe(true);
+    });
+
+    it('環境変数が設定されていない場合false', () => {
+      // Arrange
+      process.env.NODE_ENV = 'production';
+      delete process.env.SUPABASE_URL;
+      delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+      delete process.env.LOCAL_SUPABASE_URL;
+      delete process.env.LOCAL_SUPABASE_SERVICE_ROLE_KEY;
+
+      // Act & Assert
+      expect(isSupabaseConfigured()).toBe(false);
     });
   });
 });
