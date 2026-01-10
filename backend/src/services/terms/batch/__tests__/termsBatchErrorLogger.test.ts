@@ -34,7 +34,7 @@ describe('TermsBatchErrorLogger', () => {
   ): TermsBatchResult => ({
     success: false,
     partialSuccess: false,
-    firestoreSaved: false,
+    databaseSaved: false,
     historyUpdated: false,
     metadataUpdated: false,
     processingTimeMs: 100,

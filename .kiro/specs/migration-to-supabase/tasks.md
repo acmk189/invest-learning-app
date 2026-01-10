@@ -99,24 +99,24 @@
   - モック設定の変更
   - _Requirements: 5, 14_
 
-- [ ] 6. 用語バッチ処理移行
-- [ ] 6.1 TermsBatchService Supabase対応
+- [x] 6. 用語バッチ処理移行
+- [x] 6.1 TermsBatchService Supabase対応
   - Firestore書き込みをSupabase insertに変更
   - termsテーブルへのinsert実装
   - 1日3用語の保存
   - _Requirements: 6_
-- [ ] 6.2 用語履歴保存処理
+- [x] 6.2 用語履歴保存処理
   - terms_historyテーブルへの履歴insert
   - term_name、delivered_at、difficultyの保存
   - _Requirements: 6_
-- [ ] 6.3 用語メタデータ更新処理
+- [x] 6.3 用語メタデータ更新処理
   - batch_metadataテーブルのterms_last_updated更新
   - _Requirements: 6_
-- [ ] 6.4 用語バッチエラーハンドリング更新
+- [x] 6.4 用語バッチエラーハンドリング更新
   - Supabaseエラーコードのマッピング
   - 既存リトライロジックの維持
   - _Requirements: 6_
-- [ ]* 6.5 用語バッチテスト更新
+- [x] 6.5 用語バッチテスト更新
   - 既存テストをSupabase用に更新
   - モック設定の変更
   - _Requirements: 6, 14_
