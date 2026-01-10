@@ -10,7 +10,6 @@ import {
   isValidDateString,
   isValidISODateString,
   VALID_DIFFICULTIES,
-  type Difficulty,
   type NewsRow,
   type TermRow,
   type TermHistoryRow,

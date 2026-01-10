@@ -63,18 +63,18 @@
   - 環境変数検証
   - _Requirements: 3_
 
-- [ ] 4. バックエンドデータモデル移行
-- [ ] 4.1 ニュースモデル更新
+- [x] 4. バックエンドデータモデル移行
+- [x] 4.1 ニュースモデル更新
   - Timestamp型をISO 8601文字列に変更
   - NewsRowインターフェースとの整合性確保
   - バリデーション関数の更新
   - _Requirements: 4_
-- [ ] 4.2 用語モデル更新
+- [x] 4.2 用語モデル更新
   - Timestamp型をISO 8601文字列に変更
   - TermRow、TermHistoryRowインターフェースとの整合性確保
   - 文字数制限等の既存バリデーション維持
   - _Requirements: 4_
-- [ ] 4.3 メタデータモデル更新
+- [x] 4.3 メタデータモデル更新
   - BatchMetadataRowインターフェース対応
   - Timestamp型の変換
   - _Requirements: 4_
@@ -121,29 +121,17 @@
   - モック設定の変更
   - _Requirements: 6, 14_
 
-## Phase 3: データ移行
+## Phase 3: データ移行（スキップ）
 
-- [ ] 7. Firestoreデータエクスポートと移行
-- [ ] 7.1 Firestoreエクスポートスクリプト作成
-  - newsコレクションのエクスポート
-  - termsコレクションのエクスポート
-  - terms_historyコレクションのエクスポート
-  - metadataコレクションのエクスポート
-  - _Requirements: 12_
-- [ ] 7.2 データ変換スクリプト作成
-  - Timestamp型からISO 8601文字列への変換
-  - NoSQL構造からRDB構造への正規化
-  - termsの配列から個別行への展開
-  - _Requirements: 12_
-- [ ] 7.3 Supabaseインポート実行
-  - 変換済みデータのインポート
-  - バッチ挿入による効率化
-  - _Requirements: 12_
-- [ ] 7.4 データ整合性検証
-  - レコード数の照合
-  - サンプルデータの内容確認
-  - 日付範囲の確認
-  - _Requirements: 12_
+> **注記**: Firebaseにデータが存在しないため、本フェーズはスキップします。
+> Task 4で実装したFirebase→Supabase変換関数（`newsDocumentToNewsRow`等）は、
+> Task 5, 6実装時に不要であれば削除します。
+
+- [x] 7. Firestoreデータエクスポートと移行 _(スキップ: データなし)_
+- [x] 7.1 Firestoreエクスポートスクリプト作成 _(スキップ)_
+- [x] 7.2 データ変換スクリプト作成 _(スキップ)_
+- [x] 7.3 Supabaseインポート実行 _(スキップ)_
+- [x] 7.4 データ整合性検証 _(スキップ)_
 
 ## Phase 4: フロントエンド移行
 
