@@ -1,5 +1,6 @@
 /**
  * タブナビゲーションレイアウト
+ * Task 25.1: Expo Router初期読み込み最適化
  *
  * Expo Routerのファイルベースルーティングを使用して、
  * 「ニュース」と「用語」の2つのタブを提供するレイアウトコンポーネント。
@@ -7,13 +8,18 @@
  * ThemeProviderから提供される一元管理された色定義を使用して、
  * ダークモード・ライトモードに対応する。
  *
+ * パフォーマンス最適化:
+ * - TAB_LAZY_CONFIG: 遅延ロードで不要な画面の事前ロードを無効化
+ * - freezeOnBlur: 非アクティブなタブをフリーズして再レンダリングを防止
+ *
  * @see https://docs.expo.dev/router/advanced/tabs/
- * @see Requirements: 6.1, 6.2, 6.5 (タブナビゲーション、ダークモード対応)
+ * @see Requirements: 6.1, 6.2, 6.5, 7.1 (タブナビゲーション、起動時間最適化)
  */
 
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../src/theme';
+import { TAB_LAZY_CONFIG } from '../../src/performance';
 
 /**
  * タブアイコンを取得するヘルパー関数
@@ -53,6 +59,12 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        // パフォーマンス最適化設定（TAB_LAZY_CONFIGを展開）
+        // - lazy: 遅延ロードで不要な画面の事前ロードを無効化
+        // - unmountOnBlur: false で再訪問時のパフォーマンスを向上
+        // - freezeOnBlur: 非アクティブなタブをフリーズ
+        ...TAB_LAZY_CONFIG,
+
         // タブバー全体のスタイル設定（ThemeProviderの色定義を使用）
         tabBarActiveTintColor: colors.tabBarActive,
         tabBarInactiveTintColor: colors.tabBarInactive,
