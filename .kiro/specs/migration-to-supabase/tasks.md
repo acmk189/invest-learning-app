@@ -135,17 +135,17 @@
 
 ## Phase 4: フロントエンド移行
 
-- [ ] 8. フロントエンドSupabaseクライアント実装
-- [ ] 8.1 Supabase SDKインストール
+- [x] 8. フロントエンドSupabaseクライアント実装
+- [x] 8.1 Supabase SDKインストール
   - `@supabase/supabase-js`パッケージをmobileにインストール
   - 依存関係の確認
   - _Requirements: 7_
-- [ ] 8.2 Supabaseクライアント初期化実装
+- [x] 8.2 Supabaseクライアント初期化実装
   - `mobile/src/supabase/client.ts`を作成
   - anon keyによるクライアントサイド認証設定
   - detectSessionInUrl: false設定(React Native向け)
   - _Requirements: 7_
-- [ ] 8.3 接続テスト機能実装
+- [x] 8.3 接続テスト機能実装
   - クライアント初期化テスト
   - 接続確認関数
   - _Requirements: 7_
