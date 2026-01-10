@@ -48,17 +48,17 @@
 
 ## Phase 2: バックエンド移行
 
-- [ ] 3. バックエンドSupabaseクライアント実装
-- [ ] 3.1 Supabase SDKインストールと型定義
+- [x] 3. バックエンドSupabaseクライアント実装
+- [x] 3.1 Supabase SDKインストールと型定義
   - `@supabase/supabase-js`パッケージをインストール
   - `backend/src/models/supabase.types.ts`に型定義を作成（NewsRow, TermRow, TermHistoryRow, BatchMetadataRow）
   - _Requirements: 3, 4_
-- [ ] 3.2 Supabaseクライアント初期化実装
+- [x] 3.2 Supabaseクライアント初期化実装
   - `backend/src/config/supabase.ts`を作成
   - シングルトンパターンで接続管理
   - service_role keyによるサーバーサイド認証設定
   - _Requirements: 3_
-- [ ] 3.3 ヘルスチェック機能実装
+- [x] 3.3 ヘルスチェック機能実装
   - 接続テスト用ヘルスチェック関数
   - 環境変数検証
   - _Requirements: 3_
