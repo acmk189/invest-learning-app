@@ -2,17 +2,78 @@
  * 用語バッチサービスのテスト
  *
  * Task 11: 用語バッチ処理
+ * Task 6: Supabase移行 (migration-to-supabase)
+ * - 6.1 TermsBatchService Supabase対応
+ * - 6.2 用語履歴保存処理
+ * - 6.3 用語メタデータ更新処理
+ * - 6.4 用語バッチエラーハンドリング更新
+ * - 6.5 用語バッチテスト更新
+ *
+ * Requirements:
+ * - 1.1 (毎日8:00に実行)
+ * - 4.1 (1日3つ投資用語生成)
+ * - 4.4 (初級〜上級難易度混在)
+ * - 4.5 (用語データSupabase保存)
+ * - 4.6 (全履歴保持)
+ *
  * TDDのRED→GREEN→REFACTORサイクルで実装
  */
 
 import { TermsBatchService, TermsBatchServiceConfig } from '../termsBatchService';
 import { TermGenerationService, TermGenerationResult, GenerateTermOptions } from '../../termGenerationService';
 import { TermDifficulty } from '../../../../models/terms.model';
-import * as firebase from '../../../../config/firebase';
 
-// Firebaseモック
-jest.mock('../../../../config/firebase', () => ({
-  getFirestore: jest.fn(),
+// Supabaseクライアントのモック
+// newsBatchService.test.ts と同じパターンでモックを構成
+const mockSupabaseFrom = jest.fn();
+const mockSupabaseInsert = jest.fn();
+const mockSupabaseUpsert = jest.fn();
+const mockSupabaseUpdate = jest.fn();
+const mockSupabaseEq = jest.fn();
+const mockSupabaseSelect = jest.fn();
+const mockSupabaseSingle = jest.fn();
+
+const mockSupabaseClient = {
+  from: mockSupabaseFrom,
+};
+
+/**
+ * チェーンメソッドの設定
+ *
+ * terms/terms_history: insert() -> Promise (複数行挿入のためsingle()なし)
+ * batch_metadata: update() -> eq() -> select() -> single() -> Promise
+ */
+mockSupabaseFrom.mockImplementation(() => ({
+  insert: mockSupabaseInsert,
+  upsert: mockSupabaseUpsert,
+  update: mockSupabaseUpdate,
+  select: mockSupabaseSelect,
+}));
+
+// insert: 複数行挿入のためsingle()を使用しない(直接Promiseを返す)
+mockSupabaseInsert.mockResolvedValue({ data: [{ id: 1 }], error: null });
+
+mockSupabaseUpsert.mockImplementation(() => ({
+  select: mockSupabaseSelect,
+}));
+
+mockSupabaseUpdate.mockImplementation(() => ({
+  eq: mockSupabaseEq,
+}));
+
+mockSupabaseEq.mockImplementation(() => ({
+  select: mockSupabaseSelect,
+}));
+
+mockSupabaseSelect.mockImplementation(() => ({
+  single: mockSupabaseSingle,
+}));
+
+// デフォルトで成功を返す(metadata更新用)
+mockSupabaseSingle.mockResolvedValue({ data: { id: 1 }, error: null });
+
+jest.mock('../../../../config/supabase', () => ({
+  getSupabase: () => mockSupabaseClient,
 }));
 
 /**
@@ -37,39 +98,35 @@ function createMockTermResult(
   };
 }
 
-/**
- * Firestoreモックを作成
- */
-function createFirestoreMock() {
-  const docSet = jest.fn().mockResolvedValue(undefined);
-  const collectionAdd = jest.fn().mockResolvedValue({ id: 'mock-id' });
-  const docRef = {
-    set: docSet,
-    get: jest.fn(),
-  };
-  const collectionRef = {
-    doc: jest.fn().mockReturnValue(docRef),
-    add: collectionAdd,
-  };
-
-  const firestoreMock = {
-    collection: jest.fn().mockReturnValue(collectionRef),
-    batch: jest.fn().mockReturnValue({
-      set: jest.fn(),
-      commit: jest.fn().mockResolvedValue(undefined),
-    }),
-  };
-
-  (firebase.getFirestore as jest.Mock).mockReturnValue(firestoreMock);
-
-  return { firestoreMock, docSet, collectionAdd, docRef, collectionRef };
-}
-
 describe('TermsBatchService', () => {
   let mockGenerationService: jest.Mocked<TermGenerationService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Supabaseモックのリセット
+    mockSupabaseFrom.mockImplementation(() => ({
+      insert: mockSupabaseInsert,
+      upsert: mockSupabaseUpsert,
+      update: mockSupabaseUpdate,
+      select: mockSupabaseSelect,
+    }));
+    // insert: 複数行挿入のためsingle()を使用しない(直接Promiseを返す)
+    mockSupabaseInsert.mockResolvedValue({ data: [{ id: 1 }], error: null });
+    mockSupabaseUpsert.mockImplementation(() => ({
+      select: mockSupabaseSelect,
+    }));
+    mockSupabaseUpdate.mockImplementation(() => ({
+      eq: mockSupabaseEq,
+    }));
+    mockSupabaseEq.mockImplementation(() => ({
+      select: mockSupabaseSelect,
+    }));
+    mockSupabaseSelect.mockImplementation(() => ({
+      single: mockSupabaseSingle,
+    }));
+    // metadata更新用(single()を使用)
+    mockSupabaseSingle.mockResolvedValue({ data: { id: 1 }, error: null });
 
     // TermGenerationServiceのモック作成
     mockGenerationService = {
@@ -86,13 +143,13 @@ describe('TermsBatchService', () => {
 
     it('設定を正しく取得できること', () => {
       const config: TermsBatchServiceConfig = {
-        saveToFirestore: false,
+        saveToDatabase: false,
         timeoutMs: 60000,
       };
       const service = new TermsBatchService(mockGenerationService, config);
 
       const retrievedConfig = service.getConfig();
-      expect(retrievedConfig.saveToFirestore).toBe(false);
+      expect(retrievedConfig.saveToDatabase).toBe(false);
       expect(retrievedConfig.timeoutMs).toBe(60000);
     });
 
@@ -100,7 +157,7 @@ describe('TermsBatchService', () => {
       const service = new TermsBatchService(mockGenerationService);
 
       const config = service.getConfig();
-      expect(config.saveToFirestore).toBe(true);
+      expect(config.saveToDatabase).toBe(true);
       expect(config.timeoutMs).toBe(300000); // 5分
     });
   });
@@ -113,10 +170,8 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      createFirestoreMock();
-
       const service = new TermsBatchService(mockGenerationService, {
-        saveToFirestore: false,
+        saveToDatabase: false,
       });
 
       const result = await service.execute();
@@ -146,10 +201,8 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate', 500))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced', 550));
 
-      createFirestoreMock();
-
       const service = new TermsBatchService(mockGenerationService, {
-        saveToFirestore: false,
+        saveToDatabase: false,
       });
 
       const result = await service.execute();
@@ -168,10 +221,8 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      createFirestoreMock();
-
       const service = new TermsBatchService(mockGenerationService, {
-        saveToFirestore: false,
+        saveToDatabase: false,
       });
 
       await service.execute();
@@ -187,30 +238,45 @@ describe('TermsBatchService', () => {
     });
   });
 
-  describe('Task 11.4: Firestore用語保存機能', () => {
-    it('3つの用語をFirestoreに保存すること', async () => {
+  describe('Task 6.1: Supabase用語保存機能', () => {
+    it('3つの用語をSupabaseに保存すること', async () => {
       mockGenerationService.generateTerm
         .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      const { docSet, collectionRef } = createFirestoreMock();
-
       const service = new TermsBatchService(mockGenerationService);
 
       const result = await service.execute();
 
-      // termsコレクションに保存されること
-      expect(collectionRef.doc).toHaveBeenCalled();
-      expect(docSet).toHaveBeenCalled();
+      // termsテーブルに保存されること
+      expect(mockSupabaseFrom).toHaveBeenCalledWith('terms');
+      expect(mockSupabaseInsert).toHaveBeenCalled();
+      expect(result.databaseSaved).toBe(true);
+    });
 
-      // 保存データを確認
-      const savedData = docSet.mock.calls.find(
-        call => call[0]?.terms !== undefined
-      )?.[0];
-      expect(savedData.terms).toHaveLength(3);
-      expect(savedData.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(result.firestoreSaved).toBe(true);
+    it('用語ごとにinsertペイロードを正しく構成すること', async () => {
+      mockGenerationService.generateTerm
+        .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
+        .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
+        .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
+
+      const service = new TermsBatchService(mockGenerationService);
+
+      await service.execute();
+
+      // insertの呼び出しを確認
+      const insertPayload = mockSupabaseInsert.mock.calls[0][0];
+      expect(Array.isArray(insertPayload)).toBe(true);
+      expect(insertPayload).toHaveLength(3);
+
+      // 各用語のペイロード構造を検証
+      insertPayload.forEach((term: Record<string, unknown>) => {
+        expect(term).toHaveProperty('date');
+        expect(term).toHaveProperty('name');
+        expect(term).toHaveProperty('description');
+        expect(term).toHaveProperty('difficulty');
+      });
     });
 
     it('ドキュメントIDが今日の日付であること', async () => {
@@ -219,17 +285,16 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      const { collectionRef } = createFirestoreMock();
-
       const service = new TermsBatchService(mockGenerationService);
 
       await service.execute();
 
-      // 今日の日付でドキュメントが作成されること
+      // 今日の日付でinsertされること
       const today = new Date().toISOString().split('T')[0];
-      const docCalls = collectionRef.doc.mock.calls;
-      const termsDocCall = docCalls.find(call => call[0] === today);
-      expect(termsDocCall).toBeDefined();
+      const insertPayload = mockSupabaseInsert.mock.calls[0][0] as Array<{ date: string }>;
+      insertPayload.forEach((term) => {
+        expect(term.date).toBe(today);
+      });
     });
 
     it('保存成功・失敗をログに記録すること', async () => {
@@ -239,8 +304,6 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
-
-      createFirestoreMock();
 
       const service = new TermsBatchService(mockGenerationService);
 
@@ -253,23 +316,61 @@ describe('TermsBatchService', () => {
 
       consoleSpy.mockRestore();
     });
-  });
 
-  describe('Task 11.5: 用語履歴保存機能', () => {
-    it('配信済み用語をterms_historyコレクションに追加すること', async () => {
+    it('保存失敗時にエラーログを記録する', async () => {
       mockGenerationService.generateTerm
         .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      const { firestoreMock } = createFirestoreMock();
+      // insertの失敗をシミュレート(複数行挿入のため直接Promiseを返す)
+      mockSupabaseInsert.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Supabase Error', code: '23505' },
+      });
 
       const service = new TermsBatchService(mockGenerationService);
 
       const result = await service.execute();
 
-      // terms_historyコレクションに追加されること
-      expect(firestoreMock.collection).toHaveBeenCalledWith('terms_history');
+      expect(result.databaseSaved).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          type: 'database-save',
+        })
+      );
+    });
+
+    it('saveToDatabase=falseの場合は保存しない', async () => {
+      mockGenerationService.generateTerm
+        .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
+        .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
+        .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
+
+      const noSaveService = new TermsBatchService(mockGenerationService, {
+        saveToDatabase: false,
+      });
+
+      await noSaveService.execute();
+
+      // terms テーブルへの保存が呼ばれていないこと
+      expect(mockSupabaseInsert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Task 6.2: 用語履歴保存機能', () => {
+    it('配信済み用語をterms_historyテーブルに追加すること', async () => {
+      mockGenerationService.generateTerm
+        .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
+        .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
+        .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
+
+      const service = new TermsBatchService(mockGenerationService);
+
+      const result = await service.execute();
+
+      // terms_historyテーブルに追加されること
+      expect(mockSupabaseFrom).toHaveBeenCalledWith('terms_history');
       expect(result.historyUpdated).toBe(true);
     });
 
@@ -279,16 +380,21 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      const { firestoreMock } = createFirestoreMock();
-      const batchMock = firestoreMock.batch();
-
       const service = new TermsBatchService(mockGenerationService);
 
       await service.execute();
 
-      // バッチ書き込みで3つの履歴が追加されること
-      expect(batchMock.set).toHaveBeenCalledTimes(3);
-      expect(batchMock.commit).toHaveBeenCalled();
+      // terms_historyへのinsertを確認
+      // terms と terms_history の両方でinsertが呼ばれる
+      // terms_history のinsertコールを特定
+      const historyInsertCall = mockSupabaseInsert.mock.calls.find(
+        (call) => {
+          const payload = call[0];
+          return Array.isArray(payload) && payload[0]?.term_name !== undefined;
+        }
+      );
+      expect(historyInsertCall).toBeDefined();
+      expect(historyInsertCall?.[0]).toHaveLength(3);
     });
 
     it('履歴データに用語名、配信日時、難易度が含まれること', async () => {
@@ -297,60 +403,64 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      const { firestoreMock } = createFirestoreMock();
-      const batchMock = firestoreMock.batch();
-
       const service = new TermsBatchService(mockGenerationService);
 
       await service.execute();
 
-      // 履歴データの構造を確認
-      const setCalls = (batchMock.set as jest.Mock).mock.calls;
-      setCalls.forEach((call) => {
-        const data = call[1];
-        expect(data).toHaveProperty('termName');
-        expect(data).toHaveProperty('deliveredAt');
-        expect(data).toHaveProperty('difficulty');
+      // terms_historyへのinsertを確認
+      const historyInsertCall = mockSupabaseInsert.mock.calls.find(
+        (call) => {
+          const payload = call[0];
+          return Array.isArray(payload) && payload[0]?.term_name !== undefined;
+        }
+      );
+
+      expect(historyInsertCall).toBeDefined();
+      const historyPayload = historyInsertCall?.[0] as Array<Record<string, unknown>>;
+      historyPayload.forEach((history) => {
+        expect(history).toHaveProperty('term_name');
+        expect(history).toHaveProperty('delivered_at');
+        expect(history).toHaveProperty('difficulty');
+        // ISO 8601形式のタイムスタンプであることを確認
+        expect(history.delivered_at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
       });
     });
   });
 
-  describe('Task 11.6: 用語メタデータ更新機能', () => {
-    it('バッチ完了時にmetadata/batch.termsLastUpdatedを更新すること', async () => {
+  describe('Task 6.3: 用語メタデータ更新機能', () => {
+    it('バッチ完了時にbatch_metadata.terms_last_updatedを更新すること', async () => {
       mockGenerationService.generateTerm
         .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
-
-      const { firestoreMock } = createFirestoreMock();
 
       const service = new TermsBatchService(mockGenerationService);
 
       const result = await service.execute();
 
-      // metadataコレクションのbatchドキュメントが更新されること
-      expect(firestoreMock.collection).toHaveBeenCalledWith('metadata');
+      // batch_metadataテーブルが更新されること
+      expect(mockSupabaseFrom).toHaveBeenCalledWith('batch_metadata');
+      expect(mockSupabaseUpdate).toHaveBeenCalled();
       expect(result.metadataUpdated).toBe(true);
     });
 
-    it('タイムスタンプが正しい形式であること', async () => {
+    it('メタデータ更新にISO 8601タイムスタンプが含まれること', async () => {
       mockGenerationService.generateTerm
         .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      const { docSet } = createFirestoreMock();
-
       const service = new TermsBatchService(mockGenerationService);
 
       await service.execute();
 
-      // termsLastUpdatedがTimestamp型であること
-      const metadataCall = docSet.mock.calls.find(
-        call => call[0]?.termsLastUpdated !== undefined
+      // updateの呼び出しを確認
+      const updatePayload = mockSupabaseUpdate.mock.calls[0][0];
+      expect(updatePayload).toHaveProperty('terms_last_updated');
+      // ISO 8601形式のタイムスタンプであることを確認
+      expect(updatePayload.terms_last_updated).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
       );
-      expect(metadataCall).toBeDefined();
-      expect(metadataCall?.[0].termsLastUpdated).toBeDefined();
     });
 
     it('更新成功・失敗をログに記録すること', async () => {
@@ -360,8 +470,6 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
-
-      createFirestoreMock();
 
       const service = new TermsBatchService(mockGenerationService);
 
@@ -374,6 +482,36 @@ describe('TermsBatchService', () => {
 
       consoleSpy.mockRestore();
     });
+
+    it('メタデータ更新失敗時はエラーログを記録するが処理は継続する', async () => {
+      mockGenerationService.generateTerm
+        .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
+        .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
+        .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
+
+      // terms insert, terms_history insert成功(どちらも直接Promiseを返す)
+      // -> insertは2回呼ばれる
+      mockSupabaseInsert
+        .mockResolvedValueOnce({ data: [{ id: 1 }], error: null }) // terms
+        .mockResolvedValueOnce({ data: [{ id: 1 }], error: null }); // terms_history
+
+      // metadata update失敗(single()を使用)
+      mockSupabaseSingle.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Metadata Error', code: '42P01' },
+      });
+
+      const service = new TermsBatchService(mockGenerationService);
+
+      const result = await service.execute();
+
+      expect(result.metadataUpdated).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          type: 'metadata-update',
+        })
+      );
+    });
   });
 
   describe('バッチ処理結果', () => {
@@ -382,8 +520,6 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
-
-      createFirestoreMock();
 
       const service = new TermsBatchService(mockGenerationService);
 
@@ -400,8 +536,6 @@ describe('TermsBatchService', () => {
         .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
         .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
 
-      createFirestoreMock();
-
       const service = new TermsBatchService(mockGenerationService);
 
       const result = await service.execute();
@@ -414,10 +548,8 @@ describe('TermsBatchService', () => {
       mockGenerationService.generateTerm
         .mockRejectedValueOnce(new Error('API Error'));
 
-      createFirestoreMock();
-
       const service = new TermsBatchService(mockGenerationService, {
-        saveToFirestore: false,
+        saveToDatabase: false,
       });
 
       const result = await service.execute();
@@ -425,6 +557,66 @@ describe('TermsBatchService', () => {
       expect(result.success).toBe(false);
       expect(result.errors).toBeDefined();
       expect(result.errors!.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('タイムアウト制御', () => {
+    it('5分以内にバッチ処理が完了する', async () => {
+      mockGenerationService.generateTerm
+        .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
+        .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
+        .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
+
+      const startTime = Date.now();
+      const service = new TermsBatchService(mockGenerationService);
+
+      await service.execute();
+
+      const elapsed = Date.now() - startTime;
+      expect(elapsed).toBeLessThan(300000); // 5分 = 300,000ms
+    });
+
+    it('タイムアウト時にエラーを返す', async () => {
+      // タイムアウトをシミュレート
+      const shortTimeoutService = new TermsBatchService(
+        mockGenerationService,
+        { timeoutMs: 1, saveToDatabase: false } // 1ms, DBへ保存しない
+      );
+
+      // 永久にpendingになるPromiseを返す(resolveしない)
+      // これにより、テスト終了後に非同期処理が実行されることを防ぐ
+      mockGenerationService.generateTerm.mockReturnValue(
+        new Promise(() => {
+          // 意図的にresolve/rejectしない
+        })
+      );
+
+      const result = await shortTimeoutService.execute();
+
+      expect(result.success).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({
+          type: 'timeout',
+        })
+      );
+    });
+
+    it('処理時間をログに記録する', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      mockGenerationService.generateTerm
+        .mockResolvedValueOnce(createMockTermResult('PER', 'beginner'))
+        .mockResolvedValueOnce(createMockTermResult('信用取引', 'intermediate'))
+        .mockResolvedValueOnce(createMockTermResult('デリバティブ', 'advanced'));
+
+      const service = new TermsBatchService(mockGenerationService);
+
+      await service.execute();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[TermsBatchService]')
+      );
+      consoleSpy.mockRestore();
     });
   });
 });

@@ -272,7 +272,7 @@ export class TermsBatchRetryHandler {
     return {
       success: false,
       partialSuccess: false,
-      firestoreSaved: false,
+      databaseSaved: false,
       historyUpdated: false,
       metadataUpdated: false,
       processingTimeMs: 0,
@@ -296,7 +296,7 @@ export class TermsBatchRetryHandler {
     return {
       success: false,
       partialSuccess: false,
-      firestoreSaved: false,
+      databaseSaved: false,
       historyUpdated: false,
       metadataUpdated: false,
       processingTimeMs: 0,

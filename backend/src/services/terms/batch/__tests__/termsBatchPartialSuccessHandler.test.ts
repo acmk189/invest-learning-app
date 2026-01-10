@@ -37,7 +37,7 @@ describe('TermsPartialSuccessHandler', () => {
     success: terms.length === 3,
     partialSuccess: terms.length > 0 && terms.length < 3,
     terms,
-    firestoreSaved: false,
+    databaseSaved: false,
     historyUpdated: false,
     metadataUpdated: false,
     processingTimeMs: 100,

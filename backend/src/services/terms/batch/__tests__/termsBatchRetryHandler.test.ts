@@ -17,7 +17,7 @@ describe('TermsBatchRetryHandler', () => {
   const createMockResult = (overrides: Partial<TermsBatchResult> = {}): TermsBatchResult => ({
     success: false,
     partialSuccess: false,
-    firestoreSaved: false,
+    databaseSaved: false,
     historyUpdated: false,
     metadataUpdated: false,
     processingTimeMs: 100,

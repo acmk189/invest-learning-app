@@ -2,24 +2,24 @@
  * 用語バッチサービス
  *
  * Task 11: 用語バッチ処理
- * - 11.1 用語バッチAPIエンドポイント基盤(本ファイルと/api/batch/terms.tsで対応)
- * - 11.2 3用語生成オーケストレーション
- * - 11.4 Firestore用語保存機能
- * - 11.5 用語履歴保存機能
- * - 11.6 用語メタデータ更新機能
+ * Task 6: Supabase移行 (migration-to-supabase)
+ * - 6.1 TermsBatchService Supabase対応
+ * - 6.2 用語履歴保存処理
+ * - 6.3 用語メタデータ更新処理
+ * - 6.4 用語バッチエラーハンドリング更新
  *
  * Requirements:
  * - 1.1 (毎日8:00に実行)
  * - 4.1 (1日3つ投資用語生成)
  * - 4.4 (初級〜上級難易度混在)
- * - 4.5 (用語データFirestore保存)
+ * - 4.5 (用語データSupabase保存)
  * - 4.6 (全履歴保持)
  *
  * @see https://vercel.com/docs/functions/serverless-functions - Vercel Serverless Functions
  */
 
-import { Timestamp } from 'firebase-admin/firestore';
-import { getFirestore } from '../../../config/firebase';
+import { getSupabase } from '../../../config/supabase';
+import { TermInsertPayload, TermHistoryInsertPayload } from '../../../models/supabase.types';
 import {
   TermGenerationService,
   GenerateTermOptions,
@@ -27,13 +27,7 @@ import {
 import {
   Term,
   TermDifficulty,
-  createTermsDocument,
-  createTermHistoryDocument,
 } from '../../../models/terms.model';
-import {
-  METADATA_COLLECTION,
-  BATCH_METADATA_DOC_ID,
-} from '../../../models/metadata.model';
 import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
 
 /**
@@ -57,7 +51,7 @@ const DIFFICULTY_ORDER: TermDifficulty[] = ['beginner', 'intermediate', 'advance
  */
 export class TermsBatchError extends AppError {
   /**
-   * 操作名(例: 'term-generation', 'firestore-save')
+   * 操作名(例: 'term-generation', 'supabase-save')
    */
   public readonly operation: string;
 
@@ -90,8 +84,8 @@ export interface TermsBatchResult {
   partialSuccess: boolean;
   /** 生成された用語の配列 */
   terms?: Term[];
-  /** Firestoreへの保存が成功したかどうか */
-  firestoreSaved: boolean;
+  /** データベースへの保存が成功したかどうか */
+  databaseSaved: boolean;
   /** 用語履歴の更新が成功したかどうか */
   historyUpdated: boolean;
   /** メタデータの更新が成功したかどうか */
@@ -115,16 +109,16 @@ export interface TermsBatchServiceConfig {
   timeoutMs?: number;
 
   /**
-   * Firestoreへ保存するかどうか
+   * データベースへ保存するかどうか
    * @default true
    */
-  saveToFirestore?: boolean;
+  saveToDatabase?: boolean;
 }
 
 /**
  * 用語バッチサービス
  *
- * 3つの投資・金融用語を生成し、Firestoreに保存するバッチ処理を実行する
+ * 3つの投資・金融用語を生成し、Supabaseに保存するバッチ処理を実行する
  *
  * @example
  * // TermGenerationServiceを注入してサービスを作成
@@ -141,7 +135,7 @@ export interface TermsBatchServiceConfig {
 export class TermsBatchService {
   private readonly generationService: TermGenerationService;
   private readonly timeoutMs: number;
-  private readonly saveToFirestore: boolean;
+  private readonly saveToDatabase: boolean;
 
   /**
    * コンストラクタ
@@ -155,7 +149,7 @@ export class TermsBatchService {
   ) {
     this.generationService = generationService;
     this.timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    this.saveToFirestore = config.saveToFirestore ?? true;
+    this.saveToDatabase = config.saveToDatabase ?? true;
   }
 
   /**
@@ -166,7 +160,7 @@ export class TermsBatchService {
   getConfig(): Required<TermsBatchServiceConfig> {
     return {
       timeoutMs: this.timeoutMs,
-      saveToFirestore: this.saveToFirestore,
+      saveToDatabase: this.saveToDatabase,
     };
   }
 
@@ -175,7 +169,7 @@ export class TermsBatchService {
    *
    * 以下の処理を順次実行する:
    * 1. 初級・中級・上級の3つの用語を順次生成
-   * 2. Firestoreへ保存
+   * 2. Supabaseへ保存
    * 3. 用語履歴を更新
    * 4. メタデータ更新
    *
@@ -190,7 +184,7 @@ export class TermsBatchService {
     const result: TermsBatchResult = {
       success: false,
       partialSuccess: false,
-      firestoreSaved: false,
+      databaseSaved: false,
       historyUpdated: false,
       metadataUpdated: false,
       processingTimeMs: 0,
@@ -210,17 +204,17 @@ export class TermsBatchService {
       result.success = generatedCount === 3 && errors.length === 0;
       result.partialSuccess = generatedCount > 0 && generatedCount < 3;
 
-      // Firestoreへの保存
-      if (this.saveToFirestore && generatedCount > 0) {
+      // Supabaseへの保存
+      if (this.saveToDatabase && generatedCount > 0) {
         try {
           await this.saveTerms(today, result.terms!);
-          result.firestoreSaved = true;
-          console.log(`[TermsBatchService] Terms saved to Firestore: ${today}`);
+          result.databaseSaved = true;
+          console.log(`[TermsBatchService] Terms saved to Supabase: ${today}`);
         } catch (error) {
           errors.push({
-            type: 'firestore-save',
+            type: 'database-save',
             message:
-              error instanceof Error ? error.message : 'Firestore保存に失敗',
+              error instanceof Error ? error.message : 'データベース保存に失敗',
             timestamp: new Date(),
           });
         }
@@ -243,7 +237,7 @@ export class TermsBatchService {
         try {
           await this.updateMetadata();
           result.metadataUpdated = true;
-          console.log('[TermsBatchService] Metadata updated');
+          console.log('[TermsBatchService] Metadata updated in Supabase');
         } catch (error) {
           errors.push({
             type: 'metadata-update',
@@ -361,62 +355,81 @@ export class TermsBatchService {
   }
 
   /**
-   * 用語をFirestoreに保存
+   * 用語をSupabaseに保存
    *
-   * Requirements 4.5: 用語データFirestore保存
+   * Requirements 4.5: 用語データSupabase保存
+   * Task 6.1: Supabase insertに変更
    *
-   * @param date - ドキュメントID(YYYY-MM-DD形式)
+   * @param date - 日付(YYYY-MM-DD形式)
    * @param terms - 保存する用語配列
    */
   private async saveTerms(date: string, terms: Term[]): Promise<void> {
-    const db = getFirestore();
+    const supabase = getSupabase();
 
-    // 用語ドキュメントを作成
-    const termsDoc = createTermsDocument(date, terms);
+    // TermInsertPayload配列を作成(各用語を個別の行として保存)
+    const payloads: TermInsertPayload[] = terms.map((term) => ({
+      date,
+      name: term.name,
+      description: term.description,
+      difficulty: term.difficulty,
+    }));
 
-    // Firestoreに保存
-    await db.collection('terms').doc(date).set(termsDoc);
+    // Supabaseにinsert(複数行を一度に挿入)
+    // 複数行挿入のため.single()は使用しない
+    const { error } = await supabase.from('terms').insert(payloads);
+
+    if (error) {
+      throw new Error(`Supabase insert failed: ${error.message}`);
+    }
   }
 
   /**
    * 用語履歴を更新
    *
    * Requirements 4.6: 全履歴保持(重複チェック用)
+   * Task 6.2: terms_historyテーブルへのinsert
    *
    * @param terms - 追加する用語配列
    */
   private async updateTermsHistory(terms: Term[]): Promise<void> {
-    const db = getFirestore();
-    const batch = db.batch();
+    const supabase = getSupabase();
 
-    // 各用語を履歴に追加
-    for (const term of terms) {
-      const historyDoc = createTermHistoryDocument(term.name, term.difficulty);
-      const docRef = db.collection('terms_history').doc();
-      batch.set(docRef, historyDoc);
+    // TermHistoryInsertPayload配列を作成
+    const payloads: TermHistoryInsertPayload[] = terms.map((term) => ({
+      term_name: term.name,
+      delivered_at: new Date().toISOString(),
+      difficulty: term.difficulty,
+    }));
+
+    // Supabaseにinsert(複数行を一度に挿入)
+    // 複数行挿入のため.single()は使用しない
+    const { error } = await supabase.from('terms_history').insert(payloads);
+
+    if (error) {
+      throw new Error(`Supabase terms_history insert failed: ${error.message}`);
     }
-
-    // バッチ書き込みをコミット
-    await batch.commit();
   }
 
   /**
    * メタデータを更新
    *
-   * バッチ完了時にmetadata/batch.termsLastUpdatedを更新
+   * Task 6.3: batch_metadata.terms_last_updatedを更新
    */
   private async updateMetadata(): Promise<void> {
-    const db = getFirestore();
+    const supabase = getSupabase();
 
-    await db
-      .collection(METADATA_COLLECTION)
-      .doc(BATCH_METADATA_DOC_ID)
-      .set(
-        {
-          termsLastUpdated: Timestamp.now(),
-        },
-        { merge: true }
-      );
+    const { error } = await supabase
+      .from('batch_metadata')
+      .update({
+        terms_last_updated: new Date().toISOString(),
+      })
+      .eq('id', 1)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Supabase metadata update failed: ${error.message}`);
+    }
   }
 
   /**
