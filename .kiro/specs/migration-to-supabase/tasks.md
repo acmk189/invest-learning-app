@@ -20,13 +20,13 @@
   - ローカル/本番環境の自動切り替えロジック
   - _Requirements: 13_
 
-- [ ] 2. ローカル開発環境構築
-- [ ] 2.1 Supabase CLI初期化とディレクトリ構成 (P)
+- [x] 2. ローカル開発環境構築
+- [x] 2.1 Supabase CLI初期化とディレクトリ構成 (P)
   - `supabase init`でプロジェクト初期化
   - `supabase/config.toml`設定
   - ディレクトリ構造の作成（supabase/migrations/）
   - _Requirements: 15_
-- [ ] 2.2 DDLマイグレーションファイル作成 (P)
+- [x] 2.2 DDLマイグレーションファイル作成 (P)
   - `20260110000000_create_news_table.sql`
   - `20260110000001_create_terms_table.sql`
   - `20260110000002_create_terms_history_table.sql`
@@ -34,13 +34,13 @@
   - `20260110000004_create_rls_policies.sql`
   - インデックス作成とCHECK制約設定
   - _Requirements: 2, 15_
-- [ ] 2.3 Makefile作成 (P)
+- [x] 2.3 Makefile作成 (P)
   - Supabaseコマンド（start, stop, reset, status）
   - データベースコマンド（migrate, seed, push）
   - 開発コマンド（backend-dev, mobile-dev, test）
   - デプロイコマンド
   - _Requirements: 15_
-- [ ] 2.4 ローカル開発環境動作確認
+- [x] 2.4 ローカル開発環境動作確認
   - `make supabase-start`でDockerスタック起動
   - マイグレーション適用確認
   - ローカル認証情報の取得と設定
