@@ -7,6 +7,22 @@
  * Firebase用モデル（Date型）からSupabase用型（ISO 8601文字列）への
  * 変換関数を提供します。既存のバリデーションロジック（文字数制限等）を維持しつつ、
  * Supabase PostgreSQLに適したデータ構造へ変換します。
+ *
+ * ## 関数の用途分類
+ *
+ * ### 継続利用（Supabase運用で必要）
+ * - `batchMetadataRowToClientFormat()` - メタデータのクライアント形式変換
+ * - `createBatchMetadataUpdatePayload()` - バッチ処理でのメタデータ更新
+ * - `validateNewsRow()` - ニュースデータのバリデーション
+ * - `validateTermInsertPayload()` - 用語データのバリデーション
+ * - `validateTermInsertPayloads()` - 用語配列のバリデーション
+ *
+ * ### データ移行用（Phase 3スキップのため将来的に削除の可能性あり）
+ * - `newsDocumentToNewsRow()` - Firebase NewsDocument → Supabase NewsRow
+ * - `newsDocumentToUpsertPayload()` - Firebase NewsDocument → upsertペイロード
+ * - `termsDocumentToTermRows()` - Firebase TermsDocument → Supabase TermInsertPayload[]
+ * - `termToTermInsertPayload()` - Term → TermInsertPayload
+ * - `termHistoryDocumentToPayload()` - Firebase TermHistoryDocument → Supabase用
  */
 
 import type { NewsDocument } from './news.model';
