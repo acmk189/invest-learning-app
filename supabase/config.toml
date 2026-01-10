@@ -1,0 +1,62 @@
+# Supabase Local Development Configuration
+# Reference: https://supabase.com/docs/reference/cli/config-toml
+
+# General project configuration
+[project]
+project_id = "invest-learning-app"
+name = "invest-learning-app"
+
+# API settings
+[api]
+# Exposed port for API endpoints
+port = 54321
+# Schema exposure configuration
+schemas = ["public"]
+# Enable maximum rows for query results
+max_rows = 1000
+
+[api.tls]
+enabled = false
+
+# Database settings
+[db]
+# Exposed port for PostgreSQL database
+port = 54322
+# Shadow database port for migrations diffing
+shadow_port = 54320
+# Database pool configuration for serverless functions
+pooler_port = 54329
+
+# Realtime settings (not used in this project)
+[realtime]
+enabled = false
+
+# Storage settings (not used in this project)
+[storage]
+enabled = false
+
+# Auth settings (not used in this project - read-only public data)
+[auth]
+enabled = false
+
+# Studio (Dashboard) settings
+[studio]
+# Exposed port for Supabase Studio
+port = 54323
+enabled = true
+
+# Edge Functions settings (not used in this project)
+[edge_functions]
+enabled = false
+
+# Database configuration
+[db.seed]
+# Seed file path
+sql_paths = ["./seed.sql"]
+
+# Local development settings
+[local]
+# Use environment variable for service role key
+service_role_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
+# Use environment variable for anon key
+anon_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
