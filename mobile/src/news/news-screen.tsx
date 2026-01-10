@@ -99,7 +99,7 @@ function NewsCard({ categoryTitle, news, testId }: NewsCardExtendedProps) {
       ]}
       accessible={true}
       accessibilityLabel={accessibilityLabel}
-      accessibilityRole="article"
+      accessibilityRole="text"
     >
       {/* カテゴリタイトル（世界のニュース / 日本のニュース） */}
       <Text style={[styles.categoryTitle, { color: colors.primary }]}>

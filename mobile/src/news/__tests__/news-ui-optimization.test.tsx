@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { render, within } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { NewsScreen } from '../news-screen';
 import { NewsViewModelResult } from '../news-viewmodel';
 import { ThemeProvider } from '../../theme';
