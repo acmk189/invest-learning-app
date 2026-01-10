@@ -11,3 +11,6 @@ export * from './metadata.model';
 
 // Supabase用型定義
 export * from './supabase.types';
+
+// Supabase用モデル変換関数（Task 4: データモデル移行）
+export * from './model-converters';

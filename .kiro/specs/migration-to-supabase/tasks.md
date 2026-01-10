@@ -63,18 +63,18 @@
   - 環境変数検証
   - _Requirements: 3_
 
-- [ ] 4. バックエンドデータモデル移行
-- [ ] 4.1 ニュースモデル更新
+- [x] 4. バックエンドデータモデル移行
+- [x] 4.1 ニュースモデル更新
   - Timestamp型をISO 8601文字列に変更
   - NewsRowインターフェースとの整合性確保
   - バリデーション関数の更新
   - _Requirements: 4_
-- [ ] 4.2 用語モデル更新
+- [x] 4.2 用語モデル更新
   - Timestamp型をISO 8601文字列に変更
   - TermRow、TermHistoryRowインターフェースとの整合性確保
   - 文字数制限等の既存バリデーション維持
   - _Requirements: 4_
-- [ ] 4.3 メタデータモデル更新
+- [x] 4.3 メタデータモデル更新
   - BatchMetadataRowインターフェース対応
   - Timestamp型の変換
   - _Requirements: 4_
