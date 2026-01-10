@@ -13,7 +13,9 @@
  */
 
 /**
- * 必須環境変数の名前
+ * 環境変数の名前
+ *
+ * Firebase関連（移行後は削除予定）とSupabase関連の環境変数を含みます。
  */
 export type EnvVarName =
   | 'FIREBASE_PROJECT_ID'
@@ -21,7 +23,13 @@ export type EnvVarName =
   | 'FIREBASE_CLIENT_EMAIL'
   | 'CLAUDE_API_KEY'
   | 'NEWS_API_KEY'
-  | 'CRON_SECRET';
+  | 'CRON_SECRET'
+  | 'SUPABASE_URL'
+  | 'SUPABASE_ANON_KEY'
+  | 'SUPABASE_SERVICE_ROLE_KEY'
+  | 'LOCAL_SUPABASE_URL'
+  | 'LOCAL_SUPABASE_ANON_KEY'
+  | 'LOCAL_SUPABASE_SERVICE_ROLE_KEY';
 
 /**
  * 環境変数の設定情報
@@ -79,6 +87,40 @@ export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
     description: 'Vercel Cron Jobsの認証シークレット',
     required: true,
     example: 'generated-secure-secret-64-chars-hex',
+  },
+
+  // Supabase用の環境変数（本番環境）
+  SUPABASE_URL: {
+    description: 'Supabase プロジェクトURL',
+    required: false, // 移行期間中はオプション、完了後に必須に変更
+    example: 'https://your-project.supabase.co',
+  },
+  SUPABASE_ANON_KEY: {
+    description: 'Supabase anon key（クライアントサイド用、RLSで保護）',
+    required: false, // 移行期間中はオプション
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  },
+  SUPABASE_SERVICE_ROLE_KEY: {
+    description: 'Supabase service_role key（サーバーサイド用、RLSバイパス）',
+    required: false, // 移行期間中はオプション
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  },
+
+  // Supabase用の環境変数（ローカル開発環境）
+  LOCAL_SUPABASE_URL: {
+    description: 'ローカルSupabase URL（Docker）',
+    required: false,
+    example: 'http://127.0.0.1:54321',
+  },
+  LOCAL_SUPABASE_ANON_KEY: {
+    description: 'ローカルSupabase anon key（supabase start時に生成）',
+    required: false,
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  },
+  LOCAL_SUPABASE_SERVICE_ROLE_KEY: {
+    description: 'ローカルSupabase service_role key（supabase start時に生成）',
+    required: false,
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   },
 };
 
@@ -207,4 +249,88 @@ export function generateEnvVarErrorMessage(missingVars: EnvVarName[]): string {
   });
 
   return `以下の必須環境変数が設定されていません:\n${details.join('\n')}`;
+}
+
+/**
+ * Supabase環境変数の設定結果
+ */
+export interface SupabaseEnvConfig {
+  url: string;
+  serviceRoleKey: string;
+  anonKey?: string;
+}
+
+/**
+ * Supabase環境変数を取得する
+ *
+ * NODE_ENVに応じてローカル環境または本番環境の値を返します。
+ * - development: LOCAL_SUPABASE_* を優先、なければ SUPABASE_*
+ * - production: SUPABASE_* を使用
+ *
+ * @returns Supabase接続設定
+ * @throws 必要な環境変数が設定されていない場合
+ */
+export function getSupabaseEnvConfig(): SupabaseEnvConfig {
+  const isLocal = process.env.NODE_ENV === 'development';
+
+  // ローカル開発環境の場合
+  if (isLocal) {
+    const localUrl = process.env.LOCAL_SUPABASE_URL;
+    const localServiceRoleKey = process.env.LOCAL_SUPABASE_SERVICE_ROLE_KEY;
+    const localAnonKey = process.env.LOCAL_SUPABASE_ANON_KEY;
+
+    // ローカル環境変数が設定されている場合はそれを使用
+    if (localUrl && localServiceRoleKey) {
+      return {
+        url: localUrl,
+        serviceRoleKey: localServiceRoleKey,
+        anonKey: localAnonKey,
+      };
+    }
+    // ローカル環境変数がない場合は本番環境変数にフォールバック
+  }
+
+  // 本番環境（またはフォールバック）
+  const url = process.env.SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.SUPABASE_ANON_KEY;
+
+  if (!url || !serviceRoleKey) {
+    const missing: string[] = [];
+    if (!url) missing.push('SUPABASE_URL');
+    if (!serviceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+    throw new Error(
+      `Supabase環境変数が不足しています: ${missing.join(', ')}`
+    );
+  }
+
+  return {
+    url,
+    serviceRoleKey,
+    anonKey,
+  };
+}
+
+/**
+ * Supabase環境変数が設定されているか確認する
+ *
+ * @returns Supabase環境変数が設定されている場合true
+ */
+export function isSupabaseConfigured(): boolean {
+  const isLocal = process.env.NODE_ENV === 'development';
+
+  if (isLocal) {
+    // ローカル環境変数がある場合
+    if (
+      process.env.LOCAL_SUPABASE_URL &&
+      process.env.LOCAL_SUPABASE_SERVICE_ROLE_KEY
+    ) {
+      return true;
+    }
+  }
+
+  // 本番環境変数をチェック
+  return !!(
+    process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
 }

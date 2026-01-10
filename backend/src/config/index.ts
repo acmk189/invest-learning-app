@@ -16,9 +16,12 @@ export {
   validateAllEnvVars,
   getEnvVarStatus,
   generateEnvVarErrorMessage,
+  getSupabaseEnvConfig,
+  isSupabaseConfigured,
   ENV_VAR_CONFIG,
   type EnvVarName,
   type EnvVarInfo,
   type EnvVarStatus,
   type EnvVarValidationResult,
+  type SupabaseEnvConfig,
 } from './envConfig';
