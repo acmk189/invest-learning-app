@@ -23,7 +23,6 @@ import type { TermsDocument, TermHistoryDocument, Term } from '../terms.model';
 import type {
   NewsRow,
   TermInsertPayload,
-  TermHistoryInsertPayload,
   BatchMetadataRow,
 } from '../supabase.types';
 
