@@ -185,8 +185,8 @@ describe('Supabase Migrations', () => {
     test('config file contains project settings', () => {
       const content = fs.readFileSync(CONFIG_FILE, 'utf-8');
 
-      // プロジェクト設定
-      expect(content).toContain('[project]');
+      // プロジェクトID
+      expect(content).toContain('project_id');
       expect(content).toContain('invest-learning-app');
 
       // API設定

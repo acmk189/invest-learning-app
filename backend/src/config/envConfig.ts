@@ -25,11 +25,11 @@ export type EnvVarName =
   | 'NEWS_API_KEY'
   | 'CRON_SECRET'
   | 'SUPABASE_URL'
-  | 'SUPABASE_ANON_KEY'
-  | 'SUPABASE_SERVICE_ROLE_KEY'
+  | 'SUPABASE_PUBLISHABLE_KEY'
+  | 'SUPABASE_SECRET_KEY'
   | 'LOCAL_SUPABASE_URL'
-  | 'LOCAL_SUPABASE_ANON_KEY'
-  | 'LOCAL_SUPABASE_SERVICE_ROLE_KEY';
+  | 'LOCAL_SUPABASE_PUBLISHABLE_KEY'
+  | 'LOCAL_SUPABASE_SECRET_KEY';
 
 /**
  * 環境変数の設定情報
@@ -90,20 +90,22 @@ export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
   },
 
   // Supabase用の環境変数（本番環境）
+  // 2025年以降の新しいAPIキー形式に対応
+  // 参考: https://github.com/orgs/supabase/discussions/29260
   SUPABASE_URL: {
     description: 'Supabase プロジェクトURL',
     required: false, // 移行期間中はオプション、完了後に必須に変更
     example: 'https://your-project.supabase.co',
   },
-  SUPABASE_ANON_KEY: {
-    description: 'Supabase anon key（クライアントサイド用、RLSで保護）',
+  SUPABASE_PUBLISHABLE_KEY: {
+    description: 'Supabase publishable key（クライアントサイド用、旧anon key）',
     required: false, // 移行期間中はオプション
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    example: 'sb_publishable_xxxxxxxx',
   },
-  SUPABASE_SERVICE_ROLE_KEY: {
-    description: 'Supabase service_role key（サーバーサイド用、RLSバイパス）',
+  SUPABASE_SECRET_KEY: {
+    description: 'Supabase secret key（サーバーサイド用、旧service_role key）',
     required: false, // 移行期間中はオプション
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    example: 'sb_secret_xxxxxxxx',
   },
 
   // Supabase用の環境変数（ローカル開発環境）
@@ -112,15 +114,15 @@ export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
     required: false,
     example: 'http://127.0.0.1:54321',
   },
-  LOCAL_SUPABASE_ANON_KEY: {
-    description: 'ローカルSupabase anon key（supabase start時に生成）',
+  LOCAL_SUPABASE_PUBLISHABLE_KEY: {
+    description: 'ローカルSupabase publishable key（supabase start時に生成）',
     required: false,
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    example: 'sb_publishable_xxxxxxxx',
   },
-  LOCAL_SUPABASE_SERVICE_ROLE_KEY: {
-    description: 'ローカルSupabase service_role key（supabase start時に生成）',
+  LOCAL_SUPABASE_SECRET_KEY: {
+    description: 'ローカルSupabase secret key（supabase start時に生成）',
     required: false,
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    example: 'sb_secret_xxxxxxxx',
   },
 };
 
@@ -253,11 +255,13 @@ export function generateEnvVarErrorMessage(missingVars: EnvVarName[]): string {
 
 /**
  * Supabase環境変数の設定結果
+ *
+ * 2025年以降の新しいAPIキー形式（publishable/secret）に対応
  */
 export interface SupabaseEnvConfig {
   url: string;
-  serviceRoleKey: string;
-  anonKey?: string;
+  secretKey: string;
+  publishableKey?: string;
 }
 
 /**
@@ -266,6 +270,8 @@ export interface SupabaseEnvConfig {
  * NODE_ENVに応じてローカル環境または本番環境の値を返します。
  * - development: LOCAL_SUPABASE_* を優先、なければ SUPABASE_*
  * - production: SUPABASE_* を使用
+ *
+ * 2025年以降の新しいAPIキー形式（publishable/secret）に対応
  *
  * @returns Supabase接続設定
  * @throws 必要な環境変数が設定されていない場合
@@ -276,15 +282,15 @@ export function getSupabaseEnvConfig(): SupabaseEnvConfig {
   // ローカル開発環境の場合
   if (isLocal) {
     const localUrl = process.env.LOCAL_SUPABASE_URL;
-    const localServiceRoleKey = process.env.LOCAL_SUPABASE_SERVICE_ROLE_KEY;
-    const localAnonKey = process.env.LOCAL_SUPABASE_ANON_KEY;
+    const localSecretKey = process.env.LOCAL_SUPABASE_SECRET_KEY;
+    const localPublishableKey = process.env.LOCAL_SUPABASE_PUBLISHABLE_KEY;
 
     // ローカル環境変数が設定されている場合はそれを使用
-    if (localUrl && localServiceRoleKey) {
+    if (localUrl && localSecretKey) {
       return {
         url: localUrl,
-        serviceRoleKey: localServiceRoleKey,
-        anonKey: localAnonKey,
+        secretKey: localSecretKey,
+        publishableKey: localPublishableKey,
       };
     }
     // ローカル環境変数がない場合は本番環境変数にフォールバック
@@ -292,13 +298,13 @@ export function getSupabaseEnvConfig(): SupabaseEnvConfig {
 
   // 本番環境（またはフォールバック）
   const url = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anonKey = process.env.SUPABASE_ANON_KEY;
+  const secretKey = process.env.SUPABASE_SECRET_KEY;
+  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 
-  if (!url || !serviceRoleKey) {
+  if (!url || !secretKey) {
     const missing: string[] = [];
     if (!url) missing.push('SUPABASE_URL');
-    if (!serviceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+    if (!secretKey) missing.push('SUPABASE_SECRET_KEY');
     throw new Error(
       `Supabase環境変数が不足しています: ${missing.join(', ')}`
     );
@@ -306,8 +312,8 @@ export function getSupabaseEnvConfig(): SupabaseEnvConfig {
 
   return {
     url,
-    serviceRoleKey,
-    anonKey,
+    secretKey,
+    publishableKey,
   };
 }
 
@@ -323,7 +329,7 @@ export function isSupabaseConfigured(): boolean {
     // ローカル環境変数がある場合
     if (
       process.env.LOCAL_SUPABASE_URL &&
-      process.env.LOCAL_SUPABASE_SERVICE_ROLE_KEY
+      process.env.LOCAL_SUPABASE_SECRET_KEY
     ) {
       return true;
     }
@@ -331,6 +337,6 @@ export function isSupabaseConfigured(): boolean {
 
   // 本番環境変数をチェック
   return !!(
-    process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+    process.env.SUPABASE_URL && process.env.SUPABASE_SECRET_KEY
   );
 }
