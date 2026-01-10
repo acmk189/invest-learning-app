@@ -20,7 +20,7 @@ describe('NewsBatchRetryHandler', () => {
   const createSuccessResult = (): NewsBatchResult => ({
     success: true,
     partialSuccess: false,
-    firestoreSaved: true,
+    databaseSaved: true,
     metadataUpdated: true,
     processingTimeMs: 1000,
     date: '2026-01-02',
@@ -44,7 +44,7 @@ describe('NewsBatchRetryHandler', () => {
   ): NewsBatchResult => ({
     success: false,
     partialSuccess: false,
-    firestoreSaved: false,
+    databaseSaved: false,
     metadataUpdated: false,
     processingTimeMs: 500,
     date: '2026-01-02',
@@ -60,7 +60,7 @@ describe('NewsBatchRetryHandler', () => {
   const createPartialSuccessResult = (): NewsBatchResult => ({
     success: false,
     partialSuccess: true,
-    firestoreSaved: true,
+    databaseSaved: true,
     metadataUpdated: true,
     processingTimeMs: 800,
     date: '2026-01-02',

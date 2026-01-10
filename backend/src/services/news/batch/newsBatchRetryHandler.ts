@@ -272,7 +272,7 @@ export class NewsBatchRetryHandler {
     return {
       success: false,
       partialSuccess: false,
-      firestoreSaved: false,
+      databaseSaved: false,
       metadataUpdated: false,
       processingTimeMs: 0,
       date: new Date().toISOString().split('T')[0],
@@ -295,7 +295,7 @@ export class NewsBatchRetryHandler {
     return {
       success: false,
       partialSuccess: false,
-      firestoreSaved: false,
+      databaseSaved: false,
       metadataUpdated: false,
       processingTimeMs: 0,
       date: new Date().toISOString().split('T')[0],
