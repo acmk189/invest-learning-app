@@ -23,21 +23,10 @@
 
 import { Timestamp } from 'firebase-admin/firestore';
 import { getFirestore } from '../../../config/firebase';
-import {
-  WorldNewsFetcher,
-  JapanNewsFetcher,
-  NewsApiArticle,
-  GoogleNewsRssItem,
-} from '../fetchers';
-import {
-  NewsSummaryService,
-  NewsArticle,
-} from '../summarization';
+import { WorldNewsFetcher, JapanNewsFetcher, NewsApiArticle, GoogleNewsRssItem } from '../fetchers';
+import { NewsSummaryService, NewsArticle } from '../summarization';
 import { NewsDocument } from '../../../models/news.model';
-import {
-  METADATA_COLLECTION,
-  BATCH_METADATA_DOC_ID,
-} from '../../../models/metadata.model';
+import { METADATA_COLLECTION, BATCH_METADATA_DOC_ID } from '../../../models/metadata.model';
 import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
 
 /**
@@ -234,18 +223,14 @@ export class NewsBatchService {
       result.partialSuccess = (hasWorldNews || hasJapanNews) && !result.success;
 
       // Firestoreへの保存
-      if (
-        this.saveToFirestore &&
-        (hasWorldNews || hasJapanNews)
-      ) {
+      if (this.saveToFirestore && (hasWorldNews || hasJapanNews)) {
         try {
           await this.saveNews(today, result.worldNews, result.japanNews);
           result.firestoreSaved = true;
         } catch (error) {
           errors.push({
             type: 'firestore-save',
-            message:
-              error instanceof Error ? error.message : 'Firestore保存に失敗',
+            message: error instanceof Error ? error.message : 'Firestore保存でエラー',
             timestamp: new Date(),
           });
         }
@@ -257,10 +242,7 @@ export class NewsBatchService {
         } catch (error) {
           errors.push({
             type: 'metadata-update',
-            message:
-              error instanceof Error
-                ? error.message
-                : 'メタデータ更新に失敗',
+            message: error instanceof Error ? error.message : 'メタデータ更新でエラー',
             timestamp: new Date(),
           });
         }
@@ -276,8 +258,7 @@ export class NewsBatchService {
       } else {
         errors.push({
           type: 'unknown',
-          message:
-            error instanceof Error ? error.message : '予期しないエラーが発生',
+          message: error instanceof Error ? error.message : '予期しないエラーが発生',
           timestamp: new Date(),
         });
       }
@@ -355,8 +336,7 @@ export class NewsBatchService {
       } catch (error) {
         errors.push({
           type: 'world-news-summary',
-          message:
-            error instanceof Error ? error.message : '世界ニュース要約に失敗',
+          message: error instanceof Error ? error.message : '世界ニュース要約でエラー',
           timestamp: new Date(),
         });
       }
@@ -368,8 +348,7 @@ export class NewsBatchService {
       } catch (error) {
         errors.push({
           type: 'japan-news-summary',
-          message:
-            error instanceof Error ? error.message : '日本ニュース要約に失敗',
+          message: error instanceof Error ? error.message : '日本ニュース要約で',
           timestamp: new Date(),
         });
       }
@@ -408,7 +387,7 @@ export class NewsBatchService {
     } else {
       errors.push({
         type: 'world-news-fetch',
-        message: worldResult.reason?.message || '世界ニュース取得に失敗',
+        message: worldResult.reason?.message || '世界ニュース取得でエラー',
         timestamp: new Date(),
       });
     }
@@ -418,7 +397,7 @@ export class NewsBatchService {
     } else {
       errors.push({
         type: 'japan-news-fetch',
-        message: japanResult.reason?.message || '日本ニュース取得に失敗',
+        message: japanResult.reason?.message || '日本ニュース取得でエラー',
         timestamp: new Date(),
       });
     }
@@ -435,9 +414,7 @@ export class NewsBatchService {
    * @param articles - NewsAPI記事配列
    * @returns 要約データ
    */
-  private async summarizeWorldNews(
-    articles: NewsApiArticle[]
-  ): Promise<NewsSummaryData> {
+  private async summarizeWorldNews(articles: NewsApiArticle[]): Promise<NewsSummaryData> {
     // NewsApiArticleをNewsArticleに変換
     const newsArticles: NewsArticle[] = articles.map((article) => ({
       title: article.title,
@@ -448,9 +425,7 @@ export class NewsBatchService {
     }));
 
     // AI要約を実行
-    const summaryResult = await this.summaryService.summarizeEnglishNews(
-      newsArticles
-    );
+    const summaryResult = await this.summaryService.summarizeEnglishNews(newsArticles);
 
     return {
       title: '世界の投資・金融ニュース',
@@ -468,9 +443,7 @@ export class NewsBatchService {
    * @param items - Google News RSS記事配列
    * @returns 要約データ
    */
-  private async summarizeJapanNews(
-    items: GoogleNewsRssItem[]
-  ): Promise<NewsSummaryData> {
+  private async summarizeJapanNews(items: GoogleNewsRssItem[]): Promise<NewsSummaryData> {
     // GoogleNewsRssItemをNewsArticleに変換
     const newsArticles: NewsArticle[] = items.map((item) => ({
       title: item.title,
@@ -481,9 +454,7 @@ export class NewsBatchService {
     }));
 
     // AI要約を実行
-    const summaryResult = await this.summaryService.summarizeJapaneseNews(
-      newsArticles
-    );
+    const summaryResult = await this.summaryService.summarizeJapaneseNews(newsArticles);
 
     return {
       title: '日本の投資・金融ニュース',
@@ -546,15 +517,12 @@ export class NewsBatchService {
   private async updateMetadata(): Promise<void> {
     const db = getFirestore();
 
-    await db
-      .collection(METADATA_COLLECTION)
-      .doc(BATCH_METADATA_DOC_ID)
-      .set(
-        {
-          newsLastUpdated: Timestamp.now(),
-        },
-        { merge: true }
-      );
+    await db.collection(METADATA_COLLECTION).doc(BATCH_METADATA_DOC_ID).set(
+      {
+        newsLastUpdated: Timestamp.now(),
+      },
+      { merge: true }
+    );
 
     console.log('[NewsBatchService] Metadata updated');
   }
