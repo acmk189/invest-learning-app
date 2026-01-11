@@ -1,6 +1,7 @@
 /**
  * News Repository テスト
  * Task 17: News Repository
+ * Task 11: オフライン対応強化 - Supabase対応
  *
  * TDDに従い、News Repositoryのテストを先に記述します。
  *
@@ -9,12 +10,14 @@
  * - 2.4: 1日中同じニュース表示
  * - 2.5: オフライン時キャッシュ済みニュース表示
  * - 7.5: エラー時リトライオプション提供
+ * - 10: オフライン対応強化
  */
 
 import { NewsRepository, NewsResult, NewsRepositoryConfig } from '../news-repository';
-import { NewsData, FirestoreQueryResult } from '../../firestore/types';
+import { NewsData, SupabaseQueryResult } from '../../supabase/types';
 import { CacheValidationResult } from '../../cache/cache-manager';
-import { FirestoreError } from '../../firestore/errors';
+import { SupabaseError } from '../../supabase/errors';
+import * as networkUtils from '../../utils/network';
 
 // モックデータ
 const mockNewsData: NewsData = {
@@ -33,10 +36,10 @@ const mockNewsData: NewsData = {
   updatedAt: '2024-01-15T08:00:00.000Z',
 };
 
-// Firestoreクエリのモック
-const createMockFirestoreFetcher = (
-  result: FirestoreQueryResult<NewsData>
-): (() => Promise<FirestoreQueryResult<NewsData>>) => {
+// Supabaseクエリのモック
+const createMockSupabaseFetcher = (
+  result: SupabaseQueryResult<NewsData>
+): (() => Promise<SupabaseQueryResult<NewsData>>) => {
   return jest.fn().mockResolvedValue(result);
 };
 
@@ -64,14 +67,14 @@ describe('NewsRepository', () => {
         data: mockNewsData,
         isValid: true,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockNewsData,
         exists: true,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: NewsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -86,23 +89,23 @@ describe('NewsRepository', () => {
       expect(result.data).toEqual(mockNewsData);
       expect(result.source).toBe('cache');
       expect(mockCacheValidator).toHaveBeenCalled();
-      expect(mockFirestoreFetcher).not.toHaveBeenCalled();
+      expect(mockSupabaseFetcher).not.toHaveBeenCalled();
     });
 
-    it('キャッシュが無効な場合、Firestoreからデータを取得してキャッシュに保存する', async () => {
+    it('キャッシュが無効な場合、Supabaseからデータを取得してキャッシュに保存する', async () => {
       // Arrange
       const mockCacheValidator = createMockCacheValidator({
         data: null,
         isValid: false,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockNewsData,
         exists: true,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: NewsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -115,26 +118,26 @@ describe('NewsRepository', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockNewsData);
-      expect(result.source).toBe('firestore');
+      expect(result.source).toBe('supabase');
       expect(mockCacheValidator).toHaveBeenCalled();
-      expect(mockFirestoreFetcher).toHaveBeenCalled();
+      expect(mockSupabaseFetcher).toHaveBeenCalled();
       expect(mockCacheSetter).toHaveBeenCalled();
     });
 
-    it('Firestoreにデータが存在しない場合、nullを返す', async () => {
+    it('Supabaseにデータが存在しない場合、nullを返す', async () => {
       // Arrange
       const mockCacheValidator = createMockCacheValidator({
         data: null,
         isValid: false,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: null,
         exists: false,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: NewsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -147,13 +150,13 @@ describe('NewsRepository', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data).toBeNull();
-      expect(result.source).toBe('firestore');
+      expect(result.source).toBe('supabase');
       expect(mockCacheSetter).not.toHaveBeenCalled();
     });
 
-    it('Firestoreでエラーが発生した場合、エラー結果を返す', async () => {
+    it('Supabaseでエラーが発生した場合、エラー結果を返す', async () => {
       // Arrange
-      const mockError = new FirestoreError(
+      const mockError = new SupabaseError(
         'CONNECTION_FAILED',
         'サーバーに接続できませんでした。',
         undefined,
@@ -163,11 +166,11 @@ describe('NewsRepository', () => {
         data: null,
         isValid: false,
       });
-      const mockFirestoreFetcher = jest.fn().mockRejectedValue(mockError);
+      const mockSupabaseFetcher = jest.fn().mockRejectedValue(mockError);
       const mockCacheSetter = createMockCacheSetter();
 
       const config: NewsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -185,17 +188,17 @@ describe('NewsRepository', () => {
       expect(result.error?.retryable).toBe(true);
     });
 
-    it('キャッシュ検証でエラーが発生してもFirestoreから取得を試みる', async () => {
+    it('キャッシュ検証でエラーが発生してもSupabaseから取得を試みる', async () => {
       // Arrange
       const mockCacheValidator = jest.fn().mockRejectedValue(new Error('Cache error'));
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockNewsData,
         exists: true,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: NewsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -208,7 +211,7 @@ describe('NewsRepository', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockNewsData);
-      expect(result.source).toBe('firestore');
+      expect(result.source).toBe('supabase');
     });
 
     it('キャッシュ保存でエラーが発生しても結果は成功として返す', async () => {
@@ -217,14 +220,14 @@ describe('NewsRepository', () => {
         data: null,
         isValid: false,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockNewsData,
         exists: true,
       });
       const mockCacheSetter = jest.fn().mockRejectedValue(new Error('Cache write error'));
 
       const config: NewsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -257,7 +260,7 @@ describe('NewsRepository', () => {
       const failureResult: NewsResult = {
         success: false,
         data: null,
-        source: 'firestore',
+        source: 'supabase',
         error: {
           code: 'CONNECTION_FAILED',
           message: 'サーバーに接続できませんでした。',
@@ -269,6 +272,111 @@ describe('NewsRepository', () => {
       expect(failureResult.data).toBeNull();
       expect(failureResult.error).toBeDefined();
       expect(failureResult.error?.retryable).toBe(true);
+    });
+  });
+
+  describe('Offline Fallback (Requirement 2.5, 10)', () => {
+    beforeEach(() => {
+      // ネットワーク状態をリセット
+      networkUtils.resetNetworkState();
+    });
+
+    it('オフライン時、キャッシュが無効でも古いキャッシュデータがあればそれを返す', async () => {
+      // Arrange: オフライン状態を設定
+      networkUtils.setNetworkState(false);
+
+      const mockCacheValidator = createMockCacheValidator({
+        data: mockNewsData, // 古いキャッシュデータがある
+        isValid: false, // だがisValidはfalse(期限切れ等)
+      });
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
+        data: mockNewsData,
+        exists: true,
+      });
+      const mockCacheSetter = createMockCacheSetter();
+
+      const config: NewsRepositoryConfig = {
+        supabaseFetcher: mockSupabaseFetcher,
+        cacheValidator: mockCacheValidator,
+        cacheSetter: mockCacheSetter,
+      };
+
+      const repository = new NewsRepository(config);
+
+      // Act
+      const result = await repository.getTodayNews();
+
+      // Assert: オフラインなのでSupabaseにはアクセスせずキャッシュを返す
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(mockNewsData);
+      expect(result.source).toBe('cache');
+      expect(mockSupabaseFetcher).not.toHaveBeenCalled();
+    });
+
+    it('オフライン時、キャッシュデータがなければエラーを返す', async () => {
+      // Arrange: オフライン状態を設定
+      networkUtils.setNetworkState(false);
+
+      const mockCacheValidator = createMockCacheValidator({
+        data: null, // キャッシュなし
+        isValid: false,
+      });
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
+        data: mockNewsData,
+        exists: true,
+      });
+      const mockCacheSetter = createMockCacheSetter();
+
+      const config: NewsRepositoryConfig = {
+        supabaseFetcher: mockSupabaseFetcher,
+        cacheValidator: mockCacheValidator,
+        cacheSetter: mockCacheSetter,
+      };
+
+      const repository = new NewsRepository(config);
+
+      // Act
+      const result = await repository.getTodayNews();
+
+      // Assert: オフラインでキャッシュもないのでエラー
+      expect(result.success).toBe(false);
+      expect(result.data).toBeNull();
+      expect(result.error).toBeDefined();
+      expect(result.error?.code).toBe('OFFLINE');
+      expect(result.error?.retryable).toBe(true);
+      expect(mockSupabaseFetcher).not.toHaveBeenCalled();
+    });
+
+    it('オンライン時はキャッシュが無効なら通常通りSupabaseから取得する', async () => {
+      // Arrange: オンライン状態(デフォルト)
+      networkUtils.setNetworkState(true);
+
+      const mockCacheValidator = createMockCacheValidator({
+        data: mockNewsData, // 古いキャッシュデータがある
+        isValid: false, // だがisValidはfalse
+      });
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
+        data: mockNewsData,
+        exists: true,
+      });
+      const mockCacheSetter = createMockCacheSetter();
+
+      const config: NewsRepositoryConfig = {
+        supabaseFetcher: mockSupabaseFetcher,
+        cacheValidator: mockCacheValidator,
+        cacheSetter: mockCacheSetter,
+      };
+
+      const repository = new NewsRepository(config);
+
+      // Act
+      const result = await repository.getTodayNews();
+
+      // Assert: オンラインなので通常通りSupabaseから取得
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(mockNewsData);
+      expect(result.source).toBe('supabase');
+      expect(mockSupabaseFetcher).toHaveBeenCalled();
     });
   });
 });

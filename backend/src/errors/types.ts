@@ -1,6 +1,7 @@
 /**
  * エラータイプ定義
  * Task 2.2: エラーハンドリング共通機能実装
+ * Task 12: Firebase依存の完全削除
  */
 
 /**
@@ -9,7 +10,7 @@
 export enum ErrorType {
   NETWORK = 'NETWORK',
   API = 'API',
-  FIRESTORE = 'FIRESTORE',
+  DATABASE = 'DATABASE',
   VALIDATION = 'VALIDATION',
   UNKNOWN = 'UNKNOWN',
 }
@@ -85,10 +86,10 @@ export class ApiError extends AppError {
 }
 
 /**
- * Firestoreエラー
- * Firestoreデータベース操作に関するエラー
+ * データベースエラー
+ * データベース操作に関するエラー(Supabase/PostgreSQL)
  */
-export class FirestoreError extends AppError {
+export class DatabaseError extends AppError {
   public readonly operation?: string;
 
   constructor(
@@ -96,7 +97,12 @@ export class FirestoreError extends AppError {
     originalError?: Error,
     operation?: 'read' | 'write' | 'delete' | 'query'
   ) {
-    super(message, ErrorType.FIRESTORE, ErrorSeverity.CRITICAL, true, originalError);
+    super(message, ErrorType.DATABASE, ErrorSeverity.CRITICAL, true, originalError);
     this.operation = operation;
   }
 }
+
+/**
+ * @deprecated FirestoreError is deprecated. Use DatabaseError instead.
+ */
+export const FirestoreError = DatabaseError;

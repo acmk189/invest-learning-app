@@ -1,6 +1,7 @@
 /**
  * Terms Repository テスト
  * Task 21: Terms Repository
+ * Task 11: オフライン対応強化 - Supabase対応
  *
  * TDDに従い、Terms Repositoryのテストを先に記述します。
  *
@@ -9,12 +10,14 @@
  * - 5.3: 1日中同じ3用語表示
  * - 5.4: オフライン時キャッシュ済み用語表示
  * - 7.5: エラー時リトライオプション提供
+ * - 10: オフライン対応強化
  */
 
 import { TermsRepository, TermsResult, TermsRepositoryConfig } from '../terms-repository';
-import { TermsData, FirestoreQueryResult } from '../../firestore/types';
+import { TermsData, SupabaseQueryResult } from '../../supabase/types';
 import { CacheValidationResult } from '../../cache/cache-manager';
-import { FirestoreError } from '../../firestore/errors';
+import { SupabaseError } from '../../supabase/errors';
+import * as networkUtils from '../../utils/network';
 
 // モックデータ: 今日の3つの用語
 const mockTermsData: TermsData = {
@@ -43,10 +46,10 @@ const mockTermsData: TermsData = {
   updatedAt: '2024-01-15T08:00:00.000Z',
 };
 
-// Firestoreクエリのモック
-const createMockFirestoreFetcher = (
-  result: FirestoreQueryResult<TermsData>
-): (() => Promise<FirestoreQueryResult<TermsData>>) => {
+// Supabaseクエリのモック
+const createMockSupabaseFetcher = (
+  result: SupabaseQueryResult<TermsData>
+): (() => Promise<SupabaseQueryResult<TermsData>>) => {
   return jest.fn().mockResolvedValue(result);
 };
 
@@ -74,14 +77,14 @@ describe('TermsRepository', () => {
         data: mockTermsData,
         isValid: true,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockTermsData,
         exists: true,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: TermsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -96,23 +99,23 @@ describe('TermsRepository', () => {
       expect(result.data).toEqual(mockTermsData);
       expect(result.source).toBe('cache');
       expect(mockCacheValidator).toHaveBeenCalled();
-      expect(mockFirestoreFetcher).not.toHaveBeenCalled();
+      expect(mockSupabaseFetcher).not.toHaveBeenCalled();
     });
 
-    it('キャッシュが無効な場合、Firestoreからデータを取得してキャッシュに保存する', async () => {
+    it('キャッシュが無効な場合、Supabaseからデータを取得してキャッシュに保存する', async () => {
       // Arrange
       const mockCacheValidator = createMockCacheValidator({
         data: null,
         isValid: false,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockTermsData,
         exists: true,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: TermsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -125,26 +128,26 @@ describe('TermsRepository', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockTermsData);
-      expect(result.source).toBe('firestore');
+      expect(result.source).toBe('supabase');
       expect(mockCacheValidator).toHaveBeenCalled();
-      expect(mockFirestoreFetcher).toHaveBeenCalled();
+      expect(mockSupabaseFetcher).toHaveBeenCalled();
       expect(mockCacheSetter).toHaveBeenCalled();
     });
 
-    it('Firestoreにデータが存在しない場合、nullを返す', async () => {
+    it('Supabaseにデータが存在しない場合、nullを返す', async () => {
       // Arrange
       const mockCacheValidator = createMockCacheValidator({
         data: null,
         isValid: false,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: null,
         exists: false,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: TermsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -157,13 +160,13 @@ describe('TermsRepository', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data).toBeNull();
-      expect(result.source).toBe('firestore');
+      expect(result.source).toBe('supabase');
       expect(mockCacheSetter).not.toHaveBeenCalled();
     });
 
-    it('Firestoreでエラーが発生した場合、エラー結果を返す', async () => {
+    it('Supabaseでエラーが発生した場合、エラー結果を返す', async () => {
       // Arrange
-      const mockError = new FirestoreError(
+      const mockError = new SupabaseError(
         'CONNECTION_FAILED',
         'サーバーに接続できませんでした。',
         undefined,
@@ -173,11 +176,11 @@ describe('TermsRepository', () => {
         data: null,
         isValid: false,
       });
-      const mockFirestoreFetcher = jest.fn().mockRejectedValue(mockError);
+      const mockSupabaseFetcher = jest.fn().mockRejectedValue(mockError);
       const mockCacheSetter = createMockCacheSetter();
 
       const config: TermsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -195,17 +198,17 @@ describe('TermsRepository', () => {
       expect(result.error?.retryable).toBe(true);
     });
 
-    it('キャッシュ検証でエラーが発生してもFirestoreから取得を試みる', async () => {
+    it('キャッシュ検証でエラーが発生してもSupabaseから取得を試みる', async () => {
       // Arrange
       const mockCacheValidator = jest.fn().mockRejectedValue(new Error('Cache error'));
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockTermsData,
         exists: true,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: TermsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -218,7 +221,7 @@ describe('TermsRepository', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockTermsData);
-      expect(result.source).toBe('firestore');
+      expect(result.source).toBe('supabase');
     });
 
     it('キャッシュ保存でエラーが発生しても結果は成功として返す', async () => {
@@ -227,14 +230,14 @@ describe('TermsRepository', () => {
         data: null,
         isValid: false,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockTermsData,
         exists: true,
       });
       const mockCacheSetter = jest.fn().mockRejectedValue(new Error('Cache write error'));
 
       const config: TermsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -255,14 +258,14 @@ describe('TermsRepository', () => {
         data: mockTermsData,
         isValid: true,
       });
-      const mockFirestoreFetcher = createMockFirestoreFetcher({
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
         data: mockTermsData,
         exists: true,
       });
       const mockCacheSetter = createMockCacheSetter();
 
       const config: TermsRepositoryConfig = {
-        firestoreFetcher: mockFirestoreFetcher,
+        supabaseFetcher: mockSupabaseFetcher,
         cacheValidator: mockCacheValidator,
         cacheSetter: mockCacheSetter,
       };
@@ -320,7 +323,7 @@ describe('TermsRepository', () => {
       const failureResult: TermsResult = {
         success: false,
         data: null,
-        source: 'firestore',
+        source: 'supabase',
         error: {
           code: 'CONNECTION_FAILED',
           message: 'サーバーに接続できませんでした。',
@@ -332,6 +335,111 @@ describe('TermsRepository', () => {
       expect(failureResult.data).toBeNull();
       expect(failureResult.error).toBeDefined();
       expect(failureResult.error?.retryable).toBe(true);
+    });
+  });
+
+  describe('Offline Fallback (Requirement 5.4, 10)', () => {
+    beforeEach(() => {
+      // ネットワーク状態をリセット
+      networkUtils.resetNetworkState();
+    });
+
+    it('オフライン時、キャッシュが無効でも古いキャッシュデータがあればそれを返す', async () => {
+      // Arrange: オフライン状態を設定
+      networkUtils.setNetworkState(false);
+
+      const mockCacheValidator = createMockCacheValidator({
+        data: mockTermsData, // 古いキャッシュデータがある
+        isValid: false, // だがisValidはfalse(期限切れ等)
+      });
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
+        data: mockTermsData,
+        exists: true,
+      });
+      const mockCacheSetter = createMockCacheSetter();
+
+      const config: TermsRepositoryConfig = {
+        supabaseFetcher: mockSupabaseFetcher,
+        cacheValidator: mockCacheValidator,
+        cacheSetter: mockCacheSetter,
+      };
+
+      const repository = new TermsRepository(config);
+
+      // Act
+      const result = await repository.getTodayTerms();
+
+      // Assert: オフラインなのでSupabaseにはアクセスせずキャッシュを返す
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(mockTermsData);
+      expect(result.source).toBe('cache');
+      expect(mockSupabaseFetcher).not.toHaveBeenCalled();
+    });
+
+    it('オフライン時、キャッシュデータがなければエラーを返す', async () => {
+      // Arrange: オフライン状態を設定
+      networkUtils.setNetworkState(false);
+
+      const mockCacheValidator = createMockCacheValidator({
+        data: null, // キャッシュなし
+        isValid: false,
+      });
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
+        data: mockTermsData,
+        exists: true,
+      });
+      const mockCacheSetter = createMockCacheSetter();
+
+      const config: TermsRepositoryConfig = {
+        supabaseFetcher: mockSupabaseFetcher,
+        cacheValidator: mockCacheValidator,
+        cacheSetter: mockCacheSetter,
+      };
+
+      const repository = new TermsRepository(config);
+
+      // Act
+      const result = await repository.getTodayTerms();
+
+      // Assert: オフラインでキャッシュもないのでエラー
+      expect(result.success).toBe(false);
+      expect(result.data).toBeNull();
+      expect(result.error).toBeDefined();
+      expect(result.error?.code).toBe('OFFLINE');
+      expect(result.error?.retryable).toBe(true);
+      expect(mockSupabaseFetcher).not.toHaveBeenCalled();
+    });
+
+    it('オンライン時はキャッシュが無効なら通常通りSupabaseから取得する', async () => {
+      // Arrange: オンライン状態(デフォルト)
+      networkUtils.setNetworkState(true);
+
+      const mockCacheValidator = createMockCacheValidator({
+        data: mockTermsData, // 古いキャッシュデータがある
+        isValid: false, // だがisValidはfalse
+      });
+      const mockSupabaseFetcher = createMockSupabaseFetcher({
+        data: mockTermsData,
+        exists: true,
+      });
+      const mockCacheSetter = createMockCacheSetter();
+
+      const config: TermsRepositoryConfig = {
+        supabaseFetcher: mockSupabaseFetcher,
+        cacheValidator: mockCacheValidator,
+        cacheSetter: mockCacheSetter,
+      };
+
+      const repository = new TermsRepository(config);
+
+      // Act
+      const result = await repository.getTodayTerms();
+
+      // Assert: オンラインなので通常通りSupabaseから取得
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(mockTermsData);
+      expect(result.source).toBe('supabase');
+      expect(mockSupabaseFetcher).toHaveBeenCalled();
     });
   });
 });

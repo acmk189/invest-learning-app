@@ -1,15 +1,9 @@
 /**
  * 設定モジュールのエクスポート
  *
- * Firebase設定、Supabase設定、環境変数管理を統合的にエクスポートします。
+ * Supabase設定と環境変数管理を統合的にエクスポートします。
+ * Task 12: Firebase依存の完全削除
  */
-
-// Firebase Admin SDK設定(移行後は削除予定)
-export {
-  initializeFirebase,
-  getFirestore,
-  getFirebaseApp,
-} from './firebase';
 
 // Supabase設定
 export {

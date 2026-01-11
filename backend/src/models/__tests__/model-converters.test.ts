@@ -4,7 +4,7 @@
  * Task 4: バックエンドデータモデル移行
  * TDD: RED → GREEN → REFACTOR
  *
- * Firebase用モデル(Date型)からSupabase用型(ISO 8601文字列)への
+ * 内部モデル(Date型)からSupabase用型(ISO 8601文字列)への
  * 変換関数をテストします。
  */
 

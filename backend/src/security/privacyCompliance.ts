@@ -2,6 +2,7 @@
  * プライバシー・利用規約確認ユーティリティ
  *
  * Task 31.3: プライバシー・利用規約確認
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  * Requirements: 9.5, 12.7
  *
  * ユーザーの学習履歴を第三者と共有しないことを確認し、
@@ -10,11 +11,11 @@
  * 本アプリケーションのプライバシーポリシー:
  * - ユーザー認証機能なし(v1.0)のため、個人情報を収集しません
  * - ユーザーの学習履歴を第三者と共有しません
- * - データはFirebase Firestoreにのみ保存されます
+ * - データはSupabase PostgreSQLにのみ保存されます
  *
  * @see https://newsapi.org/terms - NewsAPI利用規約
  * @see https://www.anthropic.com/policies/terms-of-service - Anthropic利用規約
- * @see https://firebase.google.com/terms - Firebase利用規約
+ * @see https://supabase.com/terms - Supabase利用規約
  */
 
 /**
@@ -24,7 +25,7 @@ export const EXTERNAL_SERVICES = [
   'NewsAPI',
   'Claude API',
   'Google News RSS',
-  'Firebase Firestore',
+  'Supabase',
 ] as const;
 
 export type ExternalServiceName = (typeof EXTERNAL_SERVICES)[number];
@@ -113,7 +114,7 @@ export function getPrivacyPolicy(): PrivacyPolicy {
       sharesWithThirdParties: false,
       description:
         'ユーザーの学習履歴や利用状況を第三者と共有しません。' +
-        'データはFirebase Firestoreにのみ保存され、外部への送信は行いません。',
+        'データはSupabase PostgreSQLにのみ保存され、外部への送信は行いません。',
       exceptions: [
         '法的要請がある場合を除く',
       ],
@@ -171,16 +172,16 @@ export function getExternalServiceCompliance(): Record<ExternalServiceName, Exte
       ],
       lastReviewed: '2026-01-01',
     },
-    'Firebase Firestore': {
+    'Supabase': {
       isCompliant: true,
-      termsUrl: 'https://firebase.google.com/terms',
+      termsUrl: 'https://supabase.com/terms',
       complianceNotes: [
-        '無料枠(Spark Plan)内で運用',
+        '無料枠内で運用',
         'ユーザーの個人情報は保存しない',
-        'サービスアカウント認証を使用',
-        'データはGoogleのセキュリティ基準で保護',
+        'サービスロールキー認証を使用',
+        'PostgreSQLデータベースでセキュリティ保護',
       ],
-      lastReviewed: '2026-01-01',
+      lastReviewed: '2026-01-11',
     },
   };
 }
@@ -206,7 +207,7 @@ export function verifyNoThirdPartyDataSharing(): ThirdPartyDataSharingResult {
     sharesUserData: policy.dataSharing.sharesWithThirdParties,
     details: [
       'ユーザー認証機能なし(v1.0)のため個人情報を収集しない',
-      'ニュース・用語データはFirestore経由でのみアクセス',
+      'ニュース・用語データはSupabase経由でのみアクセス',
       '外部APIへはニュース記事データのみ送信(要約処理用)',
       'ユーザーの学習履歴は端末のローカルキャッシュにのみ保存',
       'アナリティクスやトラッキングは実装していない',

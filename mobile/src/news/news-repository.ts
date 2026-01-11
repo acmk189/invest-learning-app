@@ -1,8 +1,9 @@
 /**
  * News Repository
  * Task 17.1, 17.2, 17.3: ニュース取得機能、キャッシュマネージャー統合、エラーハンドリング
+ * Task 11: オフライン対応強化 - Supabase対応
  *
- * Firestoreからニュースを取得し、キャッシュを管理するリポジトリ。
+ * Supabaseからニュースを取得し、キャッシュを管理するリポジトリ。
  * MVVM + Repositoryパターンに従い、データアクセスを抽象化します。
  *
  * Requirements:
@@ -10,21 +11,27 @@
  * - 2.4: 1日中同じニュース表示
  * - 2.5: オフライン時キャッシュ済みニュース表示
  * - 7.5: エラー時リトライオプション提供
+ * - 10: オフライン対応強化
  *
  * @see design.md - Architecture - News Feature
  */
 
-import { NewsData, FirestoreQueryResult } from '../firestore/types';
+import { NewsData, SupabaseQueryResult } from '../supabase/types';
 import { CacheValidationResult, CacheManager } from '../cache/cache-manager';
-import { fetchTodayNews, fetchBatchMetadata, formatDateToJST } from '../firestore/queries';
-import { FirestoreError, toFirestoreError, FirestoreErrorCode } from '../firestore/errors';
+import {
+  fetchTodayNewsForRepository,
+  fetchBatchMetadataForCache,
+  formatDateToJST,
+} from '../supabase/queries';
+import { SupabaseError, toSupabaseError, SupabaseErrorCode, ERROR_MESSAGES } from '../supabase/errors';
+import { isOffline } from '../utils/network';
 
 /**
  * データの取得元を示す型
  * - 'cache': ローカルキャッシュから取得
- * - 'firestore': Firestoreから取得
+ * - 'supabase': Supabaseから取得
  */
-export type NewsSource = 'cache' | 'firestore';
+export type NewsSource = 'cache' | 'supabase';
 
 /**
  * ニュース取得エラー情報
@@ -32,7 +39,7 @@ export type NewsSource = 'cache' | 'firestore';
  */
 export interface NewsError {
   /** エラーコード */
-  code: FirestoreErrorCode;
+  code: SupabaseErrorCode;
   /** ユーザー向けエラーメッセージ(日本語) */
   message: string;
   /** リトライ可能かどうか */
@@ -55,10 +62,10 @@ export interface NewsResult {
 }
 
 /**
- * Firestoreからニュースを取得する関数の型
+ * Supabaseからニュースを取得する関数の型
  * テスト時にモック可能にするため型定義
  */
-export type FirestoreFetcher = () => Promise<FirestoreQueryResult<NewsData>>;
+export type SupabaseFetcher = () => Promise<SupabaseQueryResult<NewsData>>;
 
 /**
  * キャッシュを検証する関数の型
@@ -84,8 +91,8 @@ export type CacheSetter = (
  * 依存性注入(DI)によりテスタビリティを向上
  */
 export interface NewsRepositoryConfig {
-  /** Firestoreからニュースを取得する関数 */
-  firestoreFetcher?: FirestoreFetcher;
+  /** Supabaseからニュースを取得する関数 */
+  supabaseFetcher?: SupabaseFetcher;
   /** キャッシュを検証する関数 */
   cacheValidator?: CacheValidator;
   /** キャッシュを保存する関数 */
@@ -96,7 +103,7 @@ export interface NewsRepositoryConfig {
  * News Repository クラス
  *
  * ニュースデータの取得とキャッシュ管理を担当します。
- * キャッシュ優先で動作し、キャッシュが無効な場合のみFirestoreにアクセスします。
+ * キャッシュ優先で動作し、キャッシュが無効な場合のみSupabaseにアクセスします。
  *
  * @example
  * ```typescript
@@ -108,7 +115,7 @@ export interface NewsRepositoryConfig {
  * ```
  */
 export class NewsRepository {
-  private firestoreFetcher: FirestoreFetcher;
+  private supabaseFetcher: SupabaseFetcher;
   private cacheValidator: CacheValidator;
   private cacheSetter: CacheSetter;
 
@@ -117,17 +124,22 @@ export class NewsRepository {
    * @param config - 設定(テスト用にモック関数を注入可能)
    */
   constructor(config?: NewsRepositoryConfig) {
-    this.firestoreFetcher = config?.firestoreFetcher || fetchTodayNews;
+    // Supabaseからデータを取得する関数
+    this.supabaseFetcher = config?.supabaseFetcher || fetchTodayNewsForRepository;
+
+    // キャッシュ検証: SupabaseのメタデータでlastUpdatedをチェック
     this.cacheValidator =
       config?.cacheValidator ||
       ((type, dateStr) => {
-        const cacheManager = new CacheManager(fetchBatchMetadata);
+        const cacheManager = new CacheManager(fetchBatchMetadataForCache);
         return cacheManager.getValidatedCache<NewsData>(type, dateStr);
       });
+
+    // キャッシュ保存
     this.cacheSetter =
       config?.cacheSetter ||
       ((type, dateStr, data) => {
-        const cacheManager = new CacheManager(fetchBatchMetadata);
+        const cacheManager = new CacheManager(fetchBatchMetadataForCache);
         return cacheManager.setCache(type, dateStr, data);
       });
   }
@@ -137,11 +149,12 @@ export class NewsRepository {
    *
    * 1. キャッシュを検証(メタデータでlastUpdated > cachedAtをチェック)
    * 2. キャッシュが有効な場合はキャッシュから返す
-   * 3. キャッシュが無効な場合はFirestoreから取得
-   * 4. Firestoreから取得した場合はキャッシュに保存
+   * 3. キャッシュが無効な場合はSupabaseから取得
+   * 4. Supabaseから取得した場合はキャッシュに保存
    *
    * Requirement 2.4: 1日中同じニュース内容を表示
    * Requirement 2.5: オフライン時はキャッシュを使用
+   * Requirement 10: オフライン対応強化
    *
    * @returns ニュース取得結果
    */
@@ -163,27 +176,56 @@ export class NewsRepository {
         };
       }
     } catch (error) {
-      // キャッシュ検証エラーは無視してFirestoreから取得を試みる
-      console.warn('[NewsRepository] Cache validation failed, falling back to Firestore:', error);
+      // キャッシュ検証エラーは無視してSupabaseから取得を試みる
+      console.warn('[NewsRepository] Cache validation failed, falling back to Supabase:', error);
     }
 
-    // Step 2: Firestoreからデータを取得
-    try {
-      console.log('[NewsRepository] Fetching from Firestore');
-      const firestoreResult = await this.firestoreFetcher();
+    // Step 1.5: オフラインチェック (Requirement 2.5, 10)
+    // キャッシュが無効でもオフラインの場合は古いキャッシュを使用
+    if (isOffline()) {
+      console.log('[NewsRepository] Offline mode detected');
 
-      if (!firestoreResult.exists || !firestoreResult.data) {
+      // キャッシュデータがあればそれを返す(isValidがfalseでも)
+      if (cacheResult?.data) {
+        console.log('[NewsRepository] Returning stale cache data (offline fallback)');
+        return {
+          success: true,
+          data: cacheResult.data,
+          source: 'cache',
+        };
+      }
+
+      // キャッシュもない場合はエラー
+      console.warn('[NewsRepository] No cached data available while offline');
+      return {
+        success: false,
+        data: null,
+        source: 'cache',
+        error: {
+          code: 'OFFLINE',
+          message: ERROR_MESSAGES.OFFLINE,
+          retryable: true,
+        },
+      };
+    }
+
+    // Step 2: Supabaseからデータを取得
+    try {
+      console.log('[NewsRepository] Fetching from Supabase');
+      const supabaseResult = await this.supabaseFetcher();
+
+      if (!supabaseResult.exists || !supabaseResult.data) {
         // データが存在しない場合(まだバッチが実行されていない等)
         return {
           success: true,
           data: null,
-          source: 'firestore',
+          source: 'supabase',
         };
       }
 
       // Step 3: キャッシュに保存(エラーは無視)
       try {
-        await this.cacheSetter('news', today, firestoreResult.data);
+        await this.cacheSetter('news', today, supabaseResult.data);
         console.log('[NewsRepository] Data cached successfully');
       } catch (cacheError) {
         console.warn('[NewsRepository] Failed to cache data:', cacheError);
@@ -191,24 +233,24 @@ export class NewsRepository {
 
       return {
         success: true,
-        data: firestoreResult.data,
-        source: 'firestore',
+        data: supabaseResult.data,
+        source: 'supabase',
       };
     } catch (error) {
-      // Firestoreエラーをハンドリング
-      const firestoreError =
-        error instanceof FirestoreError ? error : toFirestoreError(error);
+      // Supabaseエラーをハンドリング
+      const supabaseError =
+        error instanceof SupabaseError ? error : toSupabaseError(error);
 
-      console.error('[NewsRepository] Failed to fetch news:', firestoreError);
+      console.error('[NewsRepository] Failed to fetch news:', supabaseError);
 
       return {
         success: false,
         data: null,
-        source: 'firestore',
+        source: 'supabase',
         error: {
-          code: firestoreError.code,
-          message: firestoreError.message,
-          retryable: firestoreError.retryable,
+          code: supabaseError.code,
+          message: supabaseError.message,
+          retryable: supabaseError.retryable,
         },
       };
     }

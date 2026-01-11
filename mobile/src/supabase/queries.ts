@@ -316,8 +316,6 @@ export function batchMetadataRowToBatchMetadata(row: BatchMetadataRow): BatchMet
 /**
  * 今日のニュースを取得する (Repository層用)
  *
- * Firestoreと同じインターフェース(FirestoreQueryResult互換)で返す
- *
  * @returns SupabaseQueryResult<NewsData>
  * @throws {SupabaseQueryError} Supabaseエラー発生時
  */
@@ -340,8 +338,6 @@ export async function fetchTodayNewsForRepository(): Promise<SupabaseQueryResult
 
 /**
  * 今日の用語を取得する (Repository層用)
- *
- * Firestoreと同じインターフェース(FirestoreQueryResult互換)で返す
  *
  * @returns SupabaseQueryResult<TermsData>
  * @throws {SupabaseQueryError} Supabaseエラー発生時

@@ -13,7 +13,6 @@ export {
   type NewsError,
   type NewsSource,
   type NewsRepositoryConfig,
-  type FirestoreFetcher,
   type CacheValidator,
   type CacheSetter,
 } from './news-repository';

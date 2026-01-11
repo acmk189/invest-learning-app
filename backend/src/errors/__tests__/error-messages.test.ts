@@ -22,8 +22,8 @@ describe('Error Messages', () => {
       );
     });
 
-    it('should return correct message for FIRESTORE error', () => {
-      const message = getUserErrorMessage(ErrorType.FIRESTORE);
+    it('should return correct message for DATABASE error', () => {
+      const message = getUserErrorMessage(ErrorType.DATABASE);
       expect(message).toBe(
         'データの読み込みまたは保存に失敗しました。しばらく待ってから再度お試しください。'
       );
@@ -48,9 +48,9 @@ describe('Error Messages', () => {
       expect(message).toBe('APIのレート制限に達しました');
     });
 
-    it('should return correct detailed message for FIRESTORE_WRITE_FAILED', () => {
-      const message = getDetailedErrorMessage('FIRESTORE_WRITE_FAILED');
-      expect(message).toBe('Firestoreへの書き込みに失敗しました');
+    it('should return correct detailed message for DATABASE_WRITE_FAILED', () => {
+      const message = getDetailedErrorMessage('DATABASE_WRITE_FAILED');
+      expect(message).toBe('データベースへの書き込みに失敗しました');
     });
 
     it('should return correct detailed message for AI_SUMMARIZATION_FAILED', () => {

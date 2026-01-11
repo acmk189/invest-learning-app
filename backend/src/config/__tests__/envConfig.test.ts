@@ -2,6 +2,7 @@
  * 環境変数管理テスト
  *
  * Task 30.1: 環境変数管理実装
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  * Requirements: 9.1, 9.2
  *
  * すべての必要な環境変数が正しく読み込まれ、検証されることをテストします。
@@ -33,12 +34,11 @@ describe('envConfig', () => {
   describe('validateAllEnvVars', () => {
     it('すべての必須環境変数が設定されている場合、isValidがtrueになる', () => {
       // Arrange: すべての必須環境変数を設定
-      process.env.FIREBASE_PROJECT_ID = 'test-project';
-      process.env.FIREBASE_PRIVATE_KEY = 'test-private-key';
-      process.env.FIREBASE_CLIENT_EMAIL = 'test@example.com';
       process.env.CLAUDE_API_KEY = 'sk-ant-test';
       process.env.NEWS_API_KEY = 'test-news-api-key';
       process.env.CRON_SECRET = 'test-cron-secret';
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
 
       // Act
       const result = validateAllEnvVars();
@@ -46,14 +46,14 @@ describe('envConfig', () => {
       // Assert
       expect(result.isValid).toBe(true);
       expect(result.missingVars).toHaveLength(0);
-      expect(result.configuredVars).toHaveLength(6);
+      expect(result.configuredVars).toHaveLength(5);
     });
 
     it('必須環境変数が欠けている場合、isValidがfalseになる', () => {
       // Arrange: 一部の環境変数のみ設定
-      process.env.FIREBASE_PROJECT_ID = 'test-project';
       process.env.CLAUDE_API_KEY = 'sk-ant-test';
-      // FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, NEWS_API_KEY, CRON_SECRET は未設定
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      // NEWS_API_KEY, CRON_SECRET, SUPABASE_SECRET_KEY は未設定
 
       // Act
       const result = validateAllEnvVars();
@@ -65,29 +65,27 @@ describe('envConfig', () => {
 
     it('空文字列の環境変数は未設定として扱われる', () => {
       // Arrange
-      process.env.FIREBASE_PROJECT_ID = '';
-      process.env.FIREBASE_PRIVATE_KEY = 'test-key';
-      process.env.FIREBASE_CLIENT_EMAIL = 'test@example.com';
-      process.env.CLAUDE_API_KEY = 'sk-ant-test';
+      process.env.CLAUDE_API_KEY = '';
       process.env.NEWS_API_KEY = 'test-news-api-key';
       process.env.CRON_SECRET = 'test-cron-secret';
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
 
       // Act
       const result = validateAllEnvVars();
 
       // Assert
       expect(result.isValid).toBe(false);
-      expect(result.missingVars).toContain('FIREBASE_PROJECT_ID');
+      expect(result.missingVars).toContain('CLAUDE_API_KEY');
     });
 
     it('空白のみの環境変数は未設定として扱われる', () => {
       // Arrange
-      process.env.FIREBASE_PROJECT_ID = 'test-project';
-      process.env.FIREBASE_PRIVATE_KEY = 'test-key';
-      process.env.FIREBASE_CLIENT_EMAIL = 'test@example.com';
       process.env.CLAUDE_API_KEY = '   '; // 空白のみ
       process.env.NEWS_API_KEY = 'test-news-api-key';
       process.env.CRON_SECRET = 'test-cron-secret';
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
 
       // Act
       const result = validateAllEnvVars();
@@ -101,38 +99,38 @@ describe('envConfig', () => {
   describe('getEnvVarStatus', () => {
     it('設定されている環境変数のステータスを正しく返す', () => {
       // Arrange
-      process.env.FIREBASE_PROJECT_ID = 'test-project';
-      process.env.FIREBASE_PRIVATE_KEY = 'test-key';
-      process.env.FIREBASE_CLIENT_EMAIL = 'test@example.com';
       process.env.CLAUDE_API_KEY = 'sk-ant-test';
       process.env.NEWS_API_KEY = 'test-news-api-key';
       process.env.CRON_SECRET = 'test-cron-secret';
+      process.env.SUPABASE_URL = 'https://test.supabase.co';
+      process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
 
       // Act
       const status = getEnvVarStatus();
 
       // Assert
-      expect(status.FIREBASE_PROJECT_ID.isConfigured).toBe(true);
       expect(status.CLAUDE_API_KEY.isConfigured).toBe(true);
       expect(status.NEWS_API_KEY.isConfigured).toBe(true);
       expect(status.CRON_SECRET.isConfigured).toBe(true);
+      expect(status.SUPABASE_URL.isConfigured).toBe(true);
+      expect(status.SUPABASE_SECRET_KEY.isConfigured).toBe(true);
     });
 
     it('未設定の環境変数のステータスを正しく返す', () => {
       // Arrange: 環境変数をクリア
-      delete process.env.FIREBASE_PROJECT_ID;
-      delete process.env.FIREBASE_PRIVATE_KEY;
-      delete process.env.FIREBASE_CLIENT_EMAIL;
       delete process.env.CLAUDE_API_KEY;
       delete process.env.NEWS_API_KEY;
       delete process.env.CRON_SECRET;
+      delete process.env.SUPABASE_URL;
+      delete process.env.SUPABASE_SECRET_KEY;
 
       // Act
       const status = getEnvVarStatus();
 
       // Assert
-      expect(status.FIREBASE_PROJECT_ID.isConfigured).toBe(false);
       expect(status.CLAUDE_API_KEY.isConfigured).toBe(false);
+      expect(status.SUPABASE_URL.isConfigured).toBe(false);
+      expect(status.SUPABASE_SECRET_KEY.isConfigured).toBe(false);
     });
 
     it('各環境変数の説明が含まれている', () => {
@@ -140,28 +138,43 @@ describe('envConfig', () => {
       const status = getEnvVarStatus();
 
       // Assert
-      expect(status.FIREBASE_PROJECT_ID.description).toBeDefined();
       expect(status.CLAUDE_API_KEY.description).toBeDefined();
       expect(status.NEWS_API_KEY.description).toBeDefined();
       expect(status.CRON_SECRET.description).toBeDefined();
+      expect(status.SUPABASE_URL.description).toBeDefined();
+      expect(status.SUPABASE_SECRET_KEY.description).toBeDefined();
     });
   });
 
   describe('ENV_VAR_CONFIG', () => {
     it('すべての必須環境変数が定義されている', () => {
       const expectedVars: EnvVarName[] = [
-        'FIREBASE_PROJECT_ID',
-        'FIREBASE_PRIVATE_KEY',
-        'FIREBASE_CLIENT_EMAIL',
         'CLAUDE_API_KEY',
         'NEWS_API_KEY',
         'CRON_SECRET',
+        'SUPABASE_URL',
+        'SUPABASE_SECRET_KEY',
       ];
 
       expectedVars.forEach((varName) => {
         expect(ENV_VAR_CONFIG[varName]).toBeDefined();
         expect(ENV_VAR_CONFIG[varName].description).toBeDefined();
         expect(ENV_VAR_CONFIG[varName].required).toBe(true);
+      });
+    });
+
+    it('オプション環境変数が定義されている', () => {
+      const optionalVars: EnvVarName[] = [
+        'SUPABASE_PUBLISHABLE_KEY',
+        'LOCAL_SUPABASE_URL',
+        'LOCAL_SUPABASE_PUBLISHABLE_KEY',
+        'LOCAL_SUPABASE_SECRET_KEY',
+      ];
+
+      optionalVars.forEach((varName) => {
+        expect(ENV_VAR_CONFIG[varName]).toBeDefined();
+        expect(ENV_VAR_CONFIG[varName].description).toBeDefined();
+        expect(ENV_VAR_CONFIG[varName].required).toBe(false);
       });
     });
   });
@@ -182,9 +195,6 @@ describe('envConfig', () => {
 
     it('Supabase環境変数が設定されている場合、検証に含まれる', () => {
       // Arrange: すべての環境変数を設定
-      process.env.FIREBASE_PROJECT_ID = 'test-project';
-      process.env.FIREBASE_PRIVATE_KEY = 'test-private-key';
-      process.env.FIREBASE_CLIENT_EMAIL = 'test@example.com';
       process.env.CLAUDE_API_KEY = 'sk-ant-test';
       process.env.NEWS_API_KEY = 'test-news-api-key';
       process.env.CRON_SECRET = 'test-cron-secret';

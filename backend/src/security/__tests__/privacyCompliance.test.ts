@@ -2,6 +2,7 @@
  * プライバシー・利用規約確認テスト
  *
  * Task 31.3: プライバシー・利用規約確認
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  * Requirements: 9.5, 12.7
  *
  * ユーザーの学習履歴を第三者と共有しないこと、
@@ -53,7 +54,7 @@ describe('privacyCompliance', () => {
       expect(EXTERNAL_SERVICES).toContain('NewsAPI');
       expect(EXTERNAL_SERVICES).toContain('Claude API');
       expect(EXTERNAL_SERVICES).toContain('Google News RSS');
-      expect(EXTERNAL_SERVICES).toContain('Firebase Firestore');
+      expect(EXTERNAL_SERVICES).toContain('Supabase');
     });
   });
 
@@ -81,12 +82,12 @@ describe('privacyCompliance', () => {
       expect(compliance['Claude API'].termsUrl).toContain('anthropic.com');
     });
 
-    it('Firebase Firestoreの利用規約遵守状況が定義されている', () => {
+    it('Supabaseの利用規約遵守状況が定義されている', () => {
       const compliance = getExternalServiceCompliance();
 
-      expect(compliance['Firebase Firestore']).toBeDefined();
-      expect(compliance['Firebase Firestore'].isCompliant).toBe(true);
-      expect(compliance['Firebase Firestore'].termsUrl).toContain('firebase.google.com');
+      expect(compliance['Supabase']).toBeDefined();
+      expect(compliance['Supabase'].isCompliant).toBe(true);
+      expect(compliance['Supabase'].termsUrl).toContain('supabase.com');
     });
   });
 

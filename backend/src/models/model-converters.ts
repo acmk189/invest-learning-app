@@ -4,7 +4,7 @@
  * Task 4: バックエンドデータモデル移行
  * Requirements: 4
  *
- * Firebase用モデル(Date型)からSupabase用型(ISO 8601文字列)への
+ * 内部モデル(Date型)からSupabase用型(ISO 8601文字列)への
  * 変換関数を提供します。既存のバリデーションロジック(文字数制限等)を維持しつつ、
  * Supabase PostgreSQLに適したデータ構造へ変換します。
  *
@@ -17,12 +17,12 @@
  * - `validateTermInsertPayload()` - 用語データのバリデーション
  * - `validateTermInsertPayloads()` - 用語配列のバリデーション
  *
- * ### データ移行用(Phase 3スキップのため将来的に削除の可能性あり)
- * - `newsDocumentToNewsRow()` - Firebase NewsDocument → Supabase NewsRow
- * - `newsDocumentToUpsertPayload()` - Firebase NewsDocument → upsertペイロード
- * - `termsDocumentToTermRows()` - Firebase TermsDocument → Supabase TermInsertPayload[]
+ * ### 内部変換用(アプリ内のデータ変換)
+ * - `newsDocumentToNewsRow()` - NewsDocument → Supabase NewsRow
+ * - `newsDocumentToUpsertPayload()` - NewsDocument → upsertペイロード
+ * - `termsDocumentToTermRows()` - TermsDocument → Supabase TermInsertPayload[]
  * - `termToTermInsertPayload()` - Term → TermInsertPayload
- * - `termHistoryDocumentToPayload()` - Firebase TermHistoryDocument → Supabase用
+ * - `termHistoryDocumentToPayload()` - TermHistoryDocument → Supabase用
  */
 
 import type { NewsDocument } from './news.model';
@@ -44,7 +44,7 @@ import type { BatchMetadata } from './metadata.model';
  *
  * Date型の日時をISO 8601文字列に変換し、フラットな構造に変換します。
  *
- * @param doc - Firebase用のNewsDocument
+ * @param doc - NewsDocument(内部モデル)
  * @returns Supabase news テーブル用のNewsRow
  */
 export function newsDocumentToNewsRow(doc: NewsDocument): NewsRow {
@@ -62,7 +62,7 @@ export function newsDocumentToNewsRow(doc: NewsDocument): NewsRow {
 /**
  * NewsDocumentからupsert用ペイロードを生成する
  *
- * @param doc - Firebase用のNewsDocument
+ * @param doc - NewsDocument(内部モデル)
  * @returns Supabase news テーブルへのupsert用ペイロード
  */
 export function newsDocumentToUpsertPayload(doc: NewsDocument): NewsUpsertPayload {
@@ -82,7 +82,7 @@ export function newsDocumentToUpsertPayload(doc: NewsDocument): NewsUpsertPayloa
  * Firestoreの配列構造からPostgreSQLの個別行に展開します。
  * 各用語に同じ日付を設定します。
  *
- * @param doc - Firebase用のTermsDocument
+ * @param doc - TermsDocument(内部モデル)
  * @returns Supabase terms テーブル用のTermInsertPayload配列
  */
 export function termsDocumentToTermRows(doc: TermsDocument): TermInsertPayload[] {
@@ -110,7 +110,7 @@ export function termToTermInsertPayload(term: Term, date: string): TermInsertPay
  *
  * Date型の配信日時をISO 8601文字列に変換します。
  *
- * @param doc - Firebase用のTermHistoryDocument
+ * @param doc - TermHistoryDocument(内部モデル)
  * @returns Supabase terms_history テーブル用のTermHistoryInsertPayload
  */
 export function termHistoryDocumentToPayload(

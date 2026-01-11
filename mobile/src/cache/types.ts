@@ -69,7 +69,7 @@ export type CacheResult<T> = T | null;
 
 /**
  * バッチメタデータの型
- * Firestoreのmetadata/batchドキュメントから取得
+ * Supabaseのbatch_metadataテーブルから取得
  */
 export interface BatchMetadata {
   /** ニュースバッチの最終更新時刻(Unixタイムスタンプ、ミリ秒) */

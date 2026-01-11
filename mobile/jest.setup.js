@@ -2,46 +2,12 @@
 /**
  * Jest設定ファイル
  *
+ * Task 12: Firebase依存の完全削除 - Supabase対応
+ *
  * 各テストファイルの実行前にロードされるセットアップファイル
- * - React Native Firebaseのモック
  * - Expo Routerのモック
  * - 共通モック設定
  */
-
-// Mock @react-native-firebase/app
-jest.mock('@react-native-firebase/app', () => {
-  return {
-    __esModule: true,
-    default: jest.fn(),
-  };
-});
-
-// Mock @react-native-firebase/firestore
-jest.mock('@react-native-firebase/firestore', () => {
-  const mockCollection = jest.fn(() => ({
-    doc: jest.fn(() => ({
-      set: jest.fn(() => Promise.resolve()),
-      get: jest.fn(() =>
-        Promise.resolve({ exists: true, data: () => ({ test: true }) })
-      ),
-      delete: jest.fn(() => Promise.resolve()),
-    })),
-  }));
-
-  const mockFirestore = jest.fn(() => ({
-    collection: mockCollection,
-    settings: jest.fn(() => Promise.resolve()),
-  }));
-
-  mockFirestore.FieldValue = {
-    serverTimestamp: jest.fn(() => new Date()),
-  };
-
-  return {
-    __esModule: true,
-    default: mockFirestore,
-  };
-});
 
 // Mock expo-router
 jest.mock('expo-router', () => {

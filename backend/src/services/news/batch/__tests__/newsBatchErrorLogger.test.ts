@@ -2,11 +2,12 @@
  * ニュース最終失敗時詳細ログ保存のテスト
  *
  * Task 9.4: ニュース最終失敗時詳細ログ保存
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  *
  * Requirements:
  * - 8.5 (外部API障害時エラーハンドリング+ログ)
  *
- * 最終的な失敗時にFirestore error_logsに詳細ログを保存する機能をテストする
+ * 最終的な失敗時にSupabase error_logsに詳細ログを保存する機能をテストする
  */
 
 import {
@@ -17,15 +18,16 @@ import {
 import { NewsBatchResult } from '../newsBatchService';
 import { NewsBatchRetryResult } from '../newsBatchRetryHandler';
 
-// Firebase Admin SDKのモック
-const mockFirestore = {
-  collection: jest.fn().mockReturnThis(),
-  doc: jest.fn().mockReturnThis(),
-  add: jest.fn().mockResolvedValue({ id: 'test-doc-id' }),
-};
+// Supabaseのモック
+const mockInsert = jest.fn().mockResolvedValue({ error: null });
+const mockFrom = jest.fn(() => ({
+  insert: mockInsert,
+}));
 
-jest.mock('../../../../config/firebase', () => ({
-  getFirestore: () => mockFirestore,
+jest.mock('../../../../config/supabase', () => ({
+  getSupabase: () => ({
+    from: mockFrom,
+  }),
 }));
 
 describe('NewsBatchErrorLogger', () => {
@@ -74,25 +76,25 @@ describe('NewsBatchErrorLogger', () => {
     jest.restoreAllMocks();
   });
 
-  describe('Firestoreへのログ保存', () => {
-    it('失敗時にFirestore error_logsコレクションに保存する', async () => {
+  describe('Supabaseへのログ保存', () => {
+    it('失敗時にSupabase error_logsテーブルに保存する', async () => {
       await logger.logFinalFailure(createRetryResult());
 
-      expect(mockFirestore.collection).toHaveBeenCalledWith('error_logs');
-      expect(mockFirestore.add).toHaveBeenCalled();
+      expect(mockFrom).toHaveBeenCalledWith('error_logs');
+      expect(mockInsert).toHaveBeenCalled();
     });
 
-    it('保存するドキュメントが正しい構造を持つ', async () => {
+    it('保存するレコードが正しい構造を持つ', async () => {
       await logger.logFinalFailure(createRetryResult());
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
+      const savedRecord = mockInsert.mock.calls[0][0];
 
-      expect(savedDoc).toHaveProperty('batchType', 'news');
-      expect(savedDoc).toHaveProperty('date');
-      expect(savedDoc).toHaveProperty('attemptCount');
-      expect(savedDoc).toHaveProperty('totalRetries');
-      expect(savedDoc).toHaveProperty('errors');
-      expect(savedDoc).toHaveProperty('timestamp');
+      expect(savedRecord).toHaveProperty('batch_type', 'news');
+      expect(savedRecord).toHaveProperty('date');
+      expect(savedRecord).toHaveProperty('attempt_count');
+      expect(savedRecord).toHaveProperty('total_retries');
+      expect(savedRecord).toHaveProperty('errors');
+      expect(savedRecord).toHaveProperty('timestamp');
     });
   });
 
@@ -100,32 +102,32 @@ describe('NewsBatchErrorLogger', () => {
     it('バッチ日付を含む', async () => {
       await logger.logFinalFailure(createRetryResult());
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
-      expect(savedDoc.date).toBe('2026-01-02');
+      const savedRecord = mockInsert.mock.calls[0][0];
+      expect(savedRecord.date).toBe('2026-01-02');
     });
 
     it('試行回数を含む', async () => {
       await logger.logFinalFailure(createRetryResult());
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
-      expect(savedDoc.attemptCount).toBe(4);
-      expect(savedDoc.totalRetries).toBe(3);
+      const savedRecord = mockInsert.mock.calls[0][0];
+      expect(savedRecord.attempt_count).toBe(4);
+      expect(savedRecord.total_retries).toBe(3);
     });
 
     it('全てのエラーを含む', async () => {
       await logger.logFinalFailure(createRetryResult());
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
-      expect(savedDoc.errors).toHaveLength(2);
-      expect(savedDoc.errors[0].type).toBe('world-news-fetch');
-      expect(savedDoc.errors[1].type).toBe('japan-news-fetch');
+      const savedRecord = mockInsert.mock.calls[0][0];
+      expect(savedRecord.errors).toHaveLength(2);
+      expect(savedRecord.errors[0].type).toBe('world-news-fetch');
+      expect(savedRecord.errors[1].type).toBe('japan-news-fetch');
     });
 
     it('処理時間を含む', async () => {
       await logger.logFinalFailure(createRetryResult());
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
-      expect(savedDoc.totalProcessingTimeMs).toBe(5000);
+      const savedRecord = mockInsert.mock.calls[0][0];
+      expect(savedRecord.total_processing_time_ms).toBe(5000);
     });
   });
 
@@ -138,8 +140,8 @@ describe('NewsBatchErrorLogger', () => {
 
       await logger.logFinalFailure(createRetryResult(), context);
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
-      expect(savedDoc.context).toEqual(context);
+      const savedRecord = mockInsert.mock.calls[0][0];
+      expect(savedRecord.context).toEqual(context);
     });
   });
 
@@ -149,8 +151,8 @@ describe('NewsBatchErrorLogger', () => {
       await logger.logFinalFailure(createRetryResult());
       const after = new Date();
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
-      const timestamp = new Date(savedDoc.timestamp);
+      const savedRecord = mockInsert.mock.calls[0][0];
+      const timestamp = new Date(savedRecord.timestamp);
 
       expect(timestamp.getTime()).toBeGreaterThanOrEqual(before.getTime());
       expect(timestamp.getTime()).toBeLessThanOrEqual(after.getTime());
@@ -158,8 +160,8 @@ describe('NewsBatchErrorLogger', () => {
   });
 
   describe('例外処理', () => {
-    it('Firestore保存失敗時にエラーログを出力する', async () => {
-      mockFirestore.add.mockRejectedValueOnce(new Error('Firestore Error'));
+    it('Supabase保存失敗時にエラーログを出力する', async () => {
+      mockInsert.mockResolvedValueOnce({ error: { message: 'Supabase Error' } });
       const consoleSpy = jest.spyOn(console, 'error');
 
       await logger.logFinalFailure(createRetryResult());
@@ -170,8 +172,8 @@ describe('NewsBatchErrorLogger', () => {
       );
     });
 
-    it('Firestore保存失敗時も例外をスローしない', async () => {
-      mockFirestore.add.mockRejectedValueOnce(new Error('Firestore Error'));
+    it('Supabase保存失敗時も例外をスローしない', async () => {
+      mockInsert.mockResolvedValueOnce({ error: { message: 'Supabase Error' } });
 
       await expect(logger.logFinalFailure(createRetryResult())).resolves.not.toThrow();
     });
@@ -213,9 +215,9 @@ describe('NewsBatchErrorLogger', () => {
 
       await logger.logFinalFailure(partialResult);
 
-      expect(mockFirestore.add).toHaveBeenCalled();
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
-      expect(savedDoc.partialSuccess).toBe(true);
+      expect(mockInsert).toHaveBeenCalled();
+      const savedRecord = mockInsert.mock.calls[0][0];
+      expect(savedRecord.partial_success).toBe(true);
     });
   });
 
@@ -228,13 +230,13 @@ describe('NewsBatchErrorLogger', () => {
 
       await logger.logFinalFailure(exceptionResult);
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
-      expect(savedDoc.exceptionOccurred).toBe(true);
+      const savedRecord = mockInsert.mock.calls[0][0];
+      expect(savedRecord.exception_occurred).toBe(true);
     });
   });
 
   describe('設定オプション', () => {
-    it('コレクション名をカスタマイズできる', async () => {
+    it('テーブル名をカスタマイズできる', async () => {
       const customConfig: BatchErrorLogConfig = {
         collectionName: 'custom_error_logs',
       };
@@ -242,7 +244,7 @@ describe('NewsBatchErrorLogger', () => {
 
       await customLogger.logFinalFailure(createRetryResult());
 
-      expect(mockFirestore.collection).toHaveBeenCalledWith('custom_error_logs');
+      expect(mockFrom).toHaveBeenCalledWith('custom_error_logs');
     });
   });
 
@@ -250,14 +252,14 @@ describe('NewsBatchErrorLogger', () => {
     it('エントリが必須フィールドを持つ', async () => {
       await logger.logFinalFailure(createRetryResult());
 
-      const savedDoc = mockFirestore.add.mock.calls[0][0] as BatchErrorLogEntry;
+      const savedRecord = mockInsert.mock.calls[0][0];
 
-      expect(typeof savedDoc.batchType).toBe('string');
-      expect(typeof savedDoc.date).toBe('string');
-      expect(typeof savedDoc.attemptCount).toBe('number');
-      expect(typeof savedDoc.totalRetries).toBe('number');
-      expect(Array.isArray(savedDoc.errors)).toBe(true);
-      expect(savedDoc.timestamp).toBeDefined();
+      expect(typeof savedRecord.batch_type).toBe('string');
+      expect(typeof savedRecord.date).toBe('string');
+      expect(typeof savedRecord.attempt_count).toBe('number');
+      expect(typeof savedRecord.total_retries).toBe('number');
+      expect(Array.isArray(savedRecord.errors)).toBe(true);
+      expect(savedRecord.timestamp).toBeDefined();
     });
   });
 });

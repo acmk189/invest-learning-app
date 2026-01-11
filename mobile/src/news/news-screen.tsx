@@ -26,7 +26,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useThemeColors } from '../theme';
-import { NewsItem } from '../firestore/types';
+import { NewsItem } from '../supabase/types';
 import { NewsViewModelResult } from './news-viewmodel';
 
 /**

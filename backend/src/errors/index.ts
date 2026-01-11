@@ -9,7 +9,8 @@ export {
   AppError,
   NetworkError,
   ApiError,
-  FirestoreError,
+  DatabaseError,
+  FirestoreError, // @deprecated - Use DatabaseError instead
   ErrorType,
   ErrorSeverity,
 } from './types';

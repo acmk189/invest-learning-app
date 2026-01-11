@@ -14,7 +14,6 @@ export {
   type TermsError,
   type TermsResult,
   type TermsRepositoryConfig,
-  type FirestoreFetcher,
   type CacheValidator,
   type CacheSetter,
 } from './terms-repository';

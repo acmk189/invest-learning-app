@@ -9,7 +9,7 @@
  * Requirements:
  * - 8.2 (98%以上バッチ成功率)
  *
- * @see https://firebase.google.com/docs/firestore - Firestore参考
+ * @see https://supabase.com/docs/reference/javascript - Supabase参考
  */
 
 import { TermsBatchResult } from './termsBatchService';

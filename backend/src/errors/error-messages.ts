@@ -11,7 +11,7 @@ import { ErrorType } from './types';
 export const USER_ERROR_MESSAGES: Record<ErrorType, string> = {
   [ErrorType.NETWORK]: 'ネットワーク接続に問題が発生しました。インターネット接続を確認してください。',
   [ErrorType.API]: '外部サービスとの通信に失敗しました。しばらく待ってから再度お試しください。',
-  [ErrorType.FIRESTORE]:
+  [ErrorType.DATABASE]:
     'データの読み込みまたは保存に失敗しました。しばらく待ってから再度お試しください。',
   [ErrorType.VALIDATION]: '入力内容に誤りがあります。内容を確認してください。',
   [ErrorType.UNKNOWN]:
@@ -33,11 +33,11 @@ export const DETAILED_ERROR_MESSAGES = {
   API_INVALID_RESPONSE: 'APIからの応答が不正です',
   API_SERVICE_UNAVAILABLE: 'APIサービスが利用できません',
 
-  // Firestoreエラー
-  FIRESTORE_PERMISSION_DENIED: 'Firestoreへのアクセス権限がありません',
-  FIRESTORE_NOT_FOUND: '要求されたデータが見つかりませんでした',
-  FIRESTORE_WRITE_FAILED: 'Firestoreへの書き込みに失敗しました',
-  FIRESTORE_READ_FAILED: 'Firestoreからの読み込みに失敗しました',
+  // データベースエラー
+  DATABASE_PERMISSION_DENIED: 'データベースへのアクセス権限がありません',
+  DATABASE_NOT_FOUND: '要求されたデータが見つかりませんでした',
+  DATABASE_WRITE_FAILED: 'データベースへの書き込みに失敗しました',
+  DATABASE_READ_FAILED: 'データベースからの読み込みに失敗しました',
 
   // バッチ処理エラー
   BATCH_NEWS_FETCH_FAILED: 'ニュースの取得に失敗しました',

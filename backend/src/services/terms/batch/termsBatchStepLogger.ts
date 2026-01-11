@@ -4,13 +4,13 @@
  * Task 12.2: 用語ステップ別エラーログ記録
  *
  * バッチ処理の各ステップでのエラーを詳細に記録する
- * 用語生成、重複チェック、Firestore保存の各段階でエラーを追跡可能にする
+ * 用語生成、重複チェック、Supabase保存の各段階でエラーを追跡可能にする
  *
  * Requirements:
  * - 8.5 (外部API障害時エラーハンドリング+ログ)
  * - 11.3 (エラー発生時詳細ログ)
  *
- * @see https://firebase.google.com/docs/firestore - Firestore参考
+ * @see https://supabase.com/docs/reference/javascript - Supabase参考
  */
 
 import { BatchErrorInfo } from './termsBatchService';
