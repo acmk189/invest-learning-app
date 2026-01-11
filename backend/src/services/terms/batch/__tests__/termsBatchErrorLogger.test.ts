@@ -10,7 +10,7 @@
  * - 8.5 (外部API障害時エラーハンドリング+ログ)
  */
 
-import { TermsBatchErrorLogger, TermsBatchErrorLogEntry } from '../termsBatchErrorLogger';
+import { TermsBatchErrorLogger } from '../termsBatchErrorLogger';
 import { TermsBatchRetryResult } from '../termsBatchRetryHandler';
 import { TermsBatchResult } from '../termsBatchService';
 

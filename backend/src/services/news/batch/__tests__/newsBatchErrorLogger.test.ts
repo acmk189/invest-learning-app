@@ -12,7 +12,6 @@
 
 import {
   NewsBatchErrorLogger,
-  BatchErrorLogEntry,
   BatchErrorLogConfig,
 } from '../newsBatchErrorLogger';
 import { NewsBatchResult } from '../newsBatchService';

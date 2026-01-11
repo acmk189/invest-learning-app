@@ -15,7 +15,6 @@ import {
   setNetworkState,
   resetNetworkState,
   updateNetworkStateFromRequest,
-  NetworkState,
 } from '../network';
 
 describe('Network Utility', () => {
