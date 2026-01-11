@@ -14,7 +14,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { TermItem } from '../firestore/types';
+import { TermItem } from '../supabase/types';
 import { TermsRepository, TermsError, createTermsRepository } from './terms-repository';
 
 /**

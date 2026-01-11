@@ -14,7 +14,6 @@ module.exports = {
     'node_modules/(?!(' +
       '@react-native|' +
       'react-native|' +
-      '@react-native-firebase|' +
       'expo|' +
       '@expo|' +
       'expo-router|' +
@@ -22,7 +21,8 @@ module.exports = {
       'expo-status-bar|' +
       'expo-constants|' +
       'expo-linking|' +
-      '@react-native-async-storage' +
+      '@react-native-async-storage|' +
+      '@supabase' +
       ')/)',
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],

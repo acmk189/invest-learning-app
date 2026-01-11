@@ -1,9 +1,10 @@
 /**
  * エラーロガー実装
  * Task 2.2: エラーハンドリング共通機能実装
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  */
 
-import * as admin from 'firebase-admin';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { AppError } from './types';
 
 /**
@@ -17,28 +18,30 @@ interface ErrorLogData {
   retryable: boolean;
   timestamp: number;
   stack?: string;
-  originalError?: {
+  original_error?: {
     name: string;
     message: string;
     stack?: string;
   };
   context?: Record<string, any>;
-  [key: string]: any; // 追加のプロパティを許可
+  api_name?: string;
+  status_code?: number;
+  operation?: string;
 }
 
 /**
- * エラーログをFirestoreに記録するクラス
+ * エラーログをSupabaseに記録するクラス
  */
 export class ErrorLogger {
-  private readonly firestore: admin.firestore.Firestore;
-  private readonly collectionName: string = 'error_logs';
+  private readonly supabase: SupabaseClient;
+  private readonly tableName: string = 'error_logs';
 
-  constructor(firestore: admin.firestore.Firestore) {
-    this.firestore = firestore;
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase;
   }
 
   /**
-   * エラーをFirestoreに記録する
+   * エラーをSupabaseに記録する
    * @param error - 記録するエラー
    * @param context - 追加のコンテキスト情報(オプション)
    */
@@ -56,7 +59,7 @@ export class ErrorLogger {
 
       // 元のエラー情報を追加
       if (error.originalError) {
-        logData.originalError = {
+        logData.original_error = {
           name: error.originalError.name,
           message: error.originalError.message,
           stack: error.originalError.stack,
@@ -70,23 +73,29 @@ export class ErrorLogger {
 
       // API エラーの場合、追加情報を記録
       if ('apiName' in error) {
-        logData.apiName = (error as any).apiName;
+        logData.api_name = (error as any).apiName;
       }
       if ('statusCode' in error) {
-        logData.statusCode = (error as any).statusCode;
+        logData.status_code = (error as any).statusCode;
       }
 
-      // Firestore エラーの場合、操作タイプを記録
+      // データベース エラーの場合、操作タイプを記録
       if ('operation' in error) {
         logData.operation = (error as any).operation;
       }
 
-      // Firestoreに記録
-      await this.firestore.collection(this.collectionName).add(logData);
+      // Supabaseに記録
+      const { error: insertError } = await this.supabase
+        .from(this.tableName)
+        .insert(logData);
+
+      if (insertError) {
+        console.error('Failed to log error to Supabase:', insertError);
+      }
     } catch (loggingError) {
       // エラーログの記録に失敗しても例外をスローしない
       // コンソールにエラーを出力
-      console.error('Failed to log error to Firestore:', loggingError);
+      console.error('Failed to log error to Supabase:', loggingError);
     }
   }
 

@@ -2,28 +2,29 @@
  * 用語バッチエラーロガーテスト
  *
  * Task 12.4: 用語最終失敗時詳細ログ保存
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  *
- * 最終的な失敗時にFirestore error_logsコレクションに詳細ログを保存する機能をテスト
+ * 最終的な失敗時にSupabase error_logsテーブルに詳細ログを保存する機能をテスト
  *
  * Requirements:
  * - 8.5 (外部API障害時エラーハンドリング+ログ)
  */
 
-import { TermsBatchErrorLogger, TermsBatchErrorLogEntry } from '../termsBatchErrorLogger';
+import { TermsBatchErrorLogger } from '../termsBatchErrorLogger';
 import { TermsBatchRetryResult } from '../termsBatchRetryHandler';
 import { TermsBatchResult } from '../termsBatchService';
-import { getFirestore } from '../../../../config/firebase';
 
-// Firestoreモック
-jest.mock('../../../../config/firebase', () => ({
-  getFirestore: jest.fn(() => ({
-    collection: jest.fn(() => ({
-      add: jest.fn().mockResolvedValue({ id: 'test-doc-id' }),
-    })),
-  })),
+// Supabaseモック
+const mockInsert = jest.fn().mockResolvedValue({ error: null });
+const mockFrom = jest.fn(() => ({
+  insert: mockInsert,
 }));
 
-const mockGetFirestore = getFirestore as jest.MockedFunction<typeof getFirestore>;
+jest.mock('../../../../config/supabase', () => ({
+  getSupabase: jest.fn(() => ({
+    from: mockFrom,
+  })),
+}));
 
 describe('TermsBatchErrorLogger', () => {
   let logger: TermsBatchErrorLogger;
@@ -67,7 +68,7 @@ describe('TermsBatchErrorLogger', () => {
       expect(defaultLogger).toBeDefined();
     });
 
-    it('カスタムコレクション名で初期化できる', () => {
+    it('カスタムテーブル名で初期化できる', () => {
       const customLogger = new TermsBatchErrorLogger({
         collectionName: 'custom_error_logs',
       });
@@ -76,14 +77,7 @@ describe('TermsBatchErrorLogger', () => {
   });
 
   describe('logFinalFailure', () => {
-    it('最終失敗時にログをFirestoreに保存する', async () => {
-      const mockAdd = jest.fn().mockResolvedValue({ id: 'test-doc-id' });
-      mockGetFirestore.mockReturnValue({
-        collection: jest.fn(() => ({
-          add: mockAdd,
-        })),
-      } as any);
-
+    it('最終失敗時にログをSupabaseに保存する', async () => {
       const retryResult = createMockRetryResult({
         finalResult: createMockBatchResult({
           errors: [
@@ -98,39 +92,29 @@ describe('TermsBatchErrorLogger', () => {
 
       await logger.logFinalFailure(retryResult);
 
-      expect(mockAdd).toHaveBeenCalledTimes(1);
-      const savedLog = mockAdd.mock.calls[0][0] as TermsBatchErrorLogEntry;
-      expect(savedLog.batchType).toBe('terms');
+      expect(mockFrom).toHaveBeenCalledWith('error_logs');
+      expect(mockInsert).toHaveBeenCalledTimes(1);
+      const savedLog = mockInsert.mock.calls[0][0];
+      expect(savedLog.batch_type).toBe('terms');
       expect(savedLog.date).toBe('2026-01-03');
-      expect(savedLog.attemptCount).toBe(4);
-      expect(savedLog.totalRetries).toBe(3);
+      expect(savedLog.attempt_count).toBe(4);
+      expect(savedLog.total_retries).toBe(3);
       expect(savedLog.errors).toHaveLength(1);
     });
 
     it('コンテキスト情報を含めて保存できる', async () => {
-      const mockAdd = jest.fn().mockResolvedValue({ id: 'test-doc-id' });
-      mockGetFirestore.mockReturnValue({
-        collection: jest.fn(() => ({
-          add: mockAdd,
-        })),
-      } as any);
-
       const retryResult = createMockRetryResult();
       const context = { environment: 'production', triggeredBy: 'cron' };
 
       await logger.logFinalFailure(retryResult, context);
 
-      const savedLog = mockAdd.mock.calls[0][0] as TermsBatchErrorLogEntry;
+      const savedLog = mockInsert.mock.calls[0][0];
       expect(savedLog.context).toEqual(context);
     });
 
-    it('Firestore保存失敗時はコンソールにエラーを出力する', async () => {
+    it('Supabase保存失敗時はコンソールにエラーを出力する', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockGetFirestore.mockReturnValue({
-        collection: jest.fn(() => ({
-          add: jest.fn().mockRejectedValue(new Error('Firestore error')),
-        })),
-      } as any);
+      mockInsert.mockResolvedValueOnce({ error: { message: 'Supabase error' } });
 
       const retryResult = createMockRetryResult();
 

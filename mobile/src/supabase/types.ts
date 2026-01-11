@@ -21,7 +21,6 @@ export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
 
 /**
  * ニュースアイテム(世界・日本共通)
- * Firestoreからの移行後も同じインターフェースを維持
  */
 export interface NewsItem {
   /** ニュースタイトル */

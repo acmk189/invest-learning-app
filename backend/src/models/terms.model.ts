@@ -1,20 +1,22 @@
 /**
  * Terms Data Model
  *
+ * Task 12: Firebase依存の完全削除 - Supabase対応
+ *
  * Requirements Coverage:
- * - Requirement 3.3: Firestore 1MB以下ドキュメント
+ * - Requirement 3.3: 1MB以下ドキュメント
  * - Requirement 4.1: 1日3つ投資用語生成
  * - Requirement 4.2: 各用語に500文字解説生成
- * - Requirement 4.5: 用語データFirestore保存
+ * - Requirement 4.5: 用語データデータベース保存
  * - Requirement 4.6: 全履歴保持(重複チェック用)
  *
- * Firestoreスキーマ:
- * - Collection: terms
- *   - Document ID: YYYY-MM-DD形式の日付
- *   - Fields: terms (配列、3つの用語)
- * - Collection: terms_history
- *   - Document ID: 自動生成
- *   - Fields: termName, deliveredAt, difficulty
+ * Supabaseスキーマ:
+ * - Table: terms
+ *   - Primary Key: date (YYYY-MM-DD形式)
+ *   - Fields: terms (JSONB配列、3つの用語)
+ * - Table: terms_history
+ *   - Primary Key: id (自動生成)
+ *   - Fields: term_name, delivered_at, difficulty
  */
 
 /**
@@ -37,7 +39,7 @@ export interface Term {
 /**
  * 用語ドキュメント
  *
- * Firestoreパス: terms/{date}
+ * Supabaseテーブル: terms
  */
 export interface TermsDocument {
   /** 日付(ドキュメントID): YYYY-MM-DD形式 */
@@ -53,7 +55,7 @@ export interface TermsDocument {
 /**
  * 用語配信履歴ドキュメント
  *
- * Firestoreパス: terms_history/{auto-generated-id}
+ * Supabaseテーブル: terms_history
  *
  * 用途: 過去30日以内の重複チェック用(Requirement 4.3)
  */
@@ -138,7 +140,7 @@ export function validateTerm(term: Term): void {
 }
 
 /**
- * Firestore用の用語ドキュメントを作成する
+ * 用語ドキュメントを作成する
  *
  * @param date 日付(YYYY-MM-DD形式)
  * @param terms 3つの用語
@@ -155,7 +157,7 @@ export function createTermsDocument(date: string, terms: Term[]): TermsDocument 
 }
 
 /**
- * Firestore用の用語配信履歴ドキュメントを作成する
+ * 用語配信履歴ドキュメントを作成する
  *
  * @param termName 用語名
  * @param difficulty 難易度

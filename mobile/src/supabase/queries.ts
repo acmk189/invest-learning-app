@@ -316,32 +316,23 @@ export function batchMetadataRowToBatchMetadata(row: BatchMetadataRow): BatchMet
 /**
  * 今日のニュースを取得する (Repository層用)
  *
- * Firestoreと同じインターフェース(FirestoreQueryResult互換)で返す
- *
  * @returns SupabaseQueryResult<NewsData>
  * @throws {SupabaseQueryError} Supabaseエラー発生時
  */
 export async function fetchTodayNewsForRepository(): Promise<SupabaseQueryResult<NewsData>> {
   const today = formatDateToJST(new Date());
 
-  try {
-    const newsRow = await getTodayNews(today);
+  const newsRow = await getTodayNews(today);
 
-    if (!newsRow) {
-      return { data: null, exists: false };
-    }
-
-    return { data: newsRowToNewsData(newsRow), exists: true };
-  } catch (error) {
-    // SupabaseQueryErrorはそのままスロー
-    throw error;
+  if (!newsRow) {
+    return { data: null, exists: false };
   }
+
+  return { data: newsRowToNewsData(newsRow), exists: true };
 }
 
 /**
  * 今日の用語を取得する (Repository層用)
- *
- * Firestoreと同じインターフェース(FirestoreQueryResult互換)で返す
  *
  * @returns SupabaseQueryResult<TermsData>
  * @throws {SupabaseQueryError} Supabaseエラー発生時
@@ -349,18 +340,13 @@ export async function fetchTodayNewsForRepository(): Promise<SupabaseQueryResult
 export async function fetchTodayTermsForRepository(): Promise<SupabaseQueryResult<TermsData>> {
   const today = formatDateToJST(new Date());
 
-  try {
-    const termRows = await getTodayTerms(today);
+  const termRows = await getTodayTerms(today);
 
-    if (termRows.length === 0) {
-      return { data: null, exists: false };
-    }
-
-    return { data: termRowsToTermsData(termRows, today), exists: true };
-  } catch (error) {
-    // SupabaseQueryErrorはそのままスロー
-    throw error;
+  if (termRows.length === 0) {
+    return { data: null, exists: false };
   }
+
+  return { data: termRowsToTermsData(termRows, today), exists: true };
 }
 
 /**

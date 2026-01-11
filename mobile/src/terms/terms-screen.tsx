@@ -25,7 +25,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useThemeColors } from '../theme';
-import { TermItem, TermDifficulty } from '../firestore/types';
+import { TermItem, Difficulty } from '../supabase/types';
 import { TermsViewModelResult } from './terms-viewmodel';
 
 /**
@@ -43,7 +43,7 @@ interface TermsScreenProps {
  * @returns 日本語表示と色
  */
 const getDifficultyInfo = (
-  difficulty: TermDifficulty
+  difficulty: Difficulty
 ): { label: string; color: string } => {
   switch (difficulty) {
     case 'beginner':

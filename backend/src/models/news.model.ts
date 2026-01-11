@@ -1,15 +1,17 @@
 /**
  * News Data Model
  *
+ * Task 12: Firebase依存の完全削除 - Supabase対応
+ *
  * Requirements Coverage:
- * - Requirement 3.3: Firestore 1MB以下ドキュメント
- * - Requirement 1.6: 処理完了後Firestoreに保存
+ * - Requirement 3.3: 1MB以下ドキュメント
+ * - Requirement 1.6: 処理完了後データベースに保存
  * - Requirement 1.4: 複数記事を2000文字に要約
  *
- * Firestoreスキーマ:
- * - Collection: news
- * - Document ID: YYYY-MM-DD形式の日付
- * - Fields: worldNews, japanNews, createdAt, updatedAt
+ * Supabaseスキーマ:
+ * - Table: news
+ * - Primary Key: date (YYYY-MM-DD形式)
+ * - Fields: world_news, japan_news, created_at, updated_at
  */
 
 /**
@@ -39,7 +41,7 @@ export interface JapanNews {
 /**
  * ニュースドキュメント
  *
- * Firestoreパス: news/{date}
+ * Supabaseテーブル: news
  */
 export interface NewsDocument {
   /** 日付(ドキュメントID): YYYY-MM-DD形式 */
@@ -111,7 +113,7 @@ function estimateDocumentSize(doc: NewsDocument): number {
 }
 
 /**
- * Firestore用のニュースドキュメントを作成する
+ * ニュースドキュメントを作成する
  *
  * @param date 日付(YYYY-MM-DD形式)
  * @param worldNews 世界のニュース要約

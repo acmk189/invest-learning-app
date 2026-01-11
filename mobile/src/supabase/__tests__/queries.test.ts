@@ -18,7 +18,7 @@ import {
   getBatchMetadata,
   SupabaseQueryError,
 } from '../queries';
-import { getSupabaseInstance, resetSupabaseClient, initializeSupabaseClient } from '../client';
+import { resetSupabaseClient, initializeSupabaseClient } from '../client';
 import { NewsRow, TermRow, BatchMetadataRow, TABLES } from '../types';
 
 // Supabase SDKのモック
@@ -51,7 +51,8 @@ describe('Supabase Queries', () => {
     mockFrom = jest.fn(() => ({ select: mockSelect }));
 
     // Supabaseクライアントを初期化(モック)
-    const { createClient } = require('@supabase/supabase-js');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { createClient } = require('@supabase/supabase-js') as { createClient: jest.Mock };
     createClient.mockReturnValue({ from: mockFrom });
 
     await initializeSupabaseClient({

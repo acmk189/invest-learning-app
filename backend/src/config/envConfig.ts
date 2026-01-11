@@ -2,9 +2,10 @@
  * 環境変数管理ユーティリティ
  *
  * Task 30.1: 環境変数管理実装
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  * Requirements: 9.1, 9.2
  *
- * NewsAPIキー、Claude APIキー、Firebase秘密鍵などの環境変数を
+ * NewsAPIキー、Claude APIキー、Supabaseキーなどの環境変数を
  * 安全に管理し、検証するための統合ユーティリティです。
  *
  * すべてのAPIキーは環境変数で管理され、コード内にハードコーディングしません。
@@ -15,12 +16,9 @@
 /**
  * 環境変数の名前
  *
- * Firebase関連(移行後は削除予定)とSupabase関連の環境変数を含みます。
+ * Supabase、Claude API、NewsAPI関連の環境変数を含みます。
  */
 export type EnvVarName =
-  | 'FIREBASE_PROJECT_ID'
-  | 'FIREBASE_PRIVATE_KEY'
-  | 'FIREBASE_CLIENT_EMAIL'
   | 'CLAUDE_API_KEY'
   | 'NEWS_API_KEY'
   | 'CRON_SECRET'
@@ -51,23 +49,6 @@ export interface EnvVarInfo {
  * この情報は.env.exampleの生成やヘルスチェックに使用されます。
  */
 export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
-  // Firebase Admin SDK用の環境変数
-  FIREBASE_PROJECT_ID: {
-    description: 'Firebase プロジェクトID(Firebase Consoleで確認可能)',
-    required: true,
-    example: 'your-firebase-project-id',
-  },
-  FIREBASE_PRIVATE_KEY: {
-    description: 'Firebase サービスアカウントの秘密鍵(JSON形式からコピー)',
-    required: true,
-    example: '"-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"',
-  },
-  FIREBASE_CLIENT_EMAIL: {
-    description: 'Firebase サービスアカウントのメールアドレス',
-    required: true,
-    example: 'firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com',
-  },
-
   // Claude API(Anthropic)用の環境変数
   CLAUDE_API_KEY: {
     description: 'Claude API(Anthropic)のAPIキー',
@@ -94,17 +75,17 @@ export const ENV_VAR_CONFIG: Record<EnvVarName, EnvVarInfo> = {
   // 参考: https://github.com/orgs/supabase/discussions/29260
   SUPABASE_URL: {
     description: 'Supabase プロジェクトURL',
-    required: false, // 移行期間中はオプション、完了後に必須に変更
+    required: true,
     example: 'https://your-project.supabase.co',
   },
   SUPABASE_PUBLISHABLE_KEY: {
     description: 'Supabase publishable key(クライアントサイド用、旧anon key)',
-    required: false, // 移行期間中はオプション
+    required: false, // クライアントサイドでのみ必要
     example: 'sb_publishable_xxxxxxxx',
   },
   SUPABASE_SECRET_KEY: {
     description: 'Supabase secret key(サーバーサイド用、旧service_role key)',
-    required: false, // 移行期間中はオプション
+    required: true,
     example: 'sb_secret_xxxxxxxx',
   },
 

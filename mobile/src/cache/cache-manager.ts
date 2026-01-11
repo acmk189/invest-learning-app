@@ -66,7 +66,7 @@ export class CacheManager {
 
   /**
    * CacheManagerのコンストラクタ
-   * @param metadataFetcher - Firestoreからメタデータを取得する関数(DI用)
+   * @param metadataFetcher - Supabaseからメタデータを取得する関数(DI用)
    */
   constructor(metadataFetcher?: MetadataFetcher) {
     this.metadataFetcher = metadataFetcher || (async () => null);

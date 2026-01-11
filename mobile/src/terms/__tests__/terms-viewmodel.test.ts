@@ -13,7 +13,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { useTermsViewModel, TermsState } from '../terms-viewmodel';
 import { TermsRepository, TermsResult, TermsError } from '../terms-repository';
-import { TermsData, TermItem } from '../../firestore/types';
+import { TermsData, TermItem } from '../../supabase/types';
 
 // モック用語データ
 const mockTermItems: TermItem[] = [
@@ -44,7 +44,7 @@ const mockTermsData: TermsData = {
   updatedAt: '2026-01-10T08:00:00.000Z',
 };
 
-// モックエラー(FirestoreErrorCodeの型に準拠)
+// モックエラー(SupabaseErrorCodeの型に準拠)
 const mockError: TermsError = {
   code: 'CONNECTION_FAILED',
   message: 'サーバーに接続できませんでした。インターネット接続を確認してください。',
@@ -65,7 +65,7 @@ function createMockRepository(
     getTodayTerms: jest.fn().mockResolvedValue({
       success,
       data,
-      source: 'firestore',
+      source: 'supabase',
       error,
     } as TermsResult),
   } as unknown as TermsRepository;
@@ -233,7 +233,7 @@ describe('useTermsViewModel', () => {
                     resolve({
                       success: true,
                       data: mockTermsData,
-                      source: 'firestore',
+                      source: 'supabase',
                     }),
                   100
                 )
@@ -270,13 +270,13 @@ describe('useTermsViewModel', () => {
           .mockResolvedValueOnce({
             success: false,
             data: null,
-            source: 'firestore',
+            source: 'supabase',
             error: mockError,
           } as TermsResult)
           .mockResolvedValueOnce({
             success: true,
             data: mockTermsData,
-            source: 'firestore',
+            source: 'supabase',
           } as TermsResult),
       } as unknown as TermsRepository;
 
@@ -331,13 +331,13 @@ describe('useTermsViewModel', () => {
           .mockResolvedValueOnce({
             success: false,
             data: null,
-            source: 'firestore',
+            source: 'supabase',
             error: mockError,
           } as TermsResult)
           .mockResolvedValueOnce({
             success: true,
             data: mockTermsData,
-            source: 'firestore',
+            source: 'supabase',
           } as TermsResult),
       } as unknown as TermsRepository;
 

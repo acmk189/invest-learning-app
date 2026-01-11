@@ -2,17 +2,18 @@
  * ニュース最終失敗時詳細ログ保存
  *
  * Task 9.4: ニュース最終失敗時詳細ログ保存
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  *
- * 最終的な失敗時にFirestore error_logsコレクションに詳細ログを保存する
+ * 最終的な失敗時にSupabase error_logsテーブルに詳細ログを保存する
  * リトライを全て使い果たした場合などの重大なエラーを記録
  *
  * Requirements:
  * - 8.5 (外部API障害時エラーハンドリング+ログ)
  *
- * @see https://firebase.google.com/docs/firestore - Firestore参考
+ * @see https://supabase.com/docs - Supabase参考
  */
 
-import { getFirestore } from '../../../config/firebase';
+import { getSupabase } from '../../../config/supabase';
 import { NewsBatchRetryResult } from './newsBatchRetryHandler';
 
 /**
@@ -29,7 +30,7 @@ export interface BatchErrorLogConfig {
 /**
  * エラーログエントリ
  *
- * Firestoreに保存するエラーログの構造
+ * Supabaseに保存するエラーログの構造
  */
 export interface BatchErrorLogEntry {
   /** バッチタイプ('news' or 'terms') */
@@ -66,7 +67,7 @@ const DEFAULT_COLLECTION_NAME = 'error_logs';
 /**
  * ニュースバッチエラーロガー
  *
- * バッチ処理の最終失敗時に詳細なエラーログをFirestoreに保存する
+ * バッチ処理の最終失敗時に詳細なエラーログをSupabaseに保存する
  * 後で障害分析や運用監視に利用できる
  *
  * @example
@@ -78,7 +79,7 @@ const DEFAULT_COLLECTION_NAME = 'error_logs';
  * }
  */
 export class NewsBatchErrorLogger {
-  private readonly collectionName: string;
+  private readonly tableName: string;
 
   /**
    * コンストラクタ
@@ -86,13 +87,13 @@ export class NewsBatchErrorLogger {
    * @param config - 設定オプション
    */
   constructor(config: BatchErrorLogConfig = {}) {
-    this.collectionName = config.collectionName ?? DEFAULT_COLLECTION_NAME;
+    this.tableName = config.collectionName ?? DEFAULT_COLLECTION_NAME;
   }
 
   /**
    * 最終失敗時のエラーログを保存
    *
-   * リトライを全て使い果たした後の最終失敗時にFirestoreにログを保存する
+   * リトライを全て使い果たした後の最終失敗時にSupabaseにログを保存する
    *
    * @param retryResult - リトライ結果
    * @param context - 追加のコンテキスト情報(任意)
@@ -102,7 +103,7 @@ export class NewsBatchErrorLogger {
     context?: Record<string, unknown>
   ): Promise<void> {
     try {
-      const db = getFirestore();
+      const supabase = getSupabase();
 
       // エラー情報を変換
       const errors = (retryResult.finalResult.errors || []).map((error) => ({
@@ -111,22 +112,29 @@ export class NewsBatchErrorLogger {
         timestamp: error.timestamp.toISOString(),
       }));
 
-      // ログエントリを作成
-      const logEntry: BatchErrorLogEntry = {
-        batchType: 'news',
+      // ログエントリを作成(Supabase用にスネークケースに変換)
+      const logEntry = {
+        batch_type: 'news',
         date: retryResult.finalResult.date,
-        attemptCount: retryResult.attemptCount,
-        totalRetries: retryResult.totalRetries,
-        totalProcessingTimeMs: retryResult.totalProcessingTimeMs,
-        partialSuccess: retryResult.partialSuccess,
-        exceptionOccurred: retryResult.exceptionOccurred,
+        attempt_count: retryResult.attemptCount,
+        total_retries: retryResult.totalRetries,
+        total_processing_time_ms: retryResult.totalProcessingTimeMs,
+        partial_success: retryResult.partialSuccess,
+        exception_occurred: retryResult.exceptionOccurred,
         errors,
         timestamp: new Date().toISOString(),
         context,
       };
 
-      // Firestoreに保存
-      await db.collection(this.collectionName).add(logEntry);
+      // Supabaseに保存
+      const { error: insertError } = await supabase
+        .from(this.tableName)
+        .insert(logEntry);
+
+      if (insertError) {
+        console.error('[NewsBatchErrorLogger]', `Failed to save error log: ${insertError.message}`);
+        return;
+      }
 
       console.log(
         '[NewsBatchErrorLogger]',

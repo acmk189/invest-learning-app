@@ -17,8 +17,7 @@ import { SupabaseQueryError } from './queries';
 /**
  * Supabaseエラーコード
  *
- * FirestoreErrorCodeと同じインターフェースを維持し、
- * Repository層での置換を容易にする
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  */
 export type SupabaseErrorCode =
   | 'CONNECTION_FAILED'
@@ -27,13 +26,13 @@ export type SupabaseErrorCode =
   | 'PERMISSION_DENIED'
   | 'UNAVAILABLE'
   | 'CANCELLED'
+  | 'OFFLINE'
   | 'UNKNOWN';
 
 /**
  * Supabaseエラー
  *
  * カスタムエラークラスでエラーコードとリトライ可能性を含む。
- * FirestoreErrorと同じインターフェースを維持。
  */
 export class SupabaseError extends Error {
   /** エラーコード */
@@ -62,7 +61,6 @@ export class SupabaseError extends Error {
 
 /**
  * ユーザー向けエラーメッセージ (日本語)
- * FirestoreのERROR_MESSAGESと同じ内容を維持
  *
  * Requirement 7.5: 適切なエラーメッセージを表示
  */
@@ -73,6 +71,7 @@ export const ERROR_MESSAGES: Record<SupabaseErrorCode, string> = {
   PERMISSION_DENIED: 'データへのアクセス権限がありません。',
   UNAVAILABLE: 'サービスが一時的に利用できません。しばらくしてからもう一度お試しください。',
   CANCELLED: '操作がキャンセルされました。',
+  OFFLINE: 'オフラインです。インターネット接続を確認してください。',
   UNKNOWN: '予期しないエラーが発生しました。しばらくしてからもう一度お試しください。',
 };
 
@@ -83,6 +82,7 @@ const RETRYABLE_ERROR_CODES: SupabaseErrorCode[] = [
   'CONNECTION_FAILED',
   'TIMEOUT',
   'UNAVAILABLE',
+  'OFFLINE',
 ];
 
 /**
@@ -203,7 +203,7 @@ export function getUserFriendlyMessage(error: SupabaseError): string {
  * @returns オフライン状態の可能性がある場合はtrue
  */
 export function isOfflineError(error: SupabaseError): boolean {
-  return error.code === 'CONNECTION_FAILED' || error.code === 'UNAVAILABLE';
+  return error.code === 'CONNECTION_FAILED' || error.code === 'UNAVAILABLE' || error.code === 'OFFLINE';
 }
 
 /**

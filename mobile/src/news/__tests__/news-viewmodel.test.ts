@@ -13,7 +13,7 @@
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { useNewsViewModel, NewsState } from '../news-viewmodel';
 import { NewsRepository, NewsResult, NewsError } from '../news-repository';
-import { NewsData } from '../../firestore/types';
+import { NewsData } from '../../supabase/types';
 
 // モックデータ
 const mockNewsData: NewsData = {
@@ -32,7 +32,7 @@ const mockNewsData: NewsData = {
   updatedAt: '2026-01-07T08:00:00.000Z',
 };
 
-// モックエラー(FirestoreErrorCodeの型に準拠)
+// モックエラー(SupabaseErrorCodeの型に準拠)
 const mockError: NewsError = {
   code: 'CONNECTION_FAILED',
   message: 'サーバーに接続できませんでした。インターネット接続を確認してください。',
@@ -53,7 +53,7 @@ function createMockRepository(
     getTodayNews: jest.fn().mockResolvedValue({
       success,
       data,
-      source: 'firestore',
+      source: 'supabase',
       error,
     } as NewsResult),
   } as unknown as NewsRepository;
@@ -207,7 +207,7 @@ describe('useNewsViewModel', () => {
                     resolve({
                       success: true,
                       data: mockNewsData,
-                      source: 'firestore',
+                      source: 'supabase',
                     }),
                   100
                 )
@@ -244,13 +244,13 @@ describe('useNewsViewModel', () => {
           .mockResolvedValueOnce({
             success: false,
             data: null,
-            source: 'firestore',
+            source: 'supabase',
             error: mockError,
           } as NewsResult)
           .mockResolvedValueOnce({
             success: true,
             data: mockNewsData,
-            source: 'firestore',
+            source: 'supabase',
           } as NewsResult),
       } as unknown as NewsRepository;
 
@@ -306,13 +306,13 @@ describe('useNewsViewModel', () => {
           .mockResolvedValueOnce({
             success: false,
             data: null,
-            source: 'firestore',
+            source: 'supabase',
             error: mockError,
           } as NewsResult)
           .mockResolvedValueOnce({
             success: true,
             data: mockNewsData,
-            source: 'firestore',
+            source: 'supabase',
           } as NewsResult),
       } as unknown as NewsRepository;
 

@@ -14,7 +14,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { NewsItem } from '../firestore/types';
+import { NewsItem } from '../supabase/types';
 import { NewsRepository, NewsError, createNewsRepository } from './news-repository';
 
 /**

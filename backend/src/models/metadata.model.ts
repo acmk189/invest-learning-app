@@ -1,21 +1,26 @@
 /**
  * バッチメタデータモデル
  * Task 2.3: キャッシュ管理システム実装(案B: メタデータによる軽量チェック)
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  *
  * バッチ処理の最終更新時刻を管理し、クライアント側でキャッシュの有効性を判断するために使用します。
- * Firestoreパス: metadata/batch
+ * Supabaseテーブル: batch_metadata
  */
-
-import { Timestamp } from 'firebase-admin/firestore';
 
 /**
- * バッチメタデータのFirestoreドキュメント構造
+ * バッチメタデータのSupabaseテーブル構造
  */
-export interface BatchMetadataDocument {
-  /** ニュースバッチの最終更新時刻 */
-  newsLastUpdated: Timestamp;
-  /** 用語バッチの最終更新時刻 */
-  termsLastUpdated: Timestamp;
+export interface BatchMetadataRecord {
+  /** 一意のID */
+  id: number;
+  /** ニュースバッチの最終更新時刻(ISO 8601文字列) */
+  news_last_updated: string;
+  /** 用語バッチの最終更新時刻(ISO 8601文字列) */
+  terms_last_updated: string;
+  /** 作成日時 */
+  created_at: string;
+  /** 更新日時 */
+  updated_at: string;
 }
 
 /**
@@ -29,23 +34,23 @@ export interface BatchMetadata {
 }
 
 /**
- * Firestoreのメタデータコレクション名
+ * Supabaseのメタデータテーブル名
  */
-export const METADATA_COLLECTION = 'metadata';
+export const METADATA_TABLE = 'batch_metadata';
 
 /**
- * バッチメタデータのドキュメントID
+ * バッチメタデータのレコードID(固定値)
  */
-export const BATCH_METADATA_DOC_ID = 'batch';
+export const BATCH_METADATA_ID = 1;
 
 /**
- * BatchMetadataDocumentからBatchMetadataへ変換する
- * @param doc - Firestoreのドキュメントデータ
+ * BatchMetadataRecordからBatchMetadataへ変換する
+ * @param record - Supabaseのテーブルレコード
  * @returns クライアント向けのBatchMetadata
  */
-export function toBatchMetadata(doc: BatchMetadataDocument): BatchMetadata {
+export function toBatchMetadata(record: BatchMetadataRecord): BatchMetadata {
   return {
-    newsLastUpdated: doc.newsLastUpdated.toMillis(),
-    termsLastUpdated: doc.termsLastUpdated.toMillis(),
+    newsLastUpdated: new Date(record.news_last_updated).getTime(),
+    termsLastUpdated: new Date(record.terms_last_updated).getTime(),
   };
 }

@@ -185,22 +185,22 @@
   - エラー型定義の更新
   - _Requirements: 9_
 
-- [ ] 11. オフライン対応強化
-- [ ] 11.1 CacheManager Supabase対応
+- [x] 11. オフライン対応強化
+- [x] 11.1 CacheManager Supabase対応
   - AsyncStorageベースのキャッシュ拡張
   - Supabaseデータのキャッシュ保存
   - キャッシュキーの設計(@cache/news/{date}等)
   - _Requirements: 10_
-- [ ] 11.2 メタデータチェック機能実装
+- [x] 11.2 メタデータチェック機能実装
   - Supabaseからメタデータ取得
   - ローカルキャッシュとの比較
   - 更新必要判定ロジック
   - _Requirements: 10_
-- [ ] 11.3 ネットワーク状態検出実装
+- [x] 11.3 ネットワーク状態検出実装
   - オンライン/オフライン状態の検出
   - 状態変更時のコールバック
   - _Requirements: 10_
-- [ ] 11.4 オフラインフォールバック実装
+- [x] 11.4 オフラインフォールバック実装
   - オフライン時のキャッシュ優先取得
   - オンライン復帰時の同期処理
   - 1秒以内のキャッシュ表示達成
@@ -208,23 +208,23 @@
 
 ## Phase 5: クリーンアップ
 
-- [ ] 12. Firebase依存の完全削除
-- [ ] 12.1 バックエンドFirebase削除
+- [x] 12. Firebase依存の完全削除
+- [x] 12.1 バックエンドFirebase削除
   - `firebase-admin`パッケージをアンインストール
   - `backend/src/config/firebase.ts`を削除
   - Firebase関連の型定義を削除
   - _Requirements: 11_
-- [ ] 12.2 フロントエンドFirebase削除
+- [x] 12.2 フロントエンドFirebase削除
   - `@react-native-firebase/*`パッケージをアンインストール
   - `mobile/src/config/firebase.ts`を削除
   - `mobile/src/firestore/`ディレクトリを削除
   - _Requirements: 11_
-- [ ] 12.3 Firebase設定ファイル削除
+- [x] 12.3 Firebase設定ファイル削除
   - GoogleService-Info.plist削除
   - google-services.json削除(Android用があれば)
   - Firebase環境変数の削除
   - _Requirements: 11_
-- [ ] 12.4 Expoビルド確認
+- [x] 12.4 Expoビルド確認
   - iOS Expoビルドの実行
   - ビルド成功の確認
   - Firebase依存が完全に排除されたことを確認

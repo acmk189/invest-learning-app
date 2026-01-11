@@ -2,17 +2,18 @@
  * 用語最終失敗時詳細ログ保存
  *
  * Task 12.4: 用語最終失敗時詳細ログ保存
+ * Task 12: Firebase依存の完全削除 - Supabase対応
  *
- * 最終的な失敗時にFirestore error_logsコレクションに詳細ログを保存する
+ * 最終的な失敗時にSupabase error_logsテーブルに詳細ログを保存する
  * リトライを全て使い果たした場合などの重大なエラーを記録
  *
  * Requirements:
  * - 8.5 (外部API障害時エラーハンドリング+ログ)
  *
- * @see https://firebase.google.com/docs/firestore - Firestore参考
+ * @see https://supabase.com/docs - Supabase参考
  */
 
-import { getFirestore } from '../../../config/firebase';
+import { getSupabase } from '../../../config/supabase';
 import { TermsBatchRetryResult } from './termsBatchRetryHandler';
 
 /**
@@ -20,7 +21,7 @@ import { TermsBatchRetryResult } from './termsBatchRetryHandler';
  */
 export interface TermsBatchErrorLogConfig {
   /**
-   * エラーログを保存するコレクション名
+   * エラーログを保存するテーブル名
    * @default 'error_logs'
    */
   collectionName?: string;
@@ -29,7 +30,7 @@ export interface TermsBatchErrorLogConfig {
 /**
  * エラーログエントリ
  *
- * Firestoreに保存するエラーログの構造
+ * Supabaseに保存するエラーログの構造
  */
 export interface TermsBatchErrorLogEntry {
   /** バッチタイプ('news' or 'terms') */
@@ -63,12 +64,12 @@ export interface TermsBatchErrorLogEntry {
 /**
  * デフォルト設定
  */
-const DEFAULT_COLLECTION_NAME = 'error_logs';
+const DEFAULT_TABLE_NAME = 'error_logs';
 
 /**
  * 用語バッチエラーロガー
  *
- * バッチ処理の最終失敗時に詳細なエラーログをFirestoreに保存する
+ * バッチ処理の最終失敗時に詳細なエラーログをSupabaseに保存する
  * 後で障害分析や運用監視に利用できる
  *
  * @example
@@ -80,7 +81,7 @@ const DEFAULT_COLLECTION_NAME = 'error_logs';
  * }
  */
 export class TermsBatchErrorLogger {
-  private readonly collectionName: string;
+  private readonly tableName: string;
 
   /**
    * コンストラクタ
@@ -88,13 +89,13 @@ export class TermsBatchErrorLogger {
    * @param config - 設定オプション
    */
   constructor(config: TermsBatchErrorLogConfig = {}) {
-    this.collectionName = config.collectionName ?? DEFAULT_COLLECTION_NAME;
+    this.tableName = config.collectionName ?? DEFAULT_TABLE_NAME;
   }
 
   /**
    * 最終失敗時のエラーログを保存
    *
-   * リトライを全て使い果たした後の最終失敗時にFirestoreにログを保存する
+   * リトライを全て使い果たした後の最終失敗時にSupabaseにログを保存する
    *
    * @param retryResult - リトライ結果
    * @param context - 追加のコンテキスト情報(任意)
@@ -104,7 +105,7 @@ export class TermsBatchErrorLogger {
     context?: Record<string, unknown>
   ): Promise<void> {
     try {
-      const db = getFirestore();
+      const supabase = getSupabase();
 
       // エラー情報を変換
       const errors = (retryResult.finalResult.errors || []).map((error) => ({
@@ -116,23 +117,30 @@ export class TermsBatchErrorLogger {
       // 生成された用語数を取得
       const generatedTermCount = retryResult.finalResult.terms?.length ?? 0;
 
-      // ログエントリを作成
-      const logEntry: TermsBatchErrorLogEntry = {
-        batchType: 'terms',
+      // ログエントリを作成(Supabase用にスネークケースに変換)
+      const logEntry = {
+        batch_type: 'terms',
         date: retryResult.finalResult.date,
-        attemptCount: retryResult.attemptCount,
-        totalRetries: retryResult.totalRetries,
-        totalProcessingTimeMs: retryResult.totalProcessingTimeMs,
-        partialSuccess: retryResult.partialSuccess,
-        exceptionOccurred: retryResult.exceptionOccurred,
-        generatedTermCount,
+        attempt_count: retryResult.attemptCount,
+        total_retries: retryResult.totalRetries,
+        total_processing_time_ms: retryResult.totalProcessingTimeMs,
+        partial_success: retryResult.partialSuccess,
+        exception_occurred: retryResult.exceptionOccurred,
+        generated_term_count: generatedTermCount,
         errors,
         timestamp: new Date().toISOString(),
         context,
       };
 
-      // Firestoreに保存
-      await db.collection(this.collectionName).add(logEntry);
+      // Supabaseに保存
+      const { error: insertError } = await supabase
+        .from(this.tableName)
+        .insert(logEntry);
+
+      if (insertError) {
+        console.error('[TermsBatchErrorLogger]', `Failed to save error log: ${insertError.message}`);
+        return;
+      }
 
       console.log(
         '[TermsBatchErrorLogger]',

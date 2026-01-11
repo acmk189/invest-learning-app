@@ -7,7 +7,7 @@ import {
   AppError,
   NetworkError,
   ApiError,
-  FirestoreError,
+  DatabaseError,
   ErrorType,
   ErrorSeverity,
 } from '../index';
@@ -55,21 +55,21 @@ describe('Error Types', () => {
     });
   });
 
-  describe('FirestoreError', () => {
-    it('should create a Firestore error with correct properties', () => {
-      const error = new FirestoreError('Firestoreへの接続に失敗しました');
+  describe('DatabaseError', () => {
+    it('should create a Database error with correct properties', () => {
+      const error = new DatabaseError('データベースへの接続に失敗しました');
 
       expect(error).toBeInstanceOf(Error);
       expect(error).toBeInstanceOf(AppError);
-      expect(error.name).toBe('FirestoreError');
-      expect(error.message).toBe('Firestoreへの接続に失敗しました');
-      expect(error.type).toBe(ErrorType.FIRESTORE);
+      expect(error.name).toBe('DatabaseError');
+      expect(error.message).toBe('データベースへの接続に失敗しました');
+      expect(error.type).toBe(ErrorType.DATABASE);
       expect(error.severity).toBe(ErrorSeverity.CRITICAL);
       expect(error.retryable).toBe(true);
     });
 
     it('should include operation type if provided', () => {
-      const error = new FirestoreError('書き込みに失敗しました', undefined, 'write');
+      const error = new DatabaseError('書き込みに失敗しました', undefined, 'write');
 
       expect(error.operation).toBe('write');
     });
