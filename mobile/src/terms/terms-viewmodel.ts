@@ -13,7 +13,7 @@
  * @see design.md - Architecture - Terms Feature
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { TermItem } from '../supabase/types';
 import { TermsRepository, TermsError, createTermsRepository } from './terms-repository';
 
@@ -73,7 +73,11 @@ export function useTermsViewModel(
   repository?: TermsRepository
 ): TermsViewModelResult {
   // デフォルトのリポジトリを使用(テスト時はモックを注入)
-  const repo = repository || createTermsRepository();
+  // useMemoでメモ化し、repositoryが変わらない限り同じインスタンスを再利用
+  const repo = useMemo(
+    () => repository || createTermsRepository(),
+    [repository]
+  );
 
   // 状態管理
   const [state, setState] = useState<TermsState>('loading');

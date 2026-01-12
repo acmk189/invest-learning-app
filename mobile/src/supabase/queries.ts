@@ -125,7 +125,7 @@ export async function getTodayNews(date: string): Promise<NewsRow | null> {
     .from(TABLES.NEWS)
     .select('*')
     .eq('date', date)
-    .single();
+    .maybeSingle();
 
   // エラーがある場合はスロー
   if (error) {

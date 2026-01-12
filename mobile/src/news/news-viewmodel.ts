@@ -13,7 +13,7 @@
  * @see design.md - Architecture - News Feature
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { NewsItem } from '../supabase/types';
 import { NewsRepository, NewsError, createNewsRepository } from './news-repository';
 
@@ -74,7 +74,11 @@ export function useNewsViewModel(
   repository?: NewsRepository
 ): NewsViewModelResult {
   // デフォルトのリポジトリを使用(テスト時はモックを注入)
-  const repo = repository || createNewsRepository();
+  // useMemoでメモ化し、repositoryが変わらない限り同じインスタンスを再利用
+  const repo = useMemo(
+    () => repository || createNewsRepository(),
+    [repository]
+  );
 
   // 状態管理
   const [state, setState] = useState<NewsState>('loading');
