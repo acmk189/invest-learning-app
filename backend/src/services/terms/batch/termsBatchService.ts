@@ -308,6 +308,36 @@ export class TermsBatchService {
   }
 
   /**
+   * 配信済み用語名をterms_historyから取得する
+   *
+   * Requirements 4.6: 全履歴保持(重複チェック用)
+   *
+   * @returns 過去に配信された用語名の配列
+   */
+  private async fetchDeliveredTermNames(): Promise<string[]> {
+    try {
+      const supabase = getSupabase();
+
+      // terms_historyテーブルから全用語名を取得
+      const { data, error } = await supabase
+        .from('terms_history')
+        .select('term_name');
+
+      if (error) {
+        console.warn('[TermsBatchService] Failed to fetch terms history:', error.message);
+        return [];
+      }
+
+      const termNames = (data || []).map((row: { term_name: string }) => row.term_name);
+      console.log(`[TermsBatchService] Loaded ${termNames.length} terms from history for exclusion`);
+      return termNames;
+    } catch (error) {
+      console.warn('[TermsBatchService] Error fetching terms history:', error);
+      return [];
+    }
+  }
+
+  /**
    * メイン処理を実行
    *
    * Requirements 4.1: 1日3つ投資用語生成
@@ -320,7 +350,9 @@ export class TermsBatchService {
     errors: BatchErrorInfo[]
   ): Promise<{ terms: Term[] }> {
     const terms: Term[] = [];
-    const excludeTerms: string[] = [];
+
+    // 過去に配信済みの用語を取得して除外リストを初期化
+    const excludeTerms: string[] = await this.fetchDeliveredTermNames();
 
     // 各難易度で用語を順次生成
     for (const difficulty of DIFFICULTY_ORDER) {
