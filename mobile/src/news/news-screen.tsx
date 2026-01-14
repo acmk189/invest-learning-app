@@ -16,7 +16,7 @@
  * @see design.md - Architecture - News Feature
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -24,8 +24,10 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
-import { useThemeColors } from '../theme';
+import Markdown from 'react-native-markdown-display';
+import { useThemeColors, ThemeColors } from '../theme';
 import { NewsItem } from '../supabase/types';
 import { NewsViewModelResult } from './news-viewmodel';
 
@@ -66,6 +68,148 @@ const formatDateTime = (isoString: string): string => {
 };
 
 /**
+ * Markdown表示用のスタイルを生成する関数
+ * テーマカラーに応じたスタイルを動的に生成
+ *
+ * @param colors - テーマカラー
+ * @returns Markdownコンポーネント用のスタイルオブジェクト
+ */
+const createMarkdownStyles = (colors: ThemeColors) => ({
+  body: {
+    color: colors.text,
+    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
+    lineHeight: TYPOGRAPHY.BODY_LINE_HEIGHT,
+  },
+  heading1: {
+    color: colors.text,
+    fontSize: 22,
+    fontWeight: '700' as const,
+    marginTop: 16,
+    marginBottom: 8,
+    lineHeight: 30,
+  },
+  heading2: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: '700' as const,
+    marginTop: 14,
+    marginBottom: 6,
+    lineHeight: 28,
+  },
+  heading3: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '600' as const,
+    marginTop: 12,
+    marginBottom: 4,
+    lineHeight: 26,
+  },
+  heading4: {
+    color: colors.text,
+    fontSize: 17,
+    fontWeight: '600' as const,
+    marginTop: 10,
+    marginBottom: 4,
+    lineHeight: 24,
+  },
+  heading5: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '600' as const,
+    marginTop: 8,
+    marginBottom: 4,
+    lineHeight: 22,
+  },
+  heading6: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '500' as const,
+    marginTop: 8,
+    marginBottom: 4,
+    lineHeight: 22,
+  },
+  paragraph: {
+    color: colors.text,
+    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
+    lineHeight: TYPOGRAPHY.BODY_LINE_HEIGHT,
+    marginTop: 0,
+    marginBottom: 12,
+  },
+  strong: {
+    fontWeight: '700' as const,
+  },
+  em: {
+    fontStyle: 'italic' as const,
+  },
+  bullet_list: {
+    marginBottom: 12,
+  },
+  ordered_list: {
+    marginBottom: 12,
+  },
+  list_item: {
+    flexDirection: 'row' as const,
+    marginBottom: 6,
+  },
+  bullet_list_icon: {
+    color: colors.text,
+    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
+    lineHeight: TYPOGRAPHY.BODY_LINE_HEIGHT,
+    marginRight: 8,
+  },
+  ordered_list_icon: {
+    color: colors.text,
+    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
+    lineHeight: TYPOGRAPHY.BODY_LINE_HEIGHT,
+    marginRight: 8,
+  },
+  blockquote: {
+    backgroundColor: colors.card,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.primary,
+    paddingLeft: 12,
+    paddingVertical: 8,
+    marginVertical: 8,
+  },
+  code_inline: {
+    backgroundColor: colors.card,
+    color: colors.text,
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontSize: 14,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  code_block: {
+    backgroundColor: colors.card,
+    color: colors.text,
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontSize: 14,
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  fence: {
+    backgroundColor: colors.card,
+    color: colors.text,
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontSize: 14,
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  link: {
+    color: colors.primary,
+    textDecorationLine: 'underline' as const,
+  },
+  hr: {
+    backgroundColor: colors.cardBorder,
+    height: 1,
+    marginVertical: 16,
+  },
+});
+
+/**
  * ニュースカードコンポーネント
  * 各ニュースのタイトル、要約、更新日時を表示
  *
@@ -82,6 +226,9 @@ interface NewsCardExtendedProps extends NewsCardProps {
 
 function NewsCard({ categoryTitle, news, testId }: NewsCardExtendedProps) {
   const colors = useThemeColors();
+
+  // Markdownスタイルをメモ化（テーマ変更時のみ再生成）
+  const markdownStyles = useMemo(() => createMarkdownStyles(colors), [colors]);
 
   // アクセシビリティ用のラベル生成
   // VoiceOverがカード全体の内容を読み上げるために使用
@@ -116,10 +263,12 @@ function NewsCard({ categoryTitle, news, testId }: NewsCardExtendedProps) {
         更新: {formatDateTime(news.updatedAt)}
       </Text>
 
-      {/* 要約本文 */}
-      <Text style={[styles.summary, { color: colors.text }]}>
-        {news.summary}
-      </Text>
+      {/* 要約本文（Markdown形式） */}
+      <View style={styles.summaryContainer}>
+        <Markdown style={markdownStyles}>
+          {news.summary}
+        </Markdown>
+      </View>
     </View>
   );
 }
@@ -386,12 +535,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  // 要約本文
-  // 16pt以上のフォント、1.5倍以上の行間で可読性を確保
-  summary: {
-    fontSize: TYPOGRAPHY.BODY_FONT_SIZE,
-    lineHeight: TYPOGRAPHY.BODY_LINE_HEIGHT, // 行間1.625倍（可読性確保）
-    textAlign: 'justify',
+  // 要約本文コンテナ（Markdown表示用）
+  // Markdownコンポーネントを囲むコンテナ
+  summaryContainer: {
+    marginTop: 4,
   },
 
   // ローディング
