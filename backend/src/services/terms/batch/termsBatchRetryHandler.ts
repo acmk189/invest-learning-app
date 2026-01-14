@@ -13,6 +13,7 @@
  */
 
 import { TermsBatchResult } from './termsBatchService';
+import { formatDateToJST } from '../../../utils/dateUtils';
 
 /**
  * リトライ設定
@@ -276,7 +277,7 @@ export class TermsBatchRetryHandler {
       historyUpdated: false,
       metadataUpdated: false,
       processingTimeMs: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: formatDateToJST(),
       errors: [
         {
           type: 'exception',
@@ -300,7 +301,7 @@ export class TermsBatchRetryHandler {
       historyUpdated: false,
       metadataUpdated: false,
       processingTimeMs: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: formatDateToJST(),
       errors: [
         {
           type: 'unknown',

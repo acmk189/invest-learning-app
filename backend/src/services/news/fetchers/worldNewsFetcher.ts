@@ -20,6 +20,7 @@ import type {
   NewsApiErrorResponse,
   RequestUsage,
 } from './newsApiTypes';
+import { formatDateToJST } from '../../../utils/dateUtils';
 
 /**
  * NewsAPI無料枠の1日あたりのリクエスト上限
@@ -121,10 +122,10 @@ export class WorldNewsFetcher {
   }
 
   /**
-   * 今日の日付をYYYY-MM-DD形式で取得
+   * 今日の日付をYYYY-MM-DD形式で取得(JST)
    */
   private getTodayString(): string {
-    return new Date().toISOString().split('T')[0];
+    return formatDateToJST();
   }
 
   /**

@@ -29,6 +29,7 @@ import {
   TermDifficulty,
 } from '../../../models/terms.model';
 import { AppError, ErrorType, ErrorSeverity } from '../../../errors/types';
+import { formatDateToJST } from '../../../utils/dateUtils';
 
 /**
  * デフォルトのタイムアウト時間(5分)
@@ -465,11 +466,11 @@ export class TermsBatchService {
   }
 
   /**
-   * 今日の日付をYYYY-MM-DD形式で取得
+   * 今日の日付をYYYY-MM-DD形式で取得(JST)
    *
-   * @returns 日付文字列
+   * @returns 日付文字列(JST)
    */
   private getTodayString(): string {
-    return new Date().toISOString().split('T')[0];
+    return formatDateToJST();
   }
 }

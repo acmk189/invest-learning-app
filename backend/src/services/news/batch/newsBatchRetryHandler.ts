@@ -13,6 +13,7 @@
  */
 
 import { NewsBatchResult } from './newsBatchService';
+import { formatDateToJST } from '../../../utils/dateUtils';
 
 /**
  * リトライ設定
@@ -275,7 +276,7 @@ export class NewsBatchRetryHandler {
       databaseSaved: false,
       metadataUpdated: false,
       processingTimeMs: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: formatDateToJST(),
       errors: [
         {
           type: 'exception',
@@ -298,7 +299,7 @@ export class NewsBatchRetryHandler {
       databaseSaved: false,
       metadataUpdated: false,
       processingTimeMs: 0,
-      date: new Date().toISOString().split('T')[0],
+      date: formatDateToJST(),
       errors: [
         {
           type: 'unknown',
